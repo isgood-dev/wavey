@@ -59,7 +59,7 @@ class Window(Frame):
 
         self.nowPlayinglabel = Label(
             self, text='Nothing. Let\'s change that!', bg='dark slate gray', fg='white')
-        self.nowPlayinglabel.place(x=160, y=230)
+        self.nowPlayinglabel.place(x=252, y=230)
         self.nowPlayinglabel['font'] = self.npFont
 
         self.songInput = Entry(self, bg='slate gray', fg='black', borderwidth=0)
@@ -73,7 +73,7 @@ class Window(Frame):
         self.urlInput.insert(END, 'Enter URL here')
 
         self.downloadingLabel = Label(self, text='', bg='dark slate gray', fg='white')
-        self.downloadingLabel.place(x=10, y=300)
+        self.downloadingLabel.place(x=10, y=230)
         self.downloadingLabel["font"] = self.npFont
 
         self.enterUrlButton = Button(self, text='Add', command=lambda: self.enterURL(

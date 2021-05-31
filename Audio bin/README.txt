@@ -1,0 +1,1 @@
+This directory is where all images will be stored. Once you've cloned the GitHub repo, you may delete this file.

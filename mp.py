@@ -54,12 +54,12 @@ class Window(Frame):
 
         self.NowPlayingText = Label(
             self, text='Now playing:', bg='dark slate gray', fg='white')
-        self.NowPlayingText.place(x=190, y=230)
+        self.NowPlayingText.place(x=160, y=230)
         self.NowPlayingText['font'] = self.npFont
 
         self.nowPlayinglabel = Label(
             self, text='Nothing. Let\'s change that!', bg='dark slate gray', fg='white')
-        self.nowPlayinglabel.place(x=280, y=230)
+        self.nowPlayinglabel.place(x=160, y=230)
         self.nowPlayinglabel['font'] = self.npFont
 
         self.songInput = Entry(self, bg='slate gray', fg='black', borderwidth=0)
@@ -71,6 +71,10 @@ class Window(Frame):
         self.urlInput.place(x=10, y=180)
         self.urlInput["font"] = self.enterFont
         self.urlInput.insert(END, 'Enter URL here')
+
+        self.downloadingLabel = Label(self, text='', bg='dark slate gray', fg='white')
+        self.downloadingLabel.place(x=10, y=300)
+        self.downloadingLabel["font"] = self.npFont
 
         self.enterUrlButton = Button(self, text='Add', command=lambda: self.enterURL(
             self.urlInput.get()), borderwidth=0, bg='slate gray', fg='black')
@@ -91,11 +95,21 @@ class Window(Frame):
         song = self.songBox.get(ACTIVE)
         self.nowPlayinglabel.configure(text=song[:-4])
 
+    global paused
+    paused = False
+
     def pausePlayer(self):
-        pygame.mixer.music.pause()
+        global paused
+        if paused:
+            paused = False
+            pygame.mixer.music.unpause()
+        else:
+            paused = True
+            pygame.mixer.music.pause()
 
     def stopPlayer(self):
         pygame.mixer.music.stop()
+        self.nowPlayinglabel.configure(text='Nothing. Let\'s change that!')
 
     def updateList(self):
         songlist = os.listdir('./Audio bin/')
@@ -104,6 +118,7 @@ class Window(Frame):
             self.songBox.insert(END, file)
 
     def enterURL(self, link):
+        self.downloadingLabel.configure(text='Downloading...')
         url = pafy.new(link)
         title = url.title
         high_quality = url.getbest()
@@ -118,8 +133,10 @@ class Window(Frame):
         clip.close()
         os.remove(f'./Audio bin/{title}.mp4')
         self.updateList()
+        self.downloadingLabel.configure(text='')
 
     def enterSong(self, songname):
+        self.downloadingLabel.configure(text='Downloading...')
         videosearch = VideosSearch(songname, limit=1)
         vs = videosearch.result()
         link = vs["result"][0]["link"]
@@ -141,7 +158,7 @@ class Window(Frame):
         clip.close()
         os.remove(f'./Audio bin/{title}.mp4')
         self.updateList()
-
+        self.downloadingLabel.configure(text='')
 
 if __name__ == "__main__":
     pygame.mixer.init()
@@ -151,5 +168,5 @@ if __name__ == "__main__":
     if os.path.exists('Resources/musical_note.ico'):
         root.iconbitmap(r'Resources/musical_note.ico')
     root.wm_title('Music Player')
-    root.geometry("700x500")
+    root.geometry("600x400")
     root.mainloop()

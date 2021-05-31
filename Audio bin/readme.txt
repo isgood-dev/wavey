@@ -1,1 +1,0 @@
-This directory is where all music files will be stored as stated in README.md

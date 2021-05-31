@@ -19,6 +19,7 @@ You will only have to do this once!
 Once that is done, you will need to clone the GitHub repository:
 ```py
 git clone https://github.com/acatiadroid/music-player
+```
 
 Then, you will need to run it:
 ```py

@@ -1,3 +1,0 @@
-pip install --upgrade youtube-dl
-pip install moviepy
-pip install pafy

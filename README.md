@@ -16,7 +16,11 @@ pip install pafy
 ```
 You will only have to do this once!
 
-Once done, you will need to run it:
+Once that is done, you will need to clone the GitHub repository:
+```py
+git clone https://github.com/acatiadroid/music-player
+
+Then, you will need to run it:
 ```py
 python mp.py
 ```

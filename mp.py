@@ -1,11 +1,11 @@
 # pyright: reportMissingImports=false
 # pyright: reportUndefinedVariable=false
 
+import vlc
 import pafy
 import shutil
 import os
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
-import pygame
+import threading
 from moviepy.editor import *
 from youtubesearchpython import VideosSearch
 
@@ -18,6 +18,7 @@ class Window(Frame):
         Frame.__init__(self, master)
         self.master = master
         self.pack(fill=BOTH, expand=1)
+        self.song = None
 
         self.npFont = Font(size='12', family='Helvetica')
         self.enterFont = Font(size='10', family='Helvetica')
@@ -32,9 +33,9 @@ class Window(Frame):
         self.addsongbyurlLabel.place(x=8, y=160)
         self.addsongbyurlLabel['font'] = self.enterFont
 
-        self.play_icon = PhotoImage(file='Resources/playicon.png')
-        self.pause_icon = PhotoImage(file='Resources/pauseicon.png')
-        self.stop_icon = PhotoImage(file='Resources/stopicon.png')
+        self.play_icon = PhotoImage(file='Assets/playicon.png')
+        self.pause_icon = PhotoImage(file='Assets/pauseicon.png')
+        self.stop_icon = PhotoImage(file='Assets/stopicon.png')
 
         self.playSong = Button(self, image=self.play_icon, bg='dark slate gray',
                                fg='slate gray', command=self.playPlayer, borderwidth=0)
@@ -62,7 +63,8 @@ class Window(Frame):
         self.nowPlayinglabel.place(x=252, y=230)
         self.nowPlayinglabel['font'] = self.npFont
 
-        self.songInput = Entry(self, bg='slate gray', fg='black', borderwidth=0)
+        self.songInput = Entry(self, bg='slate gray',
+                               fg='black', borderwidth=0)
         self.songInput.place(x=10, y=100)
         self.songInput["font"] = self.enterFont
         self.songInput.insert(END, 'Enter song here')
@@ -72,23 +74,29 @@ class Window(Frame):
         self.urlInput["font"] = self.enterFont
         self.urlInput.insert(END, 'Enter URL here')
 
-        self.downloadingLabel = Label(self, text='', bg='dark slate gray', fg='white')
+        self.downloadingLabel = Label(
+            self, text='', bg='dark slate gray', fg='white')
         self.downloadingLabel.place(x=10, y=230)
         self.downloadingLabel["font"] = self.npFont
 
-        self.enterUrlButton = Button(self, text='Add', command=lambda: self.enterURL(
-            self.urlInput.get()), borderwidth=0, bg='slate gray', fg='black')
+        self.enterUrlButton = Button(self, text='Add', command=lambda: threading.Thread(target=lambda: self.fetch_by_link(
+            self.urlInput.get())).start(), borderwidth=0, bg='slate gray', fg='black')
         self.enterUrlButton.place(x=12, y=205)
 
-        self.enterButton = Button(self, text='Add', command=lambda: self.enterSong(
-            self.songInput.get()), borderwidth=0, bg='slate gray', fg='black')
+        self.enterButton = Button(self, text='Add', command=lambda: threading.Thread(target=lambda: self.fetch_by_name(
+            self.songInput.get())).start(), borderwidth=0, bg='slate gray', fg='black')
         self.enterButton.place(x=12, y=125)
 
     def playPlayer(self):
+        if self.song:
+            self.song.stop()
+            self.song = None
+
         song = self.songBox.get(ACTIVE)
         song = f"{os.getcwd()}/Audio bin/{song}"
-        pygame.mixer.music.load(song)
-        pygame.mixer.music.play(loops=0)
+        self.song = vlc.MediaPlayer(song)
+        self.song.play()
+
         self.updateNowPlaying()
 
     def updateNowPlaying(self):
@@ -102,13 +110,13 @@ class Window(Frame):
         global paused
         if paused:
             paused = False
-            pygame.mixer.music.unpause()
+            self.song.play()
         else:
             paused = True
-            pygame.mixer.music.pause()
+            self.song.pause()
 
     def stopPlayer(self):
-        pygame.mixer.music.stop()
+        self.song.stop()
         self.nowPlayinglabel.configure(text='Nothing. Let\'s change that!')
 
     def updateList(self):
@@ -117,7 +125,7 @@ class Window(Frame):
         for file in songlist:
             self.songBox.insert(END, file)
 
-    def enterURL(self, link):
+    def fetch_by_link(self, link):
         self.downloadingLabel.configure(text='Downloading...')
         url = pafy.new(link)
         title = url.title
@@ -135,9 +143,9 @@ class Window(Frame):
         self.updateList()
         self.downloadingLabel.configure(text='')
 
-    def enterSong(self, songname):
+    def fetch_by_name(self, name):
         self.downloadingLabel.configure(text='Downloading...')
-        videosearch = VideosSearch(songname, limit=1)
+        videosearch = VideosSearch(name, limit=1)
         vs = videosearch.result()
         link = vs["result"][0]["link"]
         title = vs["result"][0]["title"]
@@ -160,13 +168,13 @@ class Window(Frame):
         self.updateList()
         self.downloadingLabel.configure(text='')
 
+
 if __name__ == "__main__":
-    pygame.mixer.init()
     root = Tk()
     app = Window(root)
     app.configure(bg='dark slate gray')
-    if os.path.exists('Resources/musical_note.ico'):
-        root.iconbitmap(r'Resources/musical_note.ico')
+    if os.path.exists('Assets/musical_note.ico'):
+        root.iconbitmap(r'Assets/musical_note.ico')
     root.wm_title('Music Player')
     root.geometry("600x400")
     root.mainloop()

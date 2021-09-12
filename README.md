@@ -5,12 +5,20 @@ All music that you download gets saved into the `/Audio bin/` directory.
 
 Created by acatia#0001
 
+## Latest changes
+* Switched from pygame to VLC for playing audio files.
+* Uses multithreading for downloading songs in the background.
+
+Soon:
+* Option to delete selected song index.
+* Volume control.
+
 ## Setup
 To run this youself, it's pretty simple. You will need to install all of the dependencies:
 ```
 pip install --upgrade youtube-dl
 pip install moviepy
-pip install pygame
+pip install python-vlc
 pip install youtube-search-python
 pip install pafy
 ```
@@ -47,19 +55,10 @@ Example: `https://www.youtube.com/watch?v=kXYiU_JCYtU`
 ### How to play the audio
 Click on the song name in the black box in the middle of the screen and click the play button.
 
-### How to pause the audio
-Click on the pause button.
-
-### How to stop the audio
-Click on the stop button.
-
 ### How to change the volume
 Coming soon.
 
 ### How to seek through the song
 Coming soon.
 
-> ⚠️ Warning: If the song title has characters that are illigal to file names (<>?|/\ . etc), this will break the downloading process. 
-
-### Demo
-
+> ⚠️ Warning: If the song title has characters that are illegal to file names (<>?|/\ . etc), this will break the downloading process. 

@@ -6,22 +6,19 @@ All music that you download gets saved into the `/Audio bin/` directory.
 Created by acatia#0001
 
 ## Latest changes
-* Switched from pygame to VLC for playing audio files.
-* Uses multithreading for downloading songs in the background.
-
-Soon:
-* Option to delete selected song index.
-* Volume control.
+* Switched from `python-vlc` to `audioplayer` since VLC was not importing some dll files required for the audio to be played.
+* Changed global variables to OOP.
+* Audio is now downloaded directly into the `/Audio bin/` directory instead of downloading it in the base directory then moving it. (shutil no longer needed)
+* Using `DOWNLOAD_NOISE` as constant to dictate whether to have quiet terminal output or not.
 
 ## Setup
 To run this youself, it's pretty simple. You will need to install all of the dependencies:
 ```
 pip install --upgrade youtube-dl
-pip install moviepy
-pip install python-vlc
-pip install youtube-search-python
-pip install pafy
+pip install -r requirements.txt
+pip install -U git+https://github.com/acatiadroid/pafy
 ```
+> NOTE: Using https://github.com/acatiadroid/pafy because pafy attempts to provide stats for YouTube video dislikes which is no longer offered by YouTube's API. The fork I made blocks the library from attempting to request that information from YouTube. (temporary fix until permanent fix is added to `pafy`.)
 You will only have to do this once!
 
 Once that is done, you will need to clone the GitHub repository:
@@ -40,7 +37,7 @@ You can either:
 
 Example: `Numb linkin park`
 
-![alt-text](https://cdn.discordapp.com/attachments/763535909433376788/848927783199178832/unknown.png)
+![](https://cdn.discordapp.com/attachments/763535909433376788/848927783199178832/unknown.png)
 
 * Use YouTube URL:
 
@@ -54,11 +51,5 @@ Example: `https://www.youtube.com/watch?v=kXYiU_JCYtU`
 
 ### How to play the audio
 Click on the song name in the black box in the middle of the screen and click the play button.
-
-### How to change the volume
-Coming soon.
-
-### How to seek through the song
-Coming soon.
 
 > ⚠️ Warning: If the song title has characters that are illegal to file names (<>?|/\ . etc), this will break the downloading process. 

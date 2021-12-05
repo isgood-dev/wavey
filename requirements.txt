@@ -1,0 +1,3 @@
+pip install moviepy
+pip install audioplayer
+pip install youtube-search-python

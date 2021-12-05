@@ -129,7 +129,7 @@ class Window(Frame):
         url = pafy.new(link)
         title = url.title
         link = url.watchv_url
-        print(f"{link} - {title}")
+        print(f"Downloading: {title} ({link})")
         hq = url.getbest()
         hq.download(filepath="./Audio bin/", quiet=False, remux_audio=True)
         self.mp4_to_mp3(title)

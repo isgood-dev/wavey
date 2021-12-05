@@ -3,7 +3,6 @@
 
 import audioplayer
 import pafy
-import shutil
 import os
 import threading
 from moviepy.editor import *

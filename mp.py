@@ -1,7 +1,7 @@
 # pyright: reportMissingImports=false
 # pyright: reportUndefinedVariable=false
 
-import vlc
+import audioplayer
 import pafy
 import shutil
 import os
@@ -17,11 +17,13 @@ class Window(Frame):
     def __init__(self, master=None):
         Frame.__init__(self, master)
         self.master = master
-        self.pack(fill=BOTH, expand=1)
+        self.pack(fill=BOTH, expand=1)  
         self.song = None
 
         self.npFont = Font(size='12', family='Helvetica')
         self.enterFont = Font(size='10', family='Helvetica')
+
+        self.paused = False
 
         self.addsongLabel = Label(
             self, text='Add song by name:', bg='dark slate gray', fg='white')
@@ -94,8 +96,8 @@ class Window(Frame):
 
         song = self.songBox.get(ACTIVE)
         song = f"{os.getcwd()}/Audio bin/{song}"
-        self.song = vlc.MediaPlayer(song)
-        self.song.play()
+        self.song = audioplayer.AudioPlayer(song)
+        self.song.play(loop=False)
 
         self.updateNowPlaying()
 
@@ -103,20 +105,17 @@ class Window(Frame):
         song = self.songBox.get(ACTIVE)
         self.nowPlayinglabel.configure(text=song[:-4])
 
-    global paused
-    paused = False
-
     def pausePlayer(self):
-        global paused
-        if paused:
-            paused = False
-            self.song.play()
+        if self.paused:
+            self.song.resume()
+            self.paused = False
         else:
-            paused = True
             self.song.pause()
+            self.paused = True
 
     def stopPlayer(self):
         self.song.stop()
+        self.song.close() # Releases resources and provents memory leaks
         self.nowPlayinglabel.configure(text='Nothing. Let\'s change that!')
 
     def updateList(self):
@@ -129,34 +128,29 @@ class Window(Frame):
         self.downloadingLabel.configure(text='Downloading...')
         url = pafy.new(link)
         title = url.title
-        high_quality = url.getbest()
-        high_quality.download()
-        shutil.move(f'{title}.mp4', 'Audio bin')
-        mp4 = f'./Audio bin/{title}.mp4'
-        mp3 = f'./Audio bin/{title}.mp3'
-        clip = VideoFileClip(mp4)
-        audioclip = clip.audio
-        audioclip.write_audiofile(mp3)
-        audioclip.close()
-        clip.close()
-        os.remove(f'./Audio bin/{title}.mp4')
+        link = url.watchv_url
+        print(f"{link} - {title}")
+        hq = url.getbest()
+        hq.download(filepath="./Audio bin/", quiet=False, remux_audio=True)
+        self.mp4_to_mp3(title)
         self.updateList()
         self.downloadingLabel.configure(text='')
 
     def fetch_by_name(self, name):
-        self.downloadingLabel.configure(text='Downloading...')
+        self.downloadingLabel.configure(text="Downloading...")
         videosearch = VideosSearch(name, limit=1)
         vs = videosearch.result()
         link = vs["result"][0]["link"]
         title = vs["result"][0]["title"]
-        print(title)
-        print(link)
+        print(f"Downloading: {title} ({link})")
         op = pafy.new(link)
         hq = op.getbest()
-        hq.download()
-        if ":" in title:
-            title = str(title).replace(":", "_")
-        shutil.move(f'{title}.mp4', 'Audio bin')
+        hq.download(filepath=f"./Audio bin/", quiet=False, remux_audio=True)
+        self.mp4_to_mp3(title)
+        self.updateList()
+        self.downloadingLabel.configure(text='')
+
+    def mp4_to_mp3(self, title):
         mp4 = f'./Audio bin/{title}.mp4'
         mp3 = f'./Audio bin/{title}.mp3'
         clip = VideoFileClip(mp4)
@@ -165,9 +159,6 @@ class Window(Frame):
         audioclip.close()
         clip.close()
         os.remove(f'./Audio bin/{title}.mp4')
-        self.updateList()
-        self.downloadingLabel.configure(text='')
-
 
 if __name__ == "__main__":
     root = Tk()

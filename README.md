@@ -19,6 +19,7 @@ pip install -r requirements.txt
 pip install -U git+https://github.com/acatiadroid/pafy
 ```
 > NOTE: Using https://github.com/acatiadroid/pafy because pafy attempts to provide stats for YouTube video dislikes which is no longer offered by YouTube's API. The fork I made blocks the library from attempting to request that information from YouTube. (temporary fix until permanent fix is added to `pafy`.)
+
 You will only have to do this once!
 
 Once that is done, you will need to clone the GitHub repository:

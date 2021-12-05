@@ -12,6 +12,8 @@ from youtubesearchpython import VideosSearch
 from tkinter import *
 from tkinter.font import Font
 
+DOWNLOAD_NOISE = False # Set to true if you DON'T want the the bytes, download rate and download ETA to be shown in terminal. (Recommended to keep to False for debugging and shows nice stats.)
+
 
 class Window(Frame):
     def __init__(self, master=None):
@@ -131,7 +133,7 @@ class Window(Frame):
         link = url.watchv_url
         print(f"Downloading: {title} ({link})")
         hq = url.getbest()
-        hq.download(filepath="./Audio bin/", quiet=False, remux_audio=True)
+        hq.download(filepath="./Audio bin/", quiet=DOWNLOAD_NOISE, remux_audio=True)
         self.mp4_to_mp3(title)
         self.updateList()
         self.downloadingLabel.configure(text='')

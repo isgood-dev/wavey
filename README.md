@@ -3,13 +3,19 @@ This Music player allows you to download music (or any audio really) from YouTub
 
 All music that you download gets saved into the `/Audio bin/` directory.
 
-Created by acatia#0001
+Created by acatia#5378
 
 ## Latest changes
-* Switched from `python-vlc` to `audioplayer` since VLC was not importing some dll files required for the audio to be played.
-* Changed global variables to OOP.
-* Audio is now downloaded directly into the `/Audio bin/` directory instead of downloading it in the base directory then moving it. (shutil no longer needed)
-* Using `DOWNLOAD_NOISE` as constant to dictate whether to have quiet terminal output or not.
+18/12/2021
+* Complete UI redesign with a darker colour scheme.
+* Seperate window for adding music.
+* Ability to import music files from elsewhere on your computer into the Audio Bin directory.
+* File extensions and non mp3 files are no longer shown on the song selection box.
+* New bottom bar that holds the buttons and the name of the song that's playing.
+* Redesigned play, pause & stop button and moved them to the bottom.
+* Window is no longer resizable.
+* New font — "Cascadia Mono"
+
 
 ## Setup
 To run this youself, it's pretty simple. You will need to install all of the dependencies:
@@ -25,7 +31,7 @@ You will only have to do this once!
 FFMPEG is also required!
 
 Once that is done, you will need to clone the GitHub repository:
-```py
+```
 git clone https://github.com/acatiadroid/music-player
 ```
 
@@ -36,17 +42,14 @@ python mp.py
 
 ### How to add audio
 You can either: 
-* Search song by the name:
+* Add songs by their name:
 
-Example: `Numb linkin park`
+![img](https://acatia.wants-to.party/v9Gdb7ewL5.png)
 
-![](https://cdn.discordapp.com/attachments/763535909433376788/848927783199178832/unknown.png)
 
-* Use YouTube URL:
+* Add songs by the YouTube URL:
 
-Example: `https://www.youtube.com/watch?v=kXYiU_JCYtU`
-
-![alt-text](https://cdn.tixte.com/uploads/acatia.needs.rest/kpcp4as999a.png)
+![img](https://acatia.wants-to.party/r6wdku777z.png)
 
 > ⚠️ NOTE: the larger the YouTube video is, the longer it is going to take to download. Killing the script whilst it's downloading a song will cause the song to not fully download, making it unplayable.
 

@@ -64,6 +64,4 @@ Click on the song name in the black box in the middle of the screen and click th
 ### Demo
 A video to demonstrate how to add audio and play it.
 
-<video width="320" height="240" controls>
-  <source src="https://acatia.wants-to.party/musicplayerdemo.mp4" type="video/mp4">
-</video>
+[![](https://res.cloudinary.com/marcomontalbano/image/upload/v1640100353/video_to_markdown/images/video--c152991c1be81f929e8918da25a49863-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://acatia.wants-to.party/musicplayerdemo.mp4 "")

@@ -59,3 +59,11 @@ You can either:
 Click on the song name in the black box in the middle of the screen and click the play button.
 
 > ⚠️ Warning: If the song title has characters that are illegal to file names (<>?|/\ . etc), this will break the downloading process. 
+
+
+### Demo
+A video to demonstrate how to add audio and play it.
+
+<video width="320" height="240" controls>
+  <source src="https://acatia.wants-to.party/musicplayerdemo.mp4" type="video/mp4">
+</video>

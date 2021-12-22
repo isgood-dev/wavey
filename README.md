@@ -38,7 +38,7 @@ Then, you will need to run it:
 python mp.py
 ```
 
-### How to add audio
+## How to add audio
 You can either: 
 * Add songs by their name:
 
@@ -53,13 +53,13 @@ You can either:
 
 **PRO TIP: Use the word "lyrics" when searching for a song as song music videos have long intro's. This will also make it download quicker.**
 
-### How to play the audio
+## How to play the audio
 Click on the song name in the black box in the middle of the screen and click the play button.
 
 > ⚠️ Warning: If the song title has characters that are illegal to file names (<>?|/\ . etc), this will break the downloading process. 
 
 
-### Demo
+## Demo
 A video to demonstrate how to add audio and play it.
 
 [![](https://res.cloudinary.com/marcomontalbano/image/upload/v1640100353/video_to_markdown/images/video--c152991c1be81f929e8918da25a49863-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://acatia.wants-to.party/musicplayerdemo.mp4 "")

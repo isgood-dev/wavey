@@ -28,8 +28,6 @@ pip install -U git+https://github.com/acatiadroid/pafy
 
 You will only have to do this once!
 
-FFMPEG is also required!
-
 Once that is done, you will need to clone the GitHub repository:
 ```
 git clone https://github.com/acatiadroid/music-player

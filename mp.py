@@ -14,12 +14,12 @@ from tkinter import *
 from tkinter.font import Font
 from tkinter import filedialog
 
+
 # Set to true if you DON'T want the the bytes, download rate and download ETA to be shown in terminal. (Recommended to keep to False for debugging and shows nice stats.)
 DOWNLOAD_NOISE = False
 
 BACK_COLOUR = "#111111"
 FORE_COLOUR = "#2b2b2b"
-
 
 class Window(Frame):
     def __init__(self, master=None):
@@ -140,7 +140,12 @@ class Window(Frame):
     def fetch_by_link(self, link):
         self.downloadingLabel.configure(text='Downloading...')
         self.window.destroy()
-        url = pafy.new(link)
+        try:
+            url = pafy.new(link)
+        except ValueError:
+            tkinter.messagebox.showerror("Failed", "Invalid YouTube URL provided. 11 character video ID or URL required.")
+            self.downloadingLabel.configure(text='')
+            return
         title = url.title
         link = url.watchv_url
         print(f"Downloading: {title} ({link})")

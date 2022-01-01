@@ -76,6 +76,12 @@ class Window(Frame):
         self.renamefile.place(x=12, y=175)
 
     def playPlayer(self):
+        if self.song and self.paused == True: 
+            self.song.resume()
+            self.paused = False
+            return
+
+        self.paused = False
         if self.song:
             self.song.stop()
             self.song = None

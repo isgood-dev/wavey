@@ -71,7 +71,7 @@ class Window(Frame):
                                   borderwidth=0, bg=FORE_COLOUR, fg="white", width=14, height=2)
         self.enterButton.place(x=12, y=125)
 
-        self.renamefile = Button(self, text='Rename files (WIP)', command=self.rename_file,
+        self.renamefile = Button(self, text='Rename file', command=self.rename_window,
                                  borderwidth=0, bg=FORE_COLOUR, fg="white", width=14, height=2)
         self.renamefile.place(x=12, y=175)
 
@@ -226,9 +226,51 @@ class Window(Frame):
         self.downloadedLabel.pack(pady=20)
 
     def rename_file(self):
-        tkinter.messagebox.showerror(
-            title="Uh oh", message="Sorry, this feature is not available right now.")
+        new = self.newNameEntry.get()
+        os.rename(f"./Audio bin/{self.file}", "./Audio bin/" + str(new) + ".mp3")
+        self.updateList()
+        self.window.destroy()
+        tkinter.messagebox.showinfo("Success", f"File name successfully changed.\nBefore: {self.file}\nAfter: {str(new) + '.mp3'}")
 
+    def rename_window(self):
+        input = filedialog.askopenfile(
+            initialdir="./Audio bin/", title="Select an mp3 file", filetypes=(("MP3 files", "*.mp3"), ("all files", "*.*")))
+        if input is None:
+            return
+
+        self.window = Toplevel()
+        self.window.configure(bg=BACK_COLOUR)
+        self.window.geometry("450x300")
+        self.window.wm_title("Rename a file")
+        self.window.resizable(True, False)
+        self.window.iconbitmap("Assets/pencil.ico")
+
+        label = Label(self.window, text="Rename a file",
+                      font=Font(size=13, family="Cascadia Mono"), fg="white", bg=BACK_COLOUR)
+        label.pack()
+
+        selectedSongLabel = Label(self.window, text="Selected song:",
+                              fg="white", bg=BACK_COLOUR, font=self.ARIAL)
+        selectedSongLabel.pack()
+
+        file = input.name.split("/")
+        self.file = file[len(file)-1]
+
+        selectedSong = Label(self.window, text=self.file[:-4],
+                             fg="#2ca351", bg=BACK_COLOUR, font=Font(size=12, family="Cascadia Mono"))
+        selectedSong.pack()
+
+        newNameLabel = Label(self.window, text="Enter new name: (don't include .mp3)",
+                             fg="white", bg=BACK_COLOUR, font=self.ARIAL)
+        newNameLabel.pack(pady=10)
+
+        self.newNameEntry = Entry(
+            self.window, fg="white", bg=FORE_COLOUR, font=self.ARIAL)
+        self.newNameEntry.pack()
+
+        renameBtn = Button(self.window, fg="white", bg=FORE_COLOUR,
+                                font=self.ARIAL, text="Done", command=self.rename_file)
+        renameBtn.pack(pady=20)
 
 if __name__ == "__main__":
     root = Tk()

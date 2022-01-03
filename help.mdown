@@ -17,13 +17,38 @@ This file is to help you on specific functions on the music.
 
 * To import music from your computer, click the "Import Music from PC" button, find the MP3 file on your computer, click it and click "Open". The MP3 file will then get copied into the Audio bin directory.
 
-## Rename files
-* Click the "Rename file" button on the mid-left of the window.
-
-![image](https://user-images.githubusercontent.com/69216256/147894329-d7e8c8d7-27ac-457b-bc5c-492db8482a1a.png)
-
-* Select the file you want to rename.
-* Once done, type in the input box the new name of the file and click "Done".
-
 ## Play audio
-To do.
+* Click the song you want to play in the list box.
+
+![image](https://user-images.githubusercontent.com/69216256/147937111-7c80cbdd-2cd9-4422-a5d9-362549403702.png)
+
+* Click the play icon on the bottom middle of the screen.
+
+![image](https://user-images.githubusercontent.com/69216256/147937243-817435ab-0453-48ec-a48a-c7d49bfcbd19.png)
+
+Boom! You have music.
+
+## Music Controls
+### Play:
+Play can be used to play music as well as resume music if music has been paused.
+
+### Pause:
+Pause can be used to stop the music temporarily. Click the pause button again to resume or click the play button.
+
+### Stop:
+The stop button stops the current song playing. You will have to replay the song from the beginning.
+
+## Renaming files/songs
+* Open the file renaming window by clicking the "Rename file" button on the mid-left.
+
+![image](https://user-images.githubusercontent.com/69216256/147937798-1ce0ee43-f887-409c-8ddf-0b1aa223f518.png)
+
+* Select the file you want to rename and click "Open".
+
+![image](https://user-images.githubusercontent.com/69216256/147938003-31049fe1-202b-4d37-8696-35b231899f8f.png)
+
+* Type the new name of the file into the input box and click "Done".
+
+![image](https://user-images.githubusercontent.com/69216256/147938227-6c6aea8f-b247-4ca9-ac3a-a56ced27991e.png)
+
+The file should now be renamed.

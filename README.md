@@ -6,15 +6,7 @@ All music that you download gets saved into the `/Audio bin/` directory.
 Created by acatia#5378
 
 ## Latest changes
-18/12/2021
-* Complete UI redesign with a darker colour scheme.
-* Seperate window for adding music.
-* Ability to import music files from elsewhere on your computer into the Audio Bin directory.
-* File extensions and non mp3 files are no longer shown on the song selection box.
-* New bottom bar that holds the buttons and the name of the song that's playing.
-* Redesigned play, pause & stop button and moved them to the bottom.
-* Window is no longer resizable.
-* New font — "Cascadia Mono"
+Check [updates.mdown](updates.mdown) for the latest updates.
 
 
 ## Setup

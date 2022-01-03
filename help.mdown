@@ -1,0 +1,29 @@
+# Help
+This file is to help you on specific functions on the music.
+
+## Adding Music
+* Click the "Add Music" button on the mid-left of the window.
+
+![](https://user-images.githubusercontent.com/69216256/147894176-a8288055-e8b5-4c4e-9fe2-122ece569211.png)
+
+* You can choose which download method you'd like to use:
+
+![](https://user-images.githubusercontent.com/69216256/147894210-7b11a4f2-075b-4dc9-89f6-9634bc102176.png)
+
+* To download a song by the name/title, just enter the name into the "Add song by name" box and click Download.
+
+* To download a song by the YouTube URL, just enter the full URL into the "Add song by YT URL" box and click Download.
+
+
+* To import music from your computer, click the "Import Music from PC" button, find the MP3 file on your computer, click it and click "Open". The MP3 file will then get copied into the Audio bin directory.
+
+## Rename files
+* Click the "Rename file" button on the mid-left of the window.
+
+![image](https://user-images.githubusercontent.com/69216256/147894329-d7e8c8d7-27ac-457b-bc5c-492db8482a1a.png)
+
+* Select the file you want to rename.
+* Once done, type in the input box the new name of the file and click "Done".
+
+## Play audio
+To do.

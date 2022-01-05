@@ -6,7 +6,7 @@ import pafy
 import shutil
 import os
 import threading
-from moviepy.editor import *
+from moviepy.editor import VideoFileClip
 from youtubesearchpython import VideosSearch
 
 import tkinter.messagebox

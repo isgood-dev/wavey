@@ -34,7 +34,6 @@ python mp.py
 Check out [help.mdown](help.mdown) for help on specific things.
 
 ## Roadmap
-* Volume changing
 * Progress bar
 * Remove Listbox and replace with individual buttons for aesthetics
 * Space bar to pause/play audio

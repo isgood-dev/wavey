@@ -14,6 +14,7 @@ from tkinter import *
 from tkinter.font import Font
 from tkinter import filedialog
 
+import config
 
 # Set to true if you DON'T want the the bytes, download rate and download ETA to be shown in terminal. (Recommended to keep to False for debugging and shows nice stats.)
 DOWNLOAD_NOISE = False
@@ -75,8 +76,18 @@ class Window(Frame):
                                  borderwidth=0, bg=FORE_COLOUR, fg="white", width=14, height=2)
         self.renamefile.place(x=12, y=175)
 
+        self.volume = Scale(self, orient=HORIZONTAL, variable=DoubleVar(), bg=FORE_COLOUR, fg="white", troughcolor=BACK_COLOUR, highlightthickness=0)
+        self.volume.place(x=400, y=340)
+        self.volume.set(config.view("volume"))
+        self.volume.bind("<ButtonRelease-1>", self.volumeSet)
+    
+    def volumeSet(self, event):
+        vol = self.volume.get()
+        config.write("volume", vol)
+        if self.song:
+            self.song.volume = vol
     def playPlayer(self):
-        if self.song and self.paused == True: 
+        if self.song and self.paused: 
             self.song.resume()
             self.paused = False
             return
@@ -272,7 +283,7 @@ class Window(Frame):
                                 font=self.ARIAL, text="Done", command=self.rename_file)
         renameBtn.pack(pady=20)
 
-if __name__ == "__main__":
+def main():
     root = Tk()
     app = Window(root)
     app.configure(bg=BACK_COLOUR)
@@ -282,3 +293,6 @@ if __name__ == "__main__":
     root.geometry("600x400")
     root.resizable(False, False)
     root.mainloop()
+
+if __nmae__ == "__main__":
+    main()

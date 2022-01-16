@@ -1,3 +1,7 @@
+# 16/01/2022
+* Added volume slider
+* Volumes are stored between sessions using a JSON file.
+
 # 03/01/2022
 * File renaming (seperate window for doing this)
 * Play button can now be used to resume a paused song instead if clicking the pause button again.

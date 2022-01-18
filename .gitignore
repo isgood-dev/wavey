@@ -2,3 +2,4 @@
 **.part
 test.py
 **/__pycache__
+**.json

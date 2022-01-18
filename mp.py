@@ -29,6 +29,8 @@ class Window(Frame):
         self.pack(fill=BOTH, expand=1)
         self.song = None
 
+        self.master.bind("<space>", self.pauseEvent)
+
         self.ARIAL = Font(size=10, family="Cascadia Mono")
         self.SMALLER_ARIAL = Font(size=8, family="Cascadia Mono")
 
@@ -103,6 +105,17 @@ class Window(Frame):
         self.song.play(loop=False)
 
         self.updateNowPlaying()
+    
+    def pauseEvent(self, event):
+        if not self.song:
+            return
+
+        if self.paused:
+            self.song.resume()
+            self.paused = False
+        else:
+            self.song.pause()
+            self.paused = True
 
     def updateNowPlaying(self):
         song = self.songBox.get(ACTIVE)
@@ -294,5 +307,5 @@ def main():
     root.resizable(False, False)
     root.mainloop()
 
-if __nmae__ == "__main__":
+if __name__ == "__main__":
     main()

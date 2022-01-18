@@ -1,3 +1,6 @@
+# 18/01/2022
+* Space bar now pauses/plays the music
+
 # 16/01/2022
 * Added volume slider
 * Volumes are stored between sessions using a JSON file.

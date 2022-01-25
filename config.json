@@ -1,3 +1,5 @@
 {
-    "volume": 100
+    "volume": 100,
+    "back_colour": "#111111",
+    "fore_colour": "#2b2b2b"
 }

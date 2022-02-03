@@ -14,4 +14,4 @@ https://discord.gg/p5bURjs
 from music_player.main_window import MainWindow
 
 if __name__ == "__main__":
-    MainWindow()._run() # initializes the main window
+    MainWindow()._run() # instantiates the main window

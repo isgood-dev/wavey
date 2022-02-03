@@ -1,5 +1,5 @@
 """
-A JSON wrapper for setting bot configurations.
+A JSON wrapper for window configurations.
 """
 
 import os, json
@@ -39,3 +39,5 @@ if not view("back_colour"):
     write("back_colour", "#111111")
 if not view("fore_colour"):
     write("fore_colour", "#2b2b2b")
+if not view("songlist_colour"):
+    write("songlist_colour", "#383838")

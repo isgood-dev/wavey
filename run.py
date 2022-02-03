@@ -11,18 +11,7 @@ Check out misc/help.mdown if you need help with something or join the Discord se
 https://discord.gg/p5bURjs
 """
 
-from tkinter import Tk
-from music_player.config import view
-def main():
-    root = Tk()
-    from music_player.main_window import MainWindow
-    app = MainWindow(root)
-    app.configure(bg=view("back_colour"))
-    root.iconbitmap("Assets/musical_note.ico")
-    root.wm_title("Music Player")
-    root.geometry("600x400")
-    root.resizable(True, True)
-    root.mainloop()
+from music_player.main_window import MainWindow
 
 if __name__ == "__main__":
-    main()
+    MainWindow()._run() # initializes the main window

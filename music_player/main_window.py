@@ -2,9 +2,12 @@ import os
 from tkinter import *
 from tkinter.font import Font
 
-from .scrollbarframe import ScrollbarFrame
+from .extensions import ScrollbarFrame
 from .config import view
 from .audio import Audio
+from .download import *
+from .rename import rename_window
+# from .rename import RenameWindow
 
 class MainWindow(Tk):
     def __init__(self):
@@ -14,16 +17,24 @@ class MainWindow(Tk):
         self.configure(bg=view("back_colour"))
         self.iconbitmap("music_player/Assets/musical_note.ico")
         self.wm_title("Music Player")
-        self.geometry("900x600")
+        self.geometry("850x600")
         self.resizable(False, False)
 
-        self.songc = Audio()
+        self.sc = Audio()
 
         self.sbf = None
-
+        self.assets = {
+            "play": PhotoImage(file="music_player/Assets/playicon.png"),
+            "pause": PhotoImage(file="music_player/Assets/pauseicon.png"),
+            "pauseplay": PhotoImage(file="music_player/Assets/pauseplay.png"),
+            "pencil": PhotoImage(file="music_player/Assets/pencil.png"),
+            "cascadia": Font(size=10, family="Cascadia Mono"),
+            "small_cascadia": Font(size=8, family="Cascadia Mono")
+        }
         self.play_small = PhotoImage(file='music_player/Assets/playicon_small.png'),
         self.playicon = PhotoImage(file="music_player/Assets/playicon.png"),
         self.pause = PhotoImage(file="music_player/Assets/pauseicon.png"),
+        self.pauseplay = PhotoImage(file="music_player/Assets/pauseplay.png")
         self.cascadia = Font(size=10, family="Cascadia Mono"),
         self.smaller_cascadia = Font(size=8, family="Cascadia Mono")
 
@@ -39,7 +50,7 @@ class MainWindow(Tk):
         
         # Labels
         
-        bottom_bar = Label( # Not a class reference as it's static.
+        bottom_bar = Label(
             self,
             bg=FORE_COLOUR,
             height=35,
@@ -51,7 +62,7 @@ class MainWindow(Tk):
             text="test",
             bg=FORE_COLOUR,
             fg="white",
-            font=self.cascadia
+            font=self.assets["cascadia"]
         )
         self.now_playing.place(relx=0.5, rely=0.86, anchor=CENTER)
         
@@ -60,13 +71,14 @@ class MainWindow(Tk):
             text="",
             bg=BACK_COLOUR,
             fg="white",
-            font=self.cascadia
+            font=self.assets["cascadia"]
         )
         self.download_label.place(x=10, y=230)
 
         self.refresh_button = Button(
             self,
-            text="refresh"
+            text="refresh",
+            command=self.refresh_songlist
         )
         self.refresh_button.place(x=30, y=30)
 
@@ -74,26 +86,39 @@ class MainWindow(Tk):
 
         self.pauseplay_button = Button(
             self,
-            image=self.playicon,
+            image=self.assets["pauseplay"],
             background=FORE_COLOUR,
             borderwidth=0,
             command=self.change_pauseplay
         )
-        self.pauseplay_button.place(x=300, y=180)
+        self.pauseplay_button.place(relx=0.499, rely=0.93, anchor=CENTER)
+
+        self.renamefile = Button(
+            self,
+            text=" Rename file",
+            bg=BACK_COLOUR,
+            fg="white",
+            compound="left",
+            font=Font(size=14, family="Cascadia Mono", weight="bold"),
+            borderwidth=0,
+            command=rename_window,
+            image=self.assets["pencil"]
+        )
+        self.renamefile.place(x=12, y=175)
     
     def set_np(self, text: str):
-        """Sets the "now playing" label """
+        """Sets the "now playing" label"""
         return self.now_playing.configure(text=text)
 
     
     def refresh_songlist(self):
         if self.sbf:
-            self.sbf.destroy("all")
+            self.sbf.destroy()
 
         self.sbf = ScrollbarFrame(self)
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
-        self.sbf.place(x=300, y=50)
+        self.sbf.place(x=250, y=0)
 
         self.scroll_frame = self.sbf.scrolled_frame
         i = 0
@@ -122,12 +147,19 @@ class MainWindow(Tk):
 
     def play(self, audiofile):
         print(str(os.getcwd()) + f"\Audio bin\{audiofile}")
-        self.songc.play(file=str(os.getcwd()) + f".\Audio bin\{audiofile}")
+        self.sc.play(file=str(os.getcwd()) + f".\Audio bin\{audiofile}")
+    
+    # def pauseplay_button(self):
+    #     if not self.sc.song:
+    #         return
+        
+    #     self.change_pauseplay()
+
         
     def change_pauseplay(self):
-        if not self.song:
+        if not self.sc.song:
             return
-        if not self.song.paused:
+        if not self.sc.paused:
             self.pauseplay_button.configure(image=self.playicon)
         else:
             self.pauseplay_button.configure(image=self.pause)

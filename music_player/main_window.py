@@ -74,14 +74,6 @@ class MainWindow(Tk):
         )
         self.download_label.place(x=10, y=230)
 
-        self.refresh_button = Button(
-            self,
-            text="refresh",
-            command=self.refresh_songlist
-        )
-        self.refresh_button.place(x=30, y=30)
-
-
         self.pauseplay_button = Button(
             self,
             image=self.assets["pauseplay"],
@@ -103,7 +95,7 @@ class MainWindow(Tk):
             image=self.assets["pencil"]
         )
         self.renamefile.place(x=14, y=60)
-    
+        self.refresh_songlist()
     def set_np(self, text: str):
         """Sets the "now playing" label"""
         return self.now_playing.configure(text=text)
@@ -144,7 +136,6 @@ class MainWindow(Tk):
             ).grid(row=i, column=1, sticky=W)
 
     def play(self, audiofile):
-        print(str(os.getcwd()) + f"\Audio bin\{audiofile}")
         self.sc.play(file=str(os.getcwd()) + f".\Audio bin\{audiofile}")
     
     # def pauseplay_button(self):

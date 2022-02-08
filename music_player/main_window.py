@@ -7,7 +7,6 @@ from .config import view
 from .audio import Audio
 from .download import *
 from .rename import rename_window
-# from .rename import RenameWindow
 
 class MainWindow(Tk):
     def __init__(self):
@@ -82,7 +81,6 @@ class MainWindow(Tk):
         )
         self.refresh_button.place(x=30, y=30)
 
-        self.refresh_songlist()
 
         self.pauseplay_button = Button(
             self,
@@ -104,7 +102,7 @@ class MainWindow(Tk):
             command=rename_window,
             image=self.assets["pencil"]
         )
-        self.renamefile.place(x=12, y=175)
+        self.renamefile.place(x=14, y=60)
     
     def set_np(self, text: str):
         """Sets the "now playing" label"""

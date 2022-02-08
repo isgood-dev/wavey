@@ -3,7 +3,7 @@ import pafy
 import os
 import shutil
 from youtubesearchpython import VideosSearch
-from moviepy.editor import VideoFileClip
+from moviepy.video.io.VideoFileClip import VideoFileClip # Importing from submodule as moviepy.editor is intended for manual use.
 from tkinter import *
 from tkinter.font import Font
 from tkinter import filedialog

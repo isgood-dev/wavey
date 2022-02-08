@@ -3,14 +3,13 @@ A JSON wrapper for window configurations.
 """
 
 import os, json
-from typing import Any
 
 def check_file():
     if not os.path.exists("config.json"):
         with open("config.json", "w") as f:
             json.dump({}, f, indent=4)
 
-def write(key: str, value: Any):
+def write(key: str, value):
     check_file()
     with open("config.json") as file:
         decoded = json.load(file)

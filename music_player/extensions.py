@@ -17,7 +17,7 @@ class ScrollbarFrame(tk.Frame):
 
         # The Canvas which supports the Scrollbar Interface, layout to the left
         self.canvas = tk.Canvas(self, borderwidth=0, background=view(
-            "songlist_colour"), highlightthickness=0, height=500, width=600)
+            "songlist_colour"), highlightthickness=0, height=498, width=650)
         self.canvas.pack(side="left", fill="both", expand=True)
         self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
 

@@ -40,3 +40,5 @@ if not view("fore_colour"):
     write("fore_colour", "#2b2b2b")
 if not view("songlist_colour"):
     write("songlist_colour", "#383838")
+if not view("accent_colour"):
+    write("accent_colour", "#389fc1")

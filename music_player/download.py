@@ -1,4 +1,5 @@
 import threading
+from tkinter import messagebox
 import pafy
 import os
 import shutil
@@ -21,6 +22,7 @@ def file_convert(title):
     os.remove(f'./Audio bin/{title}.mp4')
 
 def download(*, title=None, link=None):
+    win.destroy()
     if not link and title:
         search = VideosSearch(title, limit=1)
         search = search.result()
@@ -38,6 +40,10 @@ def download(*, title=None, link=None):
             filepath="./Audio bin/"
         )
         file_convert(name)
+        messagebox.showinfo(
+            title="Song Downloaded",
+            message=f"Downloaded:\n{name}"
+        )
 
         return
 
@@ -68,6 +74,9 @@ def download_window():
     window.wm_title("Add music")
     window.iconbitmap("music_player/Assets/downloadicon.ico")
     window.resizable(False, False)
+
+    global win
+    win = window
     
     Label(
         window,

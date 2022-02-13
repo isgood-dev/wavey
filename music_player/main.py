@@ -226,6 +226,15 @@ class MainWindow(Tk):
     def update_now_playing(self):
         song = self.current_song
         self.now_playing.configure(text=song)
+    
+    def close_window(self, event):
+        ask = messagebox.askyesno(
+            title="Close Music Player",
+            message="Are you sure you want to close the Music Player?"
+        )
+
+        if ask:
+            return self.destroy()
 
     def _run(self):
         """Calls the mainloop, instantiating the window"""

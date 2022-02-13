@@ -1,5 +1,6 @@
 import datetime
 import os
+import threading
 from mutagen.mp3 import MP3
 
 from tkinter import *
@@ -10,7 +11,7 @@ from tkinter.ttk import Scrollbar
 from .extensions import ScrollbarFrame
 from .config import view
 from .audio import Audio
-from .download import *
+from .download import download_window
 from .rename import rename_window
 
 BACK_COLOUR = view("back_colour")
@@ -25,7 +26,7 @@ class MainWindow(Tk):
         self.iconbitmap("music_player/Assets/musical_note.ico")
         self.wm_title("Music Player")
         self.geometry("850x600")
-        self.resizable(False, False)
+        self.resizable(True, True)
 
         self.sc = Audio()
 
@@ -41,7 +42,7 @@ class MainWindow(Tk):
         }
         self.current_song = None
 
-        self.bind("<space>", lambda event: print("hi"))
+        self.bind("<space>", self.pause_or_resume)
         self.bind("<Escape>", lambda event: self.destroy())
 
         self.paused = False
@@ -80,14 +81,14 @@ class MainWindow(Tk):
         )
         self.now_playing.place(relx=0.5, rely=0.86, anchor=CENTER)
         
-        self.download_label = Label(
+        self.ispaused = Label(
             self,
             text="",
-            bg=BACK_COLOUR,
+            bg=FORE_COLOUR,
             fg="white",
             font=self.assets["cascadia"]
         )
-        self.download_label.place(x=10, y=230)
+        self.ispaused.place(relx=0.5, rely=0.97, anchor=CENTER)
 
         self.pauseplay_button = Button(
             self,
@@ -100,29 +101,28 @@ class MainWindow(Tk):
 
         self.addmusic_button = Button(
             self,
-            text=" Add music",
+            text="Add music",
             bg=BACK_COLOUR,
             fg="white",
             compound="left",
             font=Font(size=12, family="Cascadia Mono", weight="bold"),
             borderwidth=0,
-            command=download_window,
-            image=self.assets["download"]
+            command=download_window
         )
+        self.addmusic_button.place(x=25, y=40)
 
 
         self.rename_file = Button(
             self,
-            text=" Rename file",
+            text="Rename a file",
             bg=BACK_COLOUR,
             fg="white",
             compound="left",
             font=Font(size=12, family="Cascadia Mono", weight="bold"),
             borderwidth=0,
-            command=rename_window,
-            image=self.assets["pencil"]
+            command=rename_window
         )
-        self.rename_file.place(x=25, y=40)
+        self.rename_file.place(x=25, y=70)
         self.refresh_songlist()
 
     def set_np(self, text: str):
@@ -150,6 +150,30 @@ class MainWindow(Tk):
             duration = str(datetime.timedelta(seconds=round(duration)))[2:]
 
             i += 1
+            if i == 1:
+                refresh = Button(
+                    self.scroll_frame,
+                    text="Refresh",
+                    bg=view("fore_colour"),
+                    fg="white",
+                    font=self.assets["cascadia"],
+                    borderwidth=0,
+                    height=2,
+                    width=10,
+                    command=self.refresh_songlist
+                )
+                refresh.grid(row=i, column=0, sticky=E)
+
+                Label(
+                    self.scroll_frame,
+                    text="Song name:",
+                    bg=view("songlist_colour"),
+                    fg="white",
+                    font=Font(size=12, family="Cascadia Mono", weight="bold")
+                ).grid(row=i, column=1)
+
+                continue
+
             btn = Button(
                 self.scroll_frame,
                 text="▶",
@@ -179,9 +203,12 @@ class MainWindow(Tk):
     def play(self, audiofile):
         self.current_song = audiofile[:-4]
         self.sc.play(file=str(os.getcwd()) + f".\Audio bin\{audiofile}")
-    
-    def pause_or_resume(self):
+        self.update_now_playing()
+    def pause_or_resume(self, event=None):
         if not self.sc.song:
+            if event:
+                return
+
             return messagebox.showerror(
                 title="No song selected",
                 message="""You haven't selected a song from the song list.\n\nPlease find a song from the list and click the play button to the left of the song."""
@@ -190,9 +217,11 @@ class MainWindow(Tk):
         if self.sc.paused:
             self.sc.song.resume()
             self.sc.paused = False
+            self.ispaused.configure(text="")
         else:
             self.sc.song.pause()
             self.sc.paused = True
+            self.ispaused.configure(text="(Paused)")
 
     def update_now_playing(self):
         song = self.current_song

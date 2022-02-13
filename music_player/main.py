@@ -32,11 +32,7 @@ class MainWindow(Tk):
 
         self.sbf = None
         self.assets = {
-            "play": PhotoImage(file="music_player/Assets/playicon.png"),
-            "pause": PhotoImage(file="music_player/Assets/pauseicon.png"),
             "pauseplay": PhotoImage(file="music_player/Assets/pauseplay.png"),
-            "pencil": PhotoImage(file="music_player/Assets/pencil.png"),
-            "download": PhotoImage(file="music_player/Assets/download.png"),
             "cascadia": Font(size=10, family="Cascadia Mono"),
             "small_cascadia": Font(size=8, family="Cascadia Mono")
         }

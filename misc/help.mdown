@@ -52,3 +52,8 @@ The stop button stops the current song playing. You will have to replay the song
 ![image](https://user-images.githubusercontent.com/69216256/147938227-6c6aea8f-b247-4ca9-ac3a-a56ced27991e.png)
 
 The file should now be renamed.
+
+## Download randomly freezes
+A bug that I identified mainly on low-tier computers is the download randomly pauses mid-download. A fix I found is to go into the terminal that is running the Python file and clicking **Ctrl + Z**. For some reason, this resumes the download process.
+
+> ⚠️ **Do not click Ctrl + Z more than once** or it may kill the process.

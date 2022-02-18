@@ -13,6 +13,7 @@ from .config import view
 from .audio import Audio
 from .download import download_window
 from .rename import rename_window
+from .settings import settings_window
 
 BACK_COLOUR = view("back_colour")
 FORE_COLOUR = view("fore_colour")
@@ -39,7 +40,7 @@ class MainWindow(Tk):
         self.current_song = None
 
         self.bind("<space>", self.pause_or_resume)
-        self.bind("<Escape>", lambda event: self.destroy())
+        self.bind("<Escape>", lambda event: self.close_window)
 
         self.paused = False
         self.song = None
@@ -121,6 +122,18 @@ class MainWindow(Tk):
         self.rename_file.place(x=25, y=70)
         self.refresh_songlist()
 
+        self.settings = Button(
+            self,
+            text="Settings",
+            bg=BACK_COLOUR,
+            fg="white",
+            compound="left",
+            font=Font(size=12, family="Cascadia Mono", weight="bold"),
+            borderwidth=0,
+            command=settings_window
+        )
+        self.settings.place(x=25, y=100)
+
     def set_np(self, text: str):
         """Sets the "now playing" label"""
         return self.now_playing.configure(text=text)
@@ -136,7 +149,42 @@ class MainWindow(Tk):
         self.sbf.place(x=200, y=0)
 
         self.scroll_frame = self.sbf.scrolled_frame
-        i = 0
+        i = 1
+
+        if len([f for f in os.listdir("./Audio bin/") if f.endswith(".mp3")]) == 0:
+            Label(
+                self.scroll_frame,
+                text="Songs that you have will appear here, but you don't have any!",
+                bg=view("songlist_colour"),
+                fg="white",
+                font=self.assets["cascadia"]
+            ).grid(row=0, column=0)
+            refnosongs = Button(
+                self.scroll_frame,
+                text="[Refresh]",
+                bg=view("songlist_colour"),
+                fg="white",
+                font=self.assets["cascadia"],
+                command=self.refresh_songlist,
+                borderwidth=0
+            )
+            refnosongs.grid(row=0, column=1)
+            return
+        
+        refresh = Button(
+            self.scroll_frame,
+            text="[Refresh]",
+            bg=view("songlist_colour"),
+            fg="white",
+            font=self.assets["cascadia"],
+            borderwidth=0,
+            height=2,
+            width=10,
+            command=self.refresh_songlist
+        )
+        refresh.grid(row=0, column=1, sticky=W)
+            
+
         for file in os.listdir("./Audio bin/"):
             if not file.endswith(".mp3"):
                 continue
@@ -146,29 +194,6 @@ class MainWindow(Tk):
             duration = str(datetime.timedelta(seconds=round(duration)))[2:]
 
             i += 1
-            if i == 1:
-                refresh = Button(
-                    self.scroll_frame,
-                    text="Refresh",
-                    bg=view("fore_colour"),
-                    fg="white",
-                    font=self.assets["cascadia"],
-                    borderwidth=0,
-                    height=2,
-                    width=10,
-                    command=self.refresh_songlist
-                )
-                refresh.grid(row=i, column=0, sticky=E)
-
-                Label(
-                    self.scroll_frame,
-                    text="Song name:",
-                    bg=view("songlist_colour"),
-                    fg="white",
-                    font=Font(size=12, family="Cascadia Mono", weight="bold")
-                ).grid(row=i, column=1)
-
-                continue
 
             btn = Button(
                 self.scroll_frame,

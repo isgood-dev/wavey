@@ -27,7 +27,7 @@ class MainWindow(Tk):
         self.iconbitmap("music_player/Assets/musical_note.ico")
         self.wm_title("Music Player")
         self.geometry("850x600")
-        self.resizable(True, True)
+        self.resizable(False, False)
 
         self.sc = Audio()
 

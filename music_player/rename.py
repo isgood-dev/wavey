@@ -1,5 +1,6 @@
 import os
 import tkinter as tk
+from tkinter import messagebox
 import tkinter.filedialog as filedialog
 from tkinter.font import Font
 from .config import view
@@ -69,6 +70,10 @@ def rename_window():
     def rename():
         os.rename(f"./Audio bin/{file}", "./Audio bin/" + new_name.get() + ".mp3")
         window.destroy()
+        messagebox.showinfo(
+            title="Success!",
+            message="File renamed successfully."
+        )
 
     btn = tk.Button(
         window,

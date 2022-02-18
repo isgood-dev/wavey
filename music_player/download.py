@@ -39,13 +39,23 @@ def download(*, title=None, link=None):
         video.download(
             filepath="./Audio bin/"
         )
+        
         file_convert(name)
         messagebox.showinfo(
             title="Song Downloaded",
-            message=f"Downloaded:\n{name}"
+            message=f"Downloaded:\n{name}\n\nPlease refresh the song list!"
         )
-
         return
+    else:
+        video = pafy.new(link)
+        title = video.title
+        link = video.watchv_url
+        video = video.getbest()
+        print(f"Downloading: {title} ({link})")
+        video.download(
+            filepath="./Audio bin/"
+        )
+        file_convert(title)
 
 def file_opener():
     file = filedialog.askopenfile(

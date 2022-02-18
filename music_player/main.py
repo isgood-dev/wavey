@@ -1,6 +1,5 @@
 import datetime
 import os
-import threading
 from mutagen.mp3 import MP3
 
 from tkinter import *

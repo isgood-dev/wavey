@@ -1,3 +1,17 @@
+# 19/02/2022 - rewrite
+* New song list
+    - Displays duration of song
+    - Refresh button
+    - If no songs, a message will show you have no songs
+* Escape now closes the window
+* Added Settings (incomplete)
+    - You can customize music player's colour scheme.
+* Embedded into an executable to allow the user to use the music player through an `exe`.
+* Restructured codebase - code has been separated into different files to prevent clutter.
+* Added accent colours.
+* New website for listing documentation (incomplete)
+* Prints message in terminal with the link to the website
+
 # 18/01/2022
 * Space bar now pauses/plays the music
 

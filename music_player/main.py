@@ -5,10 +5,9 @@ from mutagen.mp3 import MP3
 from tkinter import *
 from tkinter import messagebox
 from tkinter.font import Font
-from tkinter.ttk import Scrollbar
 
 from .extensions import ScrollbarFrame
-from .config import view
+from .config import view, write
 from .audio import Audio
 from .download import download_window
 from .rename import rename_window
@@ -39,7 +38,7 @@ class MainWindow(Tk):
         self.current_song = None
 
         self.bind("<space>", self.pause_or_resume)
-        self.bind("<Escape>", lambda event: self.close_window)
+        self.bind("<Escape>", self.close_window)
 
         self.paused = False
         self.song = None
@@ -133,6 +132,19 @@ class MainWindow(Tk):
         )
         self.settings.place(x=25, y=100)
 
+        self.volume = Scale(
+            self,
+            orient=HORIZONTAL,
+            variable=DoubleVar(),
+            bg=FORE_COLOUR,
+            fg="white",
+            troughcolor=BACK_COLOUR,
+            highlightthickness=0
+        )
+        self.volume.set(view("volume"))
+        self.volume.bind("<ButtonRelease-1>", self.set_vol)
+        self.volume.place(x=530, y=535)
+
     def set_np(self, text: str):
         """Sets the "now playing" label"""
         return self.now_playing.configure(text=text)
@@ -158,6 +170,7 @@ class MainWindow(Tk):
                 fg="white",
                 font=self.assets["cascadia"]
             ).grid(row=0, column=0)
+            
             refnosongs = Button(
                 self.scroll_frame,
                 text="[Refresh]",
@@ -255,7 +268,14 @@ class MainWindow(Tk):
 
         if ask:
             return self.destroy()
+    
+    def set_vol(self, event):
+        vol = self.volume.get()
+        write("volume", vol)
+        if self.sc.song:
+            self.sc.song.volume = vol
 
     def _run(self):
         """Calls the mainloop, instantiating the window"""
+        print("Go to https://acatiadroid.github.io/music-player/ for help")
         self.mainloop()

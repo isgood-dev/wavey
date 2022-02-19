@@ -1,6 +1,6 @@
 @font-face {
     font-family: 'CascadiaMono';
-    src: url(/music-player/misc/CascadiaMono.ttf);
+    src: url(./CascadiaMono.ttf);
 }
 * {
     box-sizing: border-box;

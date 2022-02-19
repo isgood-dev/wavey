@@ -16,6 +16,7 @@
 .download {
     padding: 13.5px 37.5px;
     font-size: 20px;
+    margin-left: -20px;
 }
 li, a, button {
     font-family: 'CascadiaMono', sans-serif;

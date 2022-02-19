@@ -1,6 +1,8 @@
 import audioplayer
 import os
 
+from .config import view
+
 class Audio():
     def __init__(self):
         """
@@ -8,6 +10,7 @@ class Audio():
         """
         self.song = None
         self.paused = False
+        self.volume = view("volume")
     
 
     def play(self, file=None):
@@ -21,6 +24,7 @@ class Audio():
 
         self.song = audioplayer.AudioPlayer(file)
         self.song.play(loop=False)
+        self.song.volume = self.volume
     
     def pause(self):
         if not self.song:

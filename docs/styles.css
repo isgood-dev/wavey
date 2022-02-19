@@ -89,6 +89,7 @@ button:hover {
     color: #edf0f1;
     font-family: 'CascadiaMono', sans-serif;
     padding-top: 180px;
+    padding-bottom: 40px;
 }
 .title {
     padding-top: 165px;
@@ -122,9 +123,47 @@ button:hover {
     background-color: #202020;
 }
 .acatiadroid {
-    color: rgba(242, 70, 70, 1);
+    color: #f24646;
     margin-left: 5px;
     margin-right: 5px;
+}
+.line2 {
+    margin-top: 10px;
+    margin-bottom: 30px;
+    border-radius: 25px;
+    background: rgba(242, 70, 70, 1);
+    width: 5%;
+    height: 10px; 
+    box-shadow: 0px 0px 20px #202020;
+}
+.roadmap-map {
+    background-color: #242424;
+    padding: 15px 15px;
+    border-radius: 10px;
+    
+}
+.roadmap-top {
+    background-color: #242424;
+    display: flex;
+    align-items: baseline;
+    font-size: 20px;
+    margin-bottom: -15px;
+}
+.roadmap-date {
+    background-color: #242424;
+    color:rgba(242, 70, 70, 1);
+    margin-right: 20px;
+    
+}
+.roadmap-title {
+    background-color: #242424;
+    margin-left: 20px;
+    
+}
+.roadmap-desc {
+    background-color: #242424;
+    margin-left: 40px;
+    margin-bottom: 15px;
 }
 .tab {
     margin-left: 40px;

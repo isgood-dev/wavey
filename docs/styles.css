@@ -13,6 +13,12 @@
 .cta {
     background-color:#202020;
 }
+#ytplayer {
+    margin-top: 25px;
+    margin-bottom: 25px;
+    border-color: #f24646;
+    border-radius: 25px;
+}
 .download {
     padding: 13.5px 37.5px;
     font-size: 20px;

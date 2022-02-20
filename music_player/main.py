@@ -6,7 +6,7 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter.font import Font
 
-from .extensions import ScrollbarFrame
+from .extensions import ScrollbarFrame, HoverButton
 from .config import view, write
 from .audio import Audio
 from .download import download_window
@@ -90,11 +90,12 @@ class MainWindow(Tk):
             image=self.assets["pauseplay"],
             background=FORE_COLOUR,
             borderwidth=0,
-            command=self.pause_or_resume
+            command=self.pause_or_resume,
+            activebackground=FORE_COLOUR,
         )
         self.pauseplay_button.place(relx=0.499, rely=0.93, anchor=CENTER)
 
-        self.addmusic_button = Button(
+        self.addmusic_button = HoverButton(
             self,
             text="Add music",
             bg=BACK_COLOUR,
@@ -102,12 +103,13 @@ class MainWindow(Tk):
             compound="left",
             font=Font(size=12, family="Cascadia Mono", weight="bold"),
             borderwidth=0,
-            command=download_window
+            command=download_window,
+            activebackground=BACK_COLOUR,
+            activeforeground=view("accent_colour")
         )
         self.addmusic_button.place(x=25, y=40)
 
-
-        self.rename_file = Button(
+        self.rename_file = HoverButton(
             self,
             text="Rename a file",
             bg=BACK_COLOUR,
@@ -115,12 +117,14 @@ class MainWindow(Tk):
             compound="left",
             font=Font(size=12, family="Cascadia Mono", weight="bold"),
             borderwidth=0,
-            command=rename_window
+            command=rename_window,
+            activebackground=BACK_COLOUR,
+            activeforeground=view("accent_colour")
         )
         self.rename_file.place(x=25, y=70)
         self.refresh_songlist()
 
-        self.settings = Button(
+        self.settings = HoverButton(
             self,
             text="Settings",
             bg=BACK_COLOUR,
@@ -128,7 +132,9 @@ class MainWindow(Tk):
             compound="left",
             font=Font(size=12, family="Cascadia Mono", weight="bold"),
             borderwidth=0,
-            command=settings_window
+            command=settings_window,
+            activebackground=BACK_COLOUR,
+            activeforeground=view("accent_colour")
         )
         self.settings.place(x=25, y=100)
 
@@ -183,7 +189,7 @@ class MainWindow(Tk):
             refnosongs.grid(row=0, column=1)
             return
         
-        refresh = Button(
+        refresh = HoverButton(
             self.scroll_frame,
             text="[Refresh]",
             bg=view("songlist_colour"),
@@ -192,7 +198,9 @@ class MainWindow(Tk):
             borderwidth=0,
             height=2,
             width=10,
-            command=self.refresh_songlist
+            command=self.refresh_songlist,
+            activebackground=view("songlist_colour"),
+            activeforeground=view("accent_colour")
         )
         refresh.grid(row=0, column=1, sticky=W)
             
@@ -207,14 +215,16 @@ class MainWindow(Tk):
 
             i += 1
 
-            btn = Button(
+            btn = HoverButton(
                 self.scroll_frame,
                 text="▶",
                 borderwidth=0,
                 bg=view("songlist_colour"),
                 font=Font(size=18),
-                fg="white",
-                command=lambda file=file: self.play(file)
+                fg=view("accent_colour"),
+                command=lambda file=file: self.play(file),
+                activebackground=view("songlist_colour"),
+                activeforeground="white"
             )
             btn.grid(row=i, column=0)
             Label(

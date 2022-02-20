@@ -1,15 +1,15 @@
 import threading
-from tkinter import messagebox
 import pafy
 import os
 import shutil
 from youtubesearchpython import VideosSearch
 from moviepy.video.io.VideoFileClip import VideoFileClip # Importing from submodule as moviepy.editor is intended for manual use.
 from tkinter import *
-from tkinter.font import Font
+from tkinter import messagebox
 from tkinter import filedialog
-from .config import view
+from tkinter.font import Font
 
+from .config import view
 
 def file_convert(title):
     mp4 = f'./Audio bin/{title}.mp4'
@@ -21,8 +21,26 @@ def file_convert(title):
     clip.close()
     os.remove(f'./Audio bin/{title}.mp4')
 
+
+
 def download(*, title=None, link=None):
     win.destroy()
+    global prog_window
+    prog_window = Toplevel()
+    prog_window.wm_title("Progress")
+    prog_window.configure(bg=view("back_colour"))
+    global prog_label
+    prog_label = Label(
+        prog_window,
+        text="Starting download...",
+        font=Font(size=14, family="Cascadia Mono"),
+        fg="white",
+        bg=view("back_colour")
+    )
+    prog_label.pack()
+    def _callback(total, recvd, ratio, rate, eta):
+        prog_label.configure(text=f"Downloading: {round(ratio*100)}% [{eta}s]")
+
     if not link and title:
         search = VideosSearch(title, limit=1)
         search = search.result()
@@ -37,10 +55,13 @@ def download(*, title=None, link=None):
         video = video.getbest()
         
         video.download(
-            filepath="./Audio bin/"
+            filepath="./Audio bin/",
+            callback=_callback
         )
         
+        prog_label.configure(text="Converting to audio")
         file_convert(name)
+        prog_window.destroy()
         messagebox.showinfo(
             title="Song Downloaded",
             message=f"Downloaded:\n{name}\n\nPlease refresh the song list!"
@@ -92,7 +113,8 @@ def download_window():
         window,
         text="Add song by name:",
         bg=back_colour,
-        fg="white"
+        fg="white",
+        font=Font(size=10, family="Cascadia Mono")
     ).pack()
 
     add_name_entry = Entry(
@@ -158,3 +180,4 @@ def download_window():
         command=file_opener
     )
     import_music.pack(pady=20)
+

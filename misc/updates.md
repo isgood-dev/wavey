@@ -1,4 +1,11 @@
-# 19/02/2022 - rewrite
+# 20/02/2022
+* Changed default accent colour (#389fc1 → #f24646) to follow colour scheme of the website.
+* Completed settings page for now.
+    - Colour scheme of the music player can be customized entirely.
+    - Added settings icon for the window.
+* Buttons now change colour when hovered over.
+
+# 19/02/2022
 * New song list
     - Displays duration of song
     - Refresh button

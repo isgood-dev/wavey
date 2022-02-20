@@ -21,8 +21,6 @@ def file_convert(title):
     clip.close()
     os.remove(f'./Audio bin/{title}.mp4')
 
-
-
 def download(*, title=None, link=None):
     win.destroy()
     global prog_window
@@ -74,9 +72,12 @@ def download(*, title=None, link=None):
         video = video.getbest()
         print(f"Downloading: {title} ({link})")
         video.download(
-            filepath="./Audio bin/"
+            filepath="./Audio bin/",
+            callback=_callback
         )
+        prog_label.configure(text="Converting to audio")
         file_convert(title)
+        prog_window.destroy()
 
 def file_opener():
     file = filedialog.askopenfile(

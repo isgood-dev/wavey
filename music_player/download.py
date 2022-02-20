@@ -66,7 +66,13 @@ def download(*, title=None, link=None):
         )
         return
     else:
-        video = pafy.new(link)
+        try:
+            video = pafy.new(link)
+        except ValueError:
+            return messagebox.showerror(
+                title="Invalid URL",
+                message="The URL provided is invalid. Please provide the 11 character video id or the URL to the video."
+            )
         title = video.title
         link = video.watchv_url
         video = video.getbest()

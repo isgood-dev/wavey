@@ -36,35 +36,29 @@ def download(*, title=None, link=None):
         bg=view("back_colour")
     )
     prog_label.pack()
+
     def _callback(total, recvd, ratio, rate, eta):
         prog_label.configure(text=f"Downloading: {round(ratio*100)}% [{eta}s]")
 
+    def clean_name(title):
+        """Removes any illegal file characters from the name given from YT"""
+        bannedchars = ["<", ">", ":", "\"", "/", "\\", "|", "?", "*"] # banned characters in Windows.
+        for char in bannedchars:                                      # may not apply to other operating systems.
+            if char in title:
+                title = title.replace(char, "_")
+        
+        return title
+    
     if not link and title:
         search = VideosSearch(title, limit=1)
         search = search.result()
 
         result = search["result"][0]
         url = result["link"]
-        name = result["title"]
+        title = result["title"]
         
-        print(f"Downloading: {name} ({url})")
-
-        video = pafy.new(url)
-        video = video.getbest()
-        
-        video.download(
-            filepath="./Audio bin/",
-            callback=_callback
-        )
-        
-        prog_label.configure(text="Converting to audio")
-        file_convert(name)
-        prog_window.destroy()
-        messagebox.showinfo(
-            title="Song Downloaded",
-            message=f"Downloaded:\n{name}\n\nPlease refresh the song list!"
-        )
-        return
+        video = pafy.new(url)   
+    
     else:
         try:
             video = pafy.new(link)
@@ -75,15 +69,21 @@ def download(*, title=None, link=None):
             )
         title = video.title
         link = video.watchv_url
-        video = video.getbest()
-        print(f"Downloading: {title} ({link})")
-        video.download(
-            filepath="./Audio bin/",
-            callback=_callback
-        )
-        prog_label.configure(text="Converting to audio")
-        file_convert(title)
-        prog_window.destroy()
+    
+    print(f"Downloading: {title} ({link})")
+    video = video.getbest()
+    video.download(
+        filepath="./Audio bin/",
+        callback=_callback
+    )
+    prog_label.configure(text="Converting to audio")
+    title = clean_name(title)
+    file_convert(title)
+    prog_window.destroy()
+    messagebox.showinfo(
+        title="Song Downloaded",
+        message=f"Downloaded:\n{title}\n\nPlease refresh the song list!"
+    )
 
 def file_opener():
     file = filedialog.askopenfile(
@@ -187,4 +187,3 @@ def download_window():
         command=file_opener
     )
     import_music.pack(pady=20)
-

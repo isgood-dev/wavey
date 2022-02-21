@@ -4,6 +4,7 @@
     - Colour scheme of the music player can be customized entirely.
     - Added settings icon for the window.
 * Buttons now change colour when hovered over.
+* Replaces illegal file characters with underscores.
 
 # 19/02/2022
 * New song list

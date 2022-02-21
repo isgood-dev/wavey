@@ -214,7 +214,12 @@ class MainWindow(Tk):
             duration = str(datetime.timedelta(seconds=round(duration)))[2:]
 
             i += 1
-
+            
+            if len(file[:-4]) > 40: # Reduce length of song to prevent duration from being pushed off the screen.
+                to_chop = len(file[:-4]) - 40
+                file = file[:-to_chop] + "..."
+            else:
+                file = file[:-4] # remove ".mp3"
             btn = HoverButton(
                 self.scroll_frame,
                 text="▶",
@@ -229,7 +234,7 @@ class MainWindow(Tk):
             btn.grid(row=i, column=0)
             Label(
                 self.scroll_frame,
-                text=f"{file[:-4]}",
+                text=file,
                 bg=view("songlist_colour"),
                 font=self.assets["cascadia"],
                 fg="white",

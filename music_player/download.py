@@ -94,7 +94,7 @@ def file_opener():
             ("all files", "*.*")
         )
     )
-    if not input:
+    if not file:
         return
 
     filename = file.name.split("/")

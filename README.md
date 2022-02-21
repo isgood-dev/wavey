@@ -56,4 +56,7 @@ python run.py
 * Find the `exe` file that's inside of that and run that file.
     - If you intend on using the music player often, I'd recommend creating a Desktop shortcut for the executable. It will save you a lot of time.
 
+# Contributors
+[**acatia#5378 (me)**](https://github.com/acatiadroid) - created this project on the 31st May 2021 and has actively maintained it since
 
+[**cosmicvfx#5436 (cosmic)**](https://github.com/cosmllc) - created the website as well as contributing towards the music players UI.

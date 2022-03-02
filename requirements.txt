@@ -1,3 +1,4 @@
 moviepy
 audioplayer
 youtube-search-python
+mutagen

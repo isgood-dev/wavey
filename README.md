@@ -4,7 +4,6 @@
 *Created by acatia#5378*
 
 </h3>
-<h4 align="center"> ⚠️ This has only been tested and built around Windows. Other operating systems may not work for this. </h4>
 
 # Requirements & Dependancies
 ### Using the Python script directly:

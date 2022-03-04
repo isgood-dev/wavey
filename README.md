@@ -58,4 +58,4 @@ python run.py
 # Contributors
 [**acatia#5378 (me)**](https://github.com/acatiadroid) - created this project on the 31st May 2021 and has actively maintained it since
 
-[**cosmicvfx#5436 (cosmic)**](https://github.com/cosmllc) - created the website as well as contributing towards the music players UI.
+[**cosrnic#5436 (Cosmic)**](https://github.com/cosrnic) - created the website as well as contributing towards the music players UI.

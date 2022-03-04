@@ -40,7 +40,6 @@ class MainWindow(Tk):
         self.bind("<space>", self.pause_or_resume)
         self.bind("<Escape>", self.close_window)
 
-        self.paused = False
         self.song = None
         
         # Labels
@@ -252,6 +251,7 @@ class MainWindow(Tk):
         self.current_song = audiofile[:-4]
         self.sc.play(file=str(os.getcwd()) + f".\Audio bin\{audiofile}")
         self.update_now_playing()
+
     def pause_or_resume(self, event=None):
         if not self.sc.song:
             if event:

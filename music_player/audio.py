@@ -17,6 +17,10 @@ class Audio():
         if not os.path.exists(file):
             return
 
+        if self.paused:
+            self.paused = False
+            self.song = None
+
         if self.song and self.paused:
             self.song.resume()
             self.paused = False

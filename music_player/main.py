@@ -10,7 +10,7 @@ from .extensions import ScrollbarFrame, HoverButton
 from .config import view, write
 from .audio import Audio
 from .download import download_window
-from .rename import rename_window
+from .files import delete_file, rename_window
 from .settings import settings_window
 
 BACK_COLOUR = view("back_colour")
@@ -137,6 +137,20 @@ class MainWindow(Tk):
         )
         self.settings.place(x=25, y=100)
 
+        self.delete_song = HoverButton(
+            self,
+            text="Delete a file",
+            bg=BACK_COLOUR,
+            fg="white",
+            compound="left",
+            font=Font(size=12, family="Cascadia Mono", weight="bold"),
+            borderwidth=0,
+            command=delete_file,
+            activebackground=BACK_COLOUR,
+            activeforeground=view("accent_colour")
+        )
+        self.delete_song.place(x=25, y=130)
+
         self.volume = Scale(
             self,
             orient=HORIZONTAL,
@@ -248,8 +262,8 @@ class MainWindow(Tk):
             ).grid(row=i, column=2, sticky=E)
 
     def play(self, audiofile):
-        self.current_song = audiofile[:-4]
-        self.sc.play(file=str(os.getcwd()) + f".\Audio bin\{audiofile}")
+        self.current_song = audiofile
+        self.sc.play(file=str(os.getcwd()) + f"\Audio bin\{audiofile}.mp3")
         self.update_now_playing()
 
     def pause_or_resume(self, event=None):

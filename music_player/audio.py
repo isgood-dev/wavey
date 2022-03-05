@@ -19,13 +19,18 @@ class Audio():
 
         if self.paused:
             self.paused = False
-            self.song = None
+        
 
         if self.song and self.paused:
             self.song.resume()
             self.paused = False
             return
 
+        if self.song:
+            self.song.stop()
+            self.song.close()
+        
+        self.song = None # Prevents glitchy sound
         self.song = audioplayer.AudioPlayer(file)
         self.song.play(loop=False)
         self.song.volume = self.volume

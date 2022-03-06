@@ -94,6 +94,9 @@ def rename_window():
 def delete_file():
     file = open_filedialog(split=True)
 
+    if not file:
+        return
+
     os.remove("./Audio bin/" + file)
 
     messagebox.showinfo(

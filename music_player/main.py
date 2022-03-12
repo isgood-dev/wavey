@@ -14,6 +14,7 @@ from .audio import Audio
 from .download import download_window
 from .files import delete_file, rename_window
 from .settings import settings_window
+from .update import update
 
 BACK_COLOUR = view("back_colour")
 FORE_COLOUR = view("fore_colour")
@@ -165,6 +166,20 @@ class MainWindow(Tk):
             activeforeground=view("accent_colour")
         )
         self.delete_song.place(x=25, y=130)
+
+        self.update_player = HoverButton(
+            self,
+            text="Update player",
+            bg=BACK_COLOUR,
+            fg="white",
+            compound="left",
+            font=Font(size=12, family="Cascadia Mono", weight="bold"),
+            borderwidth=0,
+            command=update,
+            activebackground=BACK_COLOUR,
+            activeforeground=view("accent_colour")
+        )
+        self.update_player.place(x=25, y=160)
 
         self.volume = Scale(
             self,

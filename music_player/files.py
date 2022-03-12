@@ -103,5 +103,3 @@ def delete_file():
         title="File deleted",
         message=f"Successfully deleted \"{file}\""
     )
-
-

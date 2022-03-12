@@ -1,3 +1,9 @@
+# 12/03/2022
+* Added file deletion
+* Added stop button
+* Added song duration timer (likely to be buggy)
+* Moved database files to a special `data/` directory.
+
 # 20/02/2022
 * Changed default accent colour (#389fc1 → #f24646) to follow colour scheme of the website.
 * Completed settings page for now.

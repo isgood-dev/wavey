@@ -36,6 +36,8 @@ class MainWindow(Tk):
         self.sbf = None
         self.assets = {
             "pauseplay": PhotoImage(file="music_player/Assets/pauseplay.png"),
+            "stop": PhotoImage(file="music_player/Assets/stopicon.png"),
+            # "loop": PhotoImage(file="music_player/Assets/loopicon.png"),
             "cascadia": Font(size=10, family="Cascadia Mono"),
             "small_cascadia": Font(size=8, family="Cascadia Mono")
         }
@@ -177,6 +179,26 @@ class MainWindow(Tk):
         self.volume.bind("<ButtonRelease-1>", self.set_vol)
         self.volume.place(x=530, y=535)
 
+        self.stop_button = Button(
+            self,
+            image=self.assets["stop"],
+            background=FORE_COLOUR,
+            borderwidth=0,
+            command=self.stop,
+            activebackground=FORE_COLOUR,
+        )
+        self.stop_button.place(x=375, y=545)
+
+        # self.loop_button = Button(
+        #     self,
+        #     image=self.assets["loop"],
+        #     background=FORE_COLOUR,
+        #     borderwidth=0,
+        #     command=self.play,
+        #     activebackground=FORE_COLOUR,
+        # )
+        # self.loop_button.place(x=375, y=575)
+
     def set_np(self, text: str):
         """Sets the "now playing" label"""
         return self.now_playing.configure(text=text)
@@ -274,11 +296,17 @@ class MainWindow(Tk):
                 fg="white"
             ).grid(row=i, column=2, sticky=E)
 
-    def play(self, audiofile):
+    def play(self, audiofile=None, enable_loop=False):
         duration = MP3("./Audio bin/" + audiofile + ".mp3")
         duration = duration.info.length
         self.duration = str(datetime.timedelta(seconds=round(duration)))[2:]
         
+        # if enable_loop:
+        #     messagebox.showwarning(
+        #         title="Warning",
+        #         message="Looping has been enabled but will only apply once you play a different song."
+        #     )
+
         self.current_song = audiofile
         self.sc.play(file=str(os.getcwd()) + f"\Audio bin\{audiofile}.mp3")
         self.update_now_playing()
@@ -287,7 +315,7 @@ class MainWindow(Tk):
     
     def stop(self):
         self.start_duration(clear=True)
-        self.sc.pause() # We pause so that we don't release resources
+        self.sc.stop() # We pause so that we don't release resources
                         # which makes the player so to respond when
                         # another song is added.
 
@@ -331,6 +359,12 @@ class MainWindow(Tk):
             self.sc.song.volume = vol
     
     def start_duration(self, from_paused=False, clear=False):
+        if clear:
+            self.sc.pause()
+            self.now_playing.configure(text="Nothing is playing.")
+            self.duration_label.configure(text="00:00 / 00:00")
+            return
+        
         if from_paused:
             mins = self.duration_data["m"]
             secs = self.duration_data["s"]
@@ -340,11 +374,6 @@ class MainWindow(Tk):
 
         playing = self.current_song
         
-        if clear:
-            self.sc.pause()
-            self.now_playing.configure(text="Nothing is playing.")
-            self.duration_label.configure(text="00:00 / 00:00")
-            return
 
         while f"{str(secs).zfill(2)}:{str(mins).zfill(2)}" != self.duration:
             if self.current_song != playing:

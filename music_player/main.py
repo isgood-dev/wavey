@@ -1,5 +1,7 @@
 import datetime
 import os
+import threading
+from time import sleep
 from mutagen.mp3 import MP3
 
 from tkinter import *
@@ -26,6 +28,8 @@ class MainWindow(Tk):
         self.wm_title("Music Player")
         self.geometry("850x600")
         self.resizable(False, False)
+
+        self.duration = None
 
         self.sc = Audio()
 
@@ -65,6 +69,15 @@ class MainWindow(Tk):
             height=500,
             bd=0
         ).place(x=198, y=0)
+
+        self.duration_label = Label(
+            self,
+            text="00:00 / 00:00",
+            bg=FORE_COLOUR,
+            fg="white",
+            font=self.assets["cascadia"]
+        )
+        self.duration_label.place(x=250, y=545)
         
         self.now_playing = Label(
             self,
@@ -221,13 +234,13 @@ class MainWindow(Tk):
         for file in os.listdir("./Audio bin/"):
             if not file.endswith(".mp3"):
                 continue
+
+            i += 1
             
             duration = MP3("./Audio bin/" + file)
             duration = duration.info.length
             duration = str(datetime.timedelta(seconds=round(duration)))[2:]
-
-            i += 1
-            
+        
             if len(file[:-4]) > 40: # Reduce length of song to prevent duration from being pushed off the screen.
                 to_chop = len(file[:-4]) - 40
                 file = file[:-to_chop] + "..."
@@ -262,9 +275,21 @@ class MainWindow(Tk):
             ).grid(row=i, column=2, sticky=E)
 
     def play(self, audiofile):
+        duration = MP3("./Audio bin/" + audiofile + ".mp3")
+        duration = duration.info.length
+        self.duration = str(datetime.timedelta(seconds=round(duration)))[2:]
+        
         self.current_song = audiofile
         self.sc.play(file=str(os.getcwd()) + f"\Audio bin\{audiofile}.mp3")
         self.update_now_playing()
+
+        threading.Thread(target=self.start_duration).start()
+    
+    def stop(self):
+        self.start_duration(clear=True)
+        self.sc.pause() # We pause so that we don't release resources
+                        # which makes the player so to respond when
+                        # another song is added.
 
     def pause_or_resume(self, event=None):
         if not self.sc.song:
@@ -280,6 +305,7 @@ class MainWindow(Tk):
             self.sc.song.resume()
             self.sc.paused = False
             self.ispaused.configure(text="")
+            threading.Thread(target=lambda: self.start_duration(from_paused=True)).start()
         else:
             self.sc.song.pause()
             self.sc.paused = True
@@ -303,6 +329,55 @@ class MainWindow(Tk):
         write("volume", vol)
         if self.sc.song:
             self.sc.song.volume = vol
+    
+    def start_duration(self, from_paused=False, clear=False):
+        if from_paused:
+            mins = self.duration_data["m"]
+            secs = self.duration_data["s"]
+        else:
+            mins = 0
+            secs = 0
+
+        playing = self.current_song
+        
+        if clear:
+            self.sc.pause()
+            self.now_playing.configure(text="Nothing is playing.")
+            self.duration_label.configure(text="00:00 / 00:00")
+            return
+
+        while f"{str(secs).zfill(2)}:{str(mins).zfill(2)}" != self.duration:
+            if self.current_song != playing:
+                break
+
+            if self.sc.paused:
+                # Stop the counter from continuing as player is paused.
+                self.duration_data = {
+                    "s": secs,
+                    "m": mins
+                }
+                return
+
+            if secs == 59:
+                mins += 1
+                secs = 0
+            else:
+                secs += 1
+                
+            sleep(1)
+
+            pad_zeros_mins = str(mins).zfill(2)
+            pad_zeros_secs = str(secs).zfill(2)
+            joined_duration = f"{pad_zeros_mins}:{pad_zeros_secs}"
+
+            if joined_duration == self.duration:
+                self.sc.pause()
+                self.now_playing.configure(text="Nothing is playing.")
+                self.duration_label.configure(text="00:00 / 00:00")
+                return
+            
+            self.duration_label.configure(
+                text=f"{str(pad_zeros_mins)}:{pad_zeros_secs} / {self.duration}")
 
     def _run(self):
         """Calls the mainloop, instantiating the window"""

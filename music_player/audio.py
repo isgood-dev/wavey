@@ -13,7 +13,7 @@ class Audio():
         self.volume = view("volume")
     
 
-    def play(self, file=None):
+    def play(self, file=None, loop=False):
         if not os.path.exists(file):
             return
 
@@ -32,7 +32,7 @@ class Audio():
         
         self.song = None # Prevents glitchy sound
         self.song = audioplayer.AudioPlayer(file)
-        self.song.play(loop=False)
+        self.song.play(loop=loop)
         self.song.volume = self.volume
     
     def pause(self):

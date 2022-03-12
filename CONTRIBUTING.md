@@ -5,8 +5,7 @@ Thank you for considering to contribute to this repository!
 In the spirit of open-source coding, we encourage contributions. Any help in making the music player better is appreciated.
 
 ## How to contribute
-* Create a [pull request](https://github.com/acatiadroid/music-player/pulls).
-or
+* Create a [pull request](https://github.com/acatiadroid/music-player/pulls)
 * Create an [issue](https://github.com/acatiadroid/music-player/issues/new)
 
 ## Guidelines to contribute

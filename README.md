@@ -1,6 +1,8 @@
 <h1 align="center">Music Player</h1>
 <h3 align="center">A simple music player created using Python and Tkinter to play music (or any audio) from YouTube or your computer!
 
+<h2 align="center">Heads up! The music player is being rewritten. More info <a href="https://acatiadroid.github.io/music-player/v2.html">here</a>.</h2>
+
 *Created by acatia#5378*
 
 </h3>

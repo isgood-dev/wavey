@@ -11,7 +11,7 @@ Check out misc/help.mdown if you need help with something or join the Discord se
 https://discord.gg/p5bURjs
 """
 
-from player.main import MainWindow
+from player.window.main import MainWindow
 
 if __name__ == "__main__":
     MainWindow()._run() # instantiates the main window

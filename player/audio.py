@@ -1,7 +1,7 @@
 import pyglet
 import os
 
-from .config import view
+from player.config import view, write
 
 class Audio():
     def __init__(self):
@@ -59,3 +59,13 @@ class Audio():
         
         self.player.delete()
         self.player = None
+    
+    def _set_vol(self, amount):
+        write("volume", amount)
+        if self.player:
+            self.player.volume = amount
+    
+    def pause_or_resume(self, lbl):
+        if self.paused:
+            self.player.play()
+            self.paused = False

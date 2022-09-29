@@ -1,7 +1,7 @@
 import tkinter
 import sys
 import tkinter as tk
-from .config import view
+from ..config import view
 
 
 class ScrollbarFrame(tk.Frame):

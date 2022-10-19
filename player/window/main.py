@@ -31,9 +31,9 @@ class MainWindow(Tk):
         self.audio = Audio()
 
         self.assets = {
-            "pauseplay": PhotoImage(file="player/assets/pauseplay.png"),
-            "stop": PhotoImage(file="player/assets/stopicon.png"),
-            # "loop": PhotoImage(file="player/assets/loopicon.png"),
+            "pauseplay": PhotoImage(file="player/Assets/pauseplay.png"),
+            "stop": PhotoImage(file="player/Assets/stopicon.png"),
+            # "loop": PhotoImage(file="player/Assets/loopicon.png"),
             "cascadia": Font(size=10, family="Cascadia Mono"),
             "small_cascadia": Font(size=8, family="Cascadia Mono")
         }
@@ -46,7 +46,7 @@ class MainWindow(Tk):
         self.bind("<Escape>", self.close_window)
 
         try:
-            self.iconbitmap("player/assets/musical_note.ico")
+            self.iconbitmap("player/Assets/musical_note.ico")
         except TclError:
             pass
 

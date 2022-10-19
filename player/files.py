@@ -1,6 +1,6 @@
 import os
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import TclError, messagebox
 import tkinter.filedialog as filedialog
 from tkinter.font import Font
 from .config import view
@@ -31,8 +31,12 @@ def rename_window():
     window.geometry("450x300")
     window.wm_title("Rename a file")
     window.resizable(True, False)
-    window.iconbitmap("music_player/Assets/pencil.ico")
-
+    
+    try:
+        window.iconbitmap("player/Assets/pencil.ico")
+    except TclError:
+        pass
+    
     tk.Label(
         window,
         text="Rename a file",

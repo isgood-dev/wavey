@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import TclError, messagebox
 from tkinter.font import Font
 from tkinter.colorchooser import askcolor
 
@@ -36,7 +36,11 @@ def settings_window():
     window.configure(bg=view("back_colour"))
     window.geometry("400x500")
     window.resizable(False, False)
-    window.wm_iconbitmap("music_player/Assets/settings.ico")
+    
+    try:
+        window.wm_iconbitmap("player/Assets/settings.ico")
+    except TclError:
+        pass
 
     # Labels
 

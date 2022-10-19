@@ -110,8 +110,12 @@ def download_window():
     window.configure(bg=view("back_colour"))
     window.geometry("300x300")
     window.wm_title("Add music")
-    window.iconbitmap("music_player/Assets/downloadicon.ico")
     window.resizable(False, False)
+    
+    try:
+        window.iconbitmap("player/Assets/downloadicon.ico")
+    except TclError:
+        pass
 
     global win
     win = window

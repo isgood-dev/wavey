@@ -34,8 +34,9 @@ def view(key: str):
     else:
         return False
 
+# Set default settings if not set already
 if not view("volume"):
-    write("volume", 50)
+    write("volume", 25)
 if not view("back_colour"):
     write("back_colour", "#111111")
 if not view("fore_colour"):

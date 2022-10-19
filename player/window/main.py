@@ -1,5 +1,6 @@
 import datetime
 import os
+import threading
 from time import sleep
 from mutagen.mp3 import MP3
 
@@ -30,21 +31,22 @@ class MainWindow(Tk):
         self.audio = Audio()
 
         self.assets = {
-            "pauseplay": PhotoImage(file="player/Assets/pauseplay.png"),
-            "stop": PhotoImage(file="player/Assets/stopicon.png"),
-            # "loop": PhotoImage(file="player/Assets/loopicon.png"),
+            "pauseplay": PhotoImage(file="player/assets/pauseplay.png"),
+            "stop": PhotoImage(file="player/assets/stopicon.png"),
+            # "loop": PhotoImage(file="player/assets/loopicon.png"),
             "cascadia": Font(size=10, family="Cascadia Mono"),
             "small_cascadia": Font(size=8, family="Cascadia Mono")
         }
 
         self.sbf = None
+        self.current_song = None
         self.refresh_songlist()
 
-        self.bind("<space>", self.pause_or_resume)
+        self.bind("<space>", self.audio.pause_or_resume)
         self.bind("<Escape>", self.close_window)
 
         try:
-            self.iconbitmap("player/Assets/musical_note.ico")
+            self.iconbitmap("player/assets/musical_note.ico")
         except TclError:
             pass
 
@@ -102,7 +104,7 @@ class MainWindow(Tk):
             image=self.assets["pauseplay"],
             background=FORE_COLOUR,
             borderwidth=0,
-            command=self.pause_or_resume,
+            command=self.audio.pause_or_resume,
             activebackground=FORE_COLOUR,
         )
         self.pauseplay_button.place(relx=0.499, rely=0.93, anchor=CENTER)
@@ -173,7 +175,7 @@ class MainWindow(Tk):
             highlightthickness=0
         )
         self.volume.set(view("volume"))
-        self.volume.bind("<ButtonRelease-1>", self.set_vol)
+        self.volume.bind("<ButtonRelease-1>", self.set_volume)
         self.volume.place(x=530, y=535)
 
         self.stop_button = Button(
@@ -181,7 +183,7 @@ class MainWindow(Tk):
             image=self.assets["stop"],
             background=FORE_COLOUR,
             borderwidth=0,
-            command=self.sc._stop,
+            command=self.audio._stop,
             activebackground=FORE_COLOUR,
         )
         self.stop_button.place(x=375, y=545)
@@ -192,7 +194,7 @@ class MainWindow(Tk):
 
     def start_duration(self, from_paused=False, clear=False):
         if clear:
-            self.sc.pause()
+            self.audio._stop()
             self.now_playing.configure(text="Nothing is playing.")
             self.duration_label.configure(text="00:00 / 00:00")
             return
@@ -211,7 +213,7 @@ class MainWindow(Tk):
             if self.current_song != playing:
                 break
 
-            if self.sc.paused:
+            if self.audio.paused:
                 # Stop the counter from continuing as player is paused.
                 self.duration_data = {
                     "s": secs,
@@ -232,7 +234,7 @@ class MainWindow(Tk):
             joined_duration = f"{pad_zeros_mins}:{pad_zeros_secs}"
 
             if joined_duration == self.duration:
-                self.sc.pause()
+                self.audio._stop()
                 self.now_playing.configure(text="Nothing is playing.")
                 self.duration_label.configure(text="00:00 / 00:00")
                 return
@@ -311,7 +313,7 @@ class MainWindow(Tk):
                 bg=view("songlist_colour"),
                 font=Font(size=18),
                 fg=view("accent_colour"),
-                command=lambda file=file: self.play(file),
+                command=lambda file=file: self.play(file, append_queue=False),
                 activebackground=view("songlist_colour"),
                 activeforeground="white"
             )
@@ -331,3 +333,38 @@ class MainWindow(Tk):
                 font=self.assets["cascadia"],
                 fg="white"
             ).grid(row=i, column=2, sticky="e")
+
+    def play(self, source, append_queue=False):
+        duration = MP3("./Audio bin/" + source + ".mp3")
+        duration = duration.info.length
+        self.duration = str(datetime.timedelta(seconds=round(duration)))[2:]
+
+        self.current_song = source
+
+        self.audio._play(os.getcwd() + f"/Audio bin/{source}.mp3", append_queue=append_queue)
+        self.update_now_playing()
+
+        threading.Thread(target=self.start_duration).start()
+    
+    def update_now_playing(self):
+        song = self.current_song
+        self.now_playing.configure(text=song)
+    
+    def set_volume(self, _):
+        amount = round(self.volume.get())
+
+        self.audio._set_vol(amount)
+        
+    def close_window(self, _):
+        ask = messagebox.askyesno(
+            title="Close Music Player",
+            message="Are you sure you want to close the Music Player?"
+        )
+
+        if ask:
+            return self.destroy()
+    
+    def _run(self):
+        """Calls the mainloop, instantiating the window"""
+        print("Go to https://acatiadroid.github.io/music-player/ for help")
+        self.mainloop()

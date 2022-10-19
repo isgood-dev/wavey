@@ -2,3 +2,6 @@ moviepy
 audioplayer
 youtube-search-python
 mutagen
+pyglet
+pafy
+youtube-dl

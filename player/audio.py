@@ -5,9 +5,7 @@ from player.config import view, write
 
 class Audio():
     def __init__(self):
-        """
-        A class for managing & controlling audio
-        """
+        """Control audio"""
         self.song = None
         self.paused = False
         self.volume = view("volume")
@@ -16,33 +14,35 @@ class Audio():
         self.player = None
 
     def _play(self, file, append_queue=False):
+        """Plays or queues an audio source 
+        
+        append_queue - whether to append requested song to a queue or play now"""
         if not os.path.exists(file):
             return
         
-        if self.paused:
-            self.paused = False
-        
-        if self.song and self.paused:
-            self.song.play()
+        if self.paused and file == self.song:
+            self.player.play()
             self.paused = False
             return
         
-        if self.song:
-            self.player.delete()
-        
-        if not append_queue:
+        if not self.player:
+            self.player = pyglet.media.Player()
+
+        src = pyglet.media.load(file)
+
+        if append_queue:
+            self.player.queue(src)
+        else:
             self.player.delete()
             self.player = pyglet.media.Player()
-        
-        src = pyglet.media.load(file)
-        
-        self.player.queue(src)
-        self.player.play()
-        self.player.volume = self.volume
+            self.player.queue(src)    
+            self.player.play()
+            self.player.volume = self.volume
 
-        self.song = src
+        self.song = file
 
     def _pause(self):
+        """Pauses player"""
         if not self.song:
             return
 
@@ -54,6 +54,7 @@ class Audio():
             self.paused = True
     
     def _stop(self):
+        """Stops player and releases resources"""
         if not self.player:
             return
         
@@ -61,11 +62,16 @@ class Audio():
         self.player = None
     
     def _set_vol(self, amount):
+        """Sets the volume as an integer, between 0 and 100 (also stores volume on disk)"""
         write("volume", amount)
         if self.player:
             self.player.volume = amount
     
-    def pause_or_resume(self, lbl):
+    def pause_or_resume(self, _, *, plabel):
+        """Pauses/resumes the player depending on whether player is paused or not"""
         if self.paused:
             self.player.play()
             self.paused = False
+        else:
+            self.player.pause()
+            self.paused = True

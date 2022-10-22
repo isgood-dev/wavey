@@ -1,6 +1,5 @@
 import pyglet
 import os
-import math
 
 from player.config import view, write
 

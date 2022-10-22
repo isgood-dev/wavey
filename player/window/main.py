@@ -183,7 +183,7 @@ class MainWindow(Tk):
             image=self.assets["stop"],
             background=FORE_COLOUR,
             borderwidth=0,
-            command=self.audio._stop,
+            command=self.stop,
             activebackground=FORE_COLOUR,
         )
         self.stop_button.place(x=375, y=545)
@@ -194,7 +194,6 @@ class MainWindow(Tk):
 
     def start_duration(self, from_paused=False, clear=False):
         if clear:
-            self.audio._stop()
             self.now_playing.configure(text="Nothing is playing.")
             self.duration_label.configure(text="00:00 / 00:00")
             return
@@ -211,6 +210,11 @@ class MainWindow(Tk):
 
         while f"{str(secs).zfill(2)}:{str(mins).zfill(2)}" != self.duration:
             if self.current_song != playing:
+                break
+
+            if not self.audio.player or not self.audio.song:
+                self.now_playing.configure(text="Nothing is playing.")
+                self.duration_label.configure(text="00:00 / 00:00")
                 break
 
             if self.audio.paused:
@@ -333,6 +337,11 @@ class MainWindow(Tk):
                 font=self.assets["cascadia"],
                 fg="white"
             ).grid(row=i, column=2, sticky="e")
+
+    def stop(self):
+        self.start_duration(clear=True)
+
+        self.audio._stop()
 
     def play(self, source, append_queue=False):
         duration = MP3("./Audio bin/" + source + ".mp3")

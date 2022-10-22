@@ -1,3 +1,9 @@
+# 22/10/222 (pre-release)
+* Using Pyglet for audio playing.
+* Added Music Player installer.
+* Massive cleanup of codespace.
+* All imports are now absolute to prevent circular imports.
+
 # 12/03/2022 (pre-release)
 * Added file deletion
 * Added stop button

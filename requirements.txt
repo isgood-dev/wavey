@@ -3,5 +3,5 @@ audioplayer
 youtube-search-python
 mutagen
 pyglet
-pafy
+git+https://github.com/acatiadroid/pafy
 youtube-dl

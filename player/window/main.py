@@ -8,27 +8,27 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter.font import Font
 
-from player.window.extensions import ScrollbarFrame, HoverButton
-from player.config import view, write
-from player.audio import Audio
-from player.files import delete_file, rename_window
-from player.download import download_window
-from player.settings import settings_window
+import player.window.extensions as exts
+import player.config as config
+import player.audio as audio
+import player.files as files
+import player.download as download
+import player.settings as settings
 
-BACK_COLOUR = view("back_colour")
-FORE_COLOUR = view("fore_colour")
+BACK_COLOUR = config.view("back_colour")
+FORE_COLOUR = config.view("fore_colour")
 
 class MainWindow(Tk):
     def __init__(self):
         super().__init__()
         
         # Window attrs
-        self.configure(bg=view("back_colour"))
+        self.configure(bg=config.view("back_colour"))
         self.wm_title("Music Player")
         self.geometry("850x600")
         self.resizable(False, False)
 
-        self.audio = Audio()
+        self.audio = audio.Audio()
 
         self.assets = {
             "pauseplay": PhotoImage(file="player/Assets/pauseplay.png"),
@@ -59,14 +59,14 @@ class MainWindow(Tk):
 
         sep1 = Frame(
             self,
-            bg=view("accent_colour"),
+            bg=config.view("accent_colour"),
             height=2,
             bd=0
         ).pack(fill=X, side=BOTTOM, pady=100)
 
         sep2 = Frame(
             self,
-            bg=view("accent_colour"),
+            bg=config.view("accent_colour"),
             width=2,
             height=500,
             bd=0
@@ -109,7 +109,7 @@ class MainWindow(Tk):
         )
         self.pauseplay_button.place(relx=0.499, rely=0.93, anchor=CENTER)
 
-        self.addmusic_button = HoverButton(
+        self.addmusic_button = exts.HoverButton(
             self,
             text="Add music",
             bg=BACK_COLOUR,
@@ -117,13 +117,13 @@ class MainWindow(Tk):
             compound="left",
             font=Font(size=12, family="Cascadia Mono", weight="bold"),
             borderwidth=0,
-            command=download_window,
+            command=download.download_window,
             activebackground=BACK_COLOUR,
-            activeforeground=view("accent_colour")
+            activeforeground=config.view("accent_colour")
         )
         self.addmusic_button.place(x=25, y=40)
 
-        self.rename_file = HoverButton(
+        self.rename_file = exts.HoverButton(
             self,
             text="Rename a file",
             bg=BACK_COLOUR,
@@ -131,13 +131,13 @@ class MainWindow(Tk):
             compound="left",
             font=Font(size=12, family="Cascadia Mono", weight="bold"),
             borderwidth=0,
-            command=rename_window,
+            command=files.rename_window,
             activebackground=BACK_COLOUR,
-            activeforeground=view("accent_colour")
+            activeforeground=config.view("accent_colour")
         )
         self.rename_file.place(x=25, y=70)
         
-        self.settings = HoverButton(
+        self.settings = exts.HoverButton(
             self,
             text="Settings",
             bg=BACK_COLOUR,
@@ -145,13 +145,13 @@ class MainWindow(Tk):
             compound="left",
             font=Font(size=12, family="Cascadia Mono", weight="bold"),
             borderwidth=0,
-            command=settings_window,
+            command=settings.settings_window,
             activebackground=BACK_COLOUR,
-            activeforeground=view("accent_colour")
+            activeforeground=config.view("accent_colour")
         )
         self.settings.place(x=25, y=100)
 
-        self.delete_song = HoverButton(
+        self.delete_song = exts.HoverButton(
             self,
             text="Delete a file",
             bg=BACK_COLOUR,
@@ -159,11 +159,25 @@ class MainWindow(Tk):
             compound="left",
             font=Font(size=12, family="Cascadia Mono", weight="bold"),
             borderwidth=0,
-            command=delete_file,
+            command=files.delete_file,
             activebackground=BACK_COLOUR,
-            activeforeground=view("accent_colour")
+            activeforeground=config.view("accent_colour")
         )
         self.delete_song.place(x=25, y=130)
+
+        self.update = exts.HoverButton(
+            self,
+            text="Check for updates",
+            bg=BACK_COLOUR,
+            fg="white",
+            compound="left",
+            font=Font(size=12, family="Cascadia Mono", weight="bold"),
+            borderwidth=0,
+            command=files.delete_file,
+            activebackground=BACK_COLOUR,
+            activeforeground=config.view("accent_colour")
+        )
+        self.update.place(x=15, y=460)
 
         self.volume = Scale(
             self,
@@ -174,7 +188,7 @@ class MainWindow(Tk):
             troughcolor=BACK_COLOUR,
             highlightthickness=0
         )
-        self.volume.set(view("volume"))
+        self.volume.set(config.view("volume"))
         self.volume.bind("<ButtonRelease-1>", self.set_volume)
         self.volume.place(x=530, y=535)
 
@@ -183,7 +197,7 @@ class MainWindow(Tk):
             image=self.assets["stop"],
             background=FORE_COLOUR,
             borderwidth=0,
-            command=self.stop,
+            command=self.audio._stop,
             activebackground=FORE_COLOUR,
         )
         self.stop_button.place(x=375, y=545)
@@ -250,7 +264,7 @@ class MainWindow(Tk):
         if self.sbf:
             self.sbf.destroy()
 
-        self.sbf = ScrollbarFrame(self)
+        self.sbf = exts.ScrollbarFrame(self)
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.sbf.place(x=200, y=0)
@@ -262,7 +276,7 @@ class MainWindow(Tk):
             Label(
                 self.scroll_frame,
                 text="Songs that you have will appear here, but you don't have any!",
-                bg=view("songlist_colour"),
+                bg=config.view("songlist_colour"),
                 fg="white",
                 font=self.assets["cascadia"]
             ).grid(row=0, column=0)
@@ -270,7 +284,7 @@ class MainWindow(Tk):
             refnosongs = Button(
                 self.scroll_frame,
                 text="[Refresh]",
-                bg=view("songlist_colour"),
+                bg=config.view("songlist_colour"),
                 fg="white",
                 font=self.assets["cascadia"],
                 command=self.refresh_songlist,
@@ -279,18 +293,18 @@ class MainWindow(Tk):
             refnosongs.grid(row=0, column=1)
             return
         
-        refresh = HoverButton(
+        refresh = exts.HoverButton(
             self.scroll_frame,
             text="[Refresh]",
-            bg=view("songlist_colour"),
+            bg=config.view("songlist_colour"),
             fg="white",
             font=self.assets["cascadia"],
             borderwidth=0,
             height=2,
             width=10,
             command=self.refresh_songlist,
-            activebackground=view("songlist_colour"),
-            activeforeground=view("accent_colour")            
+            activebackground=config.view("songlist_colour"),
+            activeforeground=config.view("accent_colour")            
         )
         refresh.grid(row=0, column=1, sticky="w")
             
@@ -310,22 +324,22 @@ class MainWindow(Tk):
                 file = file[:-to_chop] + "..."
             else:
                 file = file[:-4] # remove ".mp3"
-            btn = HoverButton(
+            btn = exts.HoverButton(
                 self.scroll_frame,
                 text="▶",
                 borderwidth=0,
-                bg=view("songlist_colour"),
+                bg=config.view("songlist_colour"),
                 font=Font(size=18),
-                fg=view("accent_colour"),
+                fg=config.view("accent_colour"),
                 command=lambda file=file: self.play(file, append_queue=False),
-                activebackground=view("songlist_colour"),
+                activebackground=config.view("songlist_colour"),
                 activeforeground="white"
             )
             btn.grid(row=i, column=0)
             Label(
                 self.scroll_frame,
                 text=file,
-                bg=view("songlist_colour"),
+                bg=config.view("songlist_colour"),
                 font=self.assets["cascadia"],
                 fg="white",
             ).grid(row=i, column=1, sticky="w")
@@ -333,15 +347,10 @@ class MainWindow(Tk):
             Label(
                 self.scroll_frame,
                 text="        " + duration,
-                bg=view("songlist_colour"),
+                bg=config.view("songlist_colour"),
                 font=self.assets["cascadia"],
                 fg="white"
             ).grid(row=i, column=2, sticky="e")
-
-    def stop(self):
-        self.start_duration(clear=True)
-
-        self.audio._stop()
 
     def play(self, source, append_queue=False):
         duration = MP3("./Audio bin/" + source + ".mp3")

@@ -1,7 +1,8 @@
 import tkinter
 import sys
 import tkinter as tk
-from ..config import view
+
+import player.config as config
 
 
 class ScrollbarFrame(tk.Frame):
@@ -16,7 +17,7 @@ class ScrollbarFrame(tk.Frame):
         self.count = 0
 
         # The Canvas which supports the Scrollbar Interface, layout to the left
-        self.canvas = tk.Canvas(self, borderwidth=0, background=view(
+        self.canvas = tk.Canvas(self, borderwidth=0, background=config.view(
             "songlist_colour"), highlightthickness=0, height=498, width=650)
         self.canvas.pack(side="left", fill="both", expand=True)
         self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
@@ -24,7 +25,7 @@ class ScrollbarFrame(tk.Frame):
         # The Frame to be scrolled, layout into the canvas
         # All widgets to be scrolled have to use this Frame as parent
         self.scrolled_frame = tk.Frame(
-            self.canvas, background=view("songlist_colour"))
+            self.canvas, background=config.view("songlist_colour"))
         self.canvas.create_window(
             (4, 4), window=self.scrolled_frame, anchor="nw")
         

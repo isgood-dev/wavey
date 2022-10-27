@@ -1,4 +1,4 @@
-# 22/10/222 (pre-release)
+# 22/10/2022 (pre-release)
 * Using Pyglet for audio playing.
 * Added Music Player installer.
 * Massive cleanup of codespace.

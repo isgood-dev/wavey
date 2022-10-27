@@ -3,7 +3,7 @@ from tkinter import TclError, messagebox
 from tkinter.font import Font
 from tkinter.colorchooser import askcolor
 
-from .config import *
+import player.config as config
 
 # These remain cosntant as we do not want to make the colour
 # of the settings window customizable
@@ -19,13 +19,13 @@ def pick_colour(*, bg=False, fg=False, accent=False, songlist=False):
         return
 
     if bg:
-        write("back_colour", hex_colour)
+        config.write("back_colour", hex_colour)
     if fg:
-        write("fore_colour", hex_colour)
+        config.write("fore_colour", hex_colour)
     if accent:
-        write("accent_colour", hex_colour)
+        config.write("accent_colour", hex_colour)
     if songlist:
-        write("songlist_colour", hex_colour)
+        config.write("songlist_colour", hex_colour)
 
     messagebox.showinfo("Settings Updated", "Settings have been saved!\n\nYou will need to restart the music player for the settings to be applied.")
 
@@ -33,7 +33,7 @@ def pick_colour(*, bg=False, fg=False, accent=False, songlist=False):
 def settings_window():
     window = tk.Toplevel()
     window.wm_title("Settings")
-    window.configure(bg=view("back_colour"))
+    window.configure(bg=config.view("back_colour"))
     window.geometry("400x500")
     window.resizable(False, False)
     
@@ -72,7 +72,7 @@ def settings_window():
         font=font,
     )
     current_bg.grid(row=3, column=1)
-    current_bg.insert(0, view("back_colour"))
+    current_bg.insert(0, config.view("back_colour"))
 
     change_bg = tk.Button(
         window,
@@ -103,7 +103,7 @@ def settings_window():
         font=font,
     )
     current_fg.grid(row=4, column=1)
-    current_fg.insert(0, view("fore_colour"))
+    current_fg.insert(0, config.view("fore_colour"))
 
     change_fg = tk.Button(
         window,
@@ -134,7 +134,7 @@ def settings_window():
         font=font,
     )
     current_fg.grid(row=5, column=1)
-    current_fg.insert(0, view("accent_colour"))
+    current_fg.insert(0, config.view("accent_colour"))
 
     change_fg = tk.Button(
         window,
@@ -165,7 +165,7 @@ def settings_window():
         font=font,
     )
     current_songlist.grid(row=6, column=1)
-    current_songlist.insert(0, view("songlist_colour"))
+    current_songlist.insert(0, config.view("songlist_colour"))
 
     change_songlist = tk.Button(
         window,

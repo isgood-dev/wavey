@@ -11,7 +11,16 @@ Check out misc/help.mdown if you need help with something or join the Discord se
 https://discord.gg/p5bURjs
 """
 
-from player.window.main import MainWindow
+class Runner:
+    def __init__(self) -> None:
+        import player.window.main as main
+
+        self.mainwindow = main.MainWindow()
+
+    def run(self):
+        self.mainwindow._run()
+
+runner = Runner()
 
 if __name__ == "__main__":
-    MainWindow()._run() # instantiates the main window
+    runner.run()

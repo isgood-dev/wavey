@@ -1,14 +1,35 @@
+import os, json
+
 import tkinter as tk
 from tkinter import TclError, messagebox
 from tkinter.font import Font
 from tkinter.colorchooser import askcolor
 
-import player.config as config
+import player.data as data
 
 # These remain cosntant as we do not want to make the colour
 # of the settings window customizable
 FORE_COLOUR = "#2b2b2b"
 BACK_COLOUR = "#111111"
+
+content = """All files have a corresponding unique ID associated with them. This will check all files and ensure they have an ID.
+        
+Why? If a file doesn't have an ID, it won't be recognised or be able to be added to playlists, etc."""
+
+def file_sync():
+    messagebox.showinfo(
+        title="What's this?",
+        message=content
+    )
+    with open("./data/songs.json") as file:
+        stored_songs = json.load(file)
+        
+    for f in os.listdir("./Audio bin/"):
+        if f not in stored_songs.values():
+            data.add_song(f)
+    
+    messagebox.showinfo("All done!", "File sync completed.")
+
 
 
 def pick_colour(*, bg=False, fg=False, accent=False, songlist=False):
@@ -19,13 +40,13 @@ def pick_colour(*, bg=False, fg=False, accent=False, songlist=False):
         return
 
     if bg:
-        config.write("back_colour", hex_colour)
+        data.write("back_colour", hex_colour, "c")
     if fg:
-        config.write("fore_colour", hex_colour)
+        data.write("fore_colour", hex_colour, "c")
     if accent:
-        config.write("accent_colour", hex_colour)
+        data.write("accent_colour", hex_colour, "c")
     if songlist:
-        config.write("songlist_colour", hex_colour)
+        data.write("songlist_colour", hex_colour, "c")
 
     messagebox.showinfo("Settings Updated", "Settings have been saved!\n\nYou will need to restart the music player for the settings to be applied.")
 
@@ -33,8 +54,8 @@ def pick_colour(*, bg=False, fg=False, accent=False, songlist=False):
 def settings_window():
     window = tk.Toplevel()
     window.wm_title("Settings")
-    window.configure(bg=config.view("back_colour"))
-    window.geometry("400x500")
+    window.configure(bg=data.view("back_colour", "c"))
+    window.geometry("550x500")
     window.resizable(False, False)
     
     try:
@@ -72,7 +93,7 @@ def settings_window():
         font=font,
     )
     current_bg.grid(row=3, column=1)
-    current_bg.insert(0, config.view("back_colour"))
+    current_bg.insert(0, data.view("back_colour", "c"))
 
     change_bg = tk.Button(
         window,
@@ -103,7 +124,7 @@ def settings_window():
         font=font,
     )
     current_fg.grid(row=4, column=1)
-    current_fg.insert(0, config.view("fore_colour"))
+    current_fg.insert(0, data.view("fore_colour", "c"))
 
     change_fg = tk.Button(
         window,
@@ -134,7 +155,7 @@ def settings_window():
         font=font,
     )
     current_fg.grid(row=5, column=1)
-    current_fg.insert(0, config.view("accent_colour"))
+    current_fg.insert(0, data.view("accent_colour", "c"))
 
     change_fg = tk.Button(
         window,
@@ -165,7 +186,7 @@ def settings_window():
         font=font,
     )
     current_songlist.grid(row=6, column=1)
-    current_songlist.insert(0, config.view("songlist_colour"))
+    current_songlist.insert(0, data.view("songlist_colour", "c"))
 
     change_songlist = tk.Button(
         window,
@@ -177,3 +198,21 @@ def settings_window():
         font=Font(size=10, family="Cascadia Mono")
     )
     change_songlist.grid(row=6, column=2)
+
+    tk.Label(
+        window,
+        text="Sync files:",
+        font=font,
+        bg=BACK_COLOUR,
+        fg="white"
+    ).grid(row=7, column=0)
+
+    sync_files = tk.Button(
+        window,
+        text="Synchronize",
+        fg="white",
+        bg=FORE_COLOUR,
+        font=Font(size=10, family="Cascadia Mono"),
+        command=file_sync
+    )
+    sync_files.grid(row=7, column=1)

@@ -9,7 +9,7 @@ from tkinter import messagebox
 from tkinter import filedialog
 from tkinter.font import Font
 
-import player.config as config
+import player.data as data
 
 def file_convert(title):
     mp4 = f'./Audio bin/{title}.mp4'
@@ -26,14 +26,14 @@ def download(*, title=None, link=None):
     global prog_window
     prog_window = Toplevel()
     prog_window.wm_title("Progress")
-    prog_window.configure(bg=config.view("back_colour"))
+    prog_window.configure(bg=data.view("back_colour", "c"))
     global prog_label
     prog_label = Label(
         prog_window,
         text="Starting download...",
         font=Font(size=14, family="Cascadia Mono"),
         fg="white",
-        bg=config.view("back_colour")
+        bg=data.view("back_colour", "c")
     )
     prog_label.pack()
 
@@ -82,7 +82,7 @@ def download(*, title=None, link=None):
     prog_window.destroy()
     messagebox.showinfo(
         title="Song Downloaded",
-        message=f"Downloaded:\n{title}\n\nPlease refresh the song list!"
+        message=f"Downloaded:\n{title}"
     )
 
 def file_opener():
@@ -103,11 +103,11 @@ def file_opener():
     # TODO: update song list
 
 def download_window():
-    back_colour = config.view("back_colour")
-    fore_colour = config.view("fore_colour")
+    back_colour = data.view("back_colour", "c")
+    fore_colour = data.view("fore_colour", "c")
 
     window = Toplevel()
-    window.configure(bg=config.view("back_colour"))
+    window.configure(bg=data.view("back_colour", "c"))
     window.geometry("300x300")
     window.wm_title("Add music")
     window.resizable(False, False)

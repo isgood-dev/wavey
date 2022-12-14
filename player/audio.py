@@ -1,7 +1,7 @@
 import pyglet
 import os
 
-import player.config as config
+import player.data as data
 
 def interpolate_volume(vol):
     """Converts 0-100 to 0.0 to 1.0 for clean audio"""
@@ -12,7 +12,7 @@ class Audio():
         """Control audio"""
         self.song = None
         self.paused = False
-        self.volume = interpolate_volume(config.view("volume"))
+        self.volume = interpolate_volume(data.view("volume", "c"))
         self.queue = []
 
         self.player = None
@@ -68,7 +68,7 @@ class Audio():
     
     def _set_vol(self, amount):
         """Sets the volume as an integer, between 0 and 100 (also stores volume on disk)"""
-        config.write("volume", amount)
+        data.write("volume", amount, "c")
         if self.player:
             self.player.volume = interpolate_volume(amount)
     

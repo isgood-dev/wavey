@@ -1,6 +1,6 @@
 **.mp3
 **.part
 **.exe
+**.json
 test.py
 **/__pycache__
-config.json

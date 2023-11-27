@@ -15,6 +15,7 @@ import player.files as files
 import player.download as download
 import player.settings as settings
 import player.updater as updater
+import player.playlist as playlist
 
 BACK_COLOUR = data.view("back_colour", "c")
 FORE_COLOUR = data.view("fore_colour", "c")
@@ -165,6 +166,20 @@ class MainWindow(Tk):
             activeforeground=data.view("accent_colour", "c")
         )
         self.delete_song.place(x=25, y=130)
+
+        self.myplaylists = widgets.HoverButton(
+            self,
+            text="My Playlists",
+            bg=BACK_COLOUR,
+            fg="white",
+            compound="left",
+            font=Font(size=12, family="Cascadia Mono", weight="bold"),
+            borderwidth=0,
+            command=playlist.show_playlists,
+            activebackground=BACK_COLOUR,
+            activeforeground=data.view("accent_colour", "c")
+        )
+        self.myplaylists.place(x=25, y=160)
 
         self.update = widgets.HoverButton(
             self,
@@ -320,7 +335,7 @@ class MainWindow(Tk):
             duration = duration.info.length
             duration = str(datetime.timedelta(seconds=round(duration)))[2:]
         
-            if len(file[:-4]) > 40: # Reduce length of song to prevent duration from being pushed off the screen.
+            if len(file[:-4]) > 40: # Reduce length of song name to prevent duration from being pushed off the screen.
                 to_chop = len(file[:-4]) - 40
                 file = file[:-to_chop] + "..."
             else:

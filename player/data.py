@@ -1,4 +1,7 @@
-import os, json, uuid
+import os
+import json
+import string
+import random
 
 config_file = "./data/config.json"
 song_file = "./data/songs.json"
@@ -47,11 +50,31 @@ def add_song(name: str):
     if name in all_files.values():
         return
     
-    all_files[uuid.uuid4()] = name
+    songid = ""
+    for _ in range(5):
+        songid = songid + random.choice(string.hexdigits())
+    
+    all_files[songid] = name
 
     with open(parse_file(song_file), "w") as file:
         json.dump(all_files, file, indent=4)
+
+def verify_link_integrity():
+    """Verifies the integrity of all files in playlists.json and songs.json, ensuring all MP3s are linked to a primary key."""
+    for file in os.listdir("./Audio bin/"):
+        if file.endswith(".mp3"):
+            filename = file.split(".")
+
+            infile = view(filename, "s")
+
+            if not infile:
+                add_song()
+
+def get_playlists():
+    with open(playlist_file) as file:
+        decoded = json.load(file)
     
+    return decoded
 
 # Set default settings if not set already
 if not view("volume", "c"):

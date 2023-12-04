@@ -8,7 +8,7 @@ import player.data as data
 
 def open_filedialog(split=False):
     file = filedialog.askopenfile(
-        initialdir="./Audio bin/",
+        initialdir="./data/audio/",
         title="Select an MP3 file",
         filetypes=(
             ("MP3 files", "*.mp3"),
@@ -82,7 +82,7 @@ def rename_window():
     new_name.pack()
 
     def rename():
-        os.rename(f"./Audio bin/{file}", "./Audio bin/" + new_name.get() + ".mp3")
+        os.rename(f"./data/audio/{file}", "./data/audio/" + new_name.get() + ".mp3")
         window.destroy()
         messagebox.showinfo(
             title="Success!",
@@ -105,7 +105,7 @@ def delete_file():
     if not file:
         return
 
-    os.remove("./Audio bin/" + file)
+    os.remove("./data/audio" + file)
 
     messagebox.showinfo(
         title="File deleted",

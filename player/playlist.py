@@ -30,7 +30,7 @@ def create_playlist():
     window.configure(bg=data.view("back_colour", "c"))
     window.resizable(False, False)
     
-    if len([f for f in os.listdir("./Audio bin/") if f.endswith(".mp3")]) == 0:
+    if len([f for f in os.listdir("./data/audio") if f.endswith(".mp3")]) == 0:
         tk.Label(
             window,
             text="You don't have any playlists",
@@ -40,7 +40,7 @@ def create_playlist():
         ).grid(row=0, column=0)
         return
     
-    for file in os.listdir("./Audio bin/"):
+    for file in os.listdir("./data/audio"):
             if not file.endswith(".mp3"):
                 continue
 

@@ -288,7 +288,7 @@ class MainWindow(Tk):
         self.scroll_frame = self.sbf.scrolled_frame
         i = 1
 
-        if len([f for f in os.listdir("./Audio bin/") if f.endswith(".mp3")]) == 0:
+        if len([f for f in os.listdir("./data/audio") if f.endswith(".mp3")]) == 0:
             Label(
                 self.scroll_frame,
                 text="Songs that you have will appear here, but you don't have any!",
@@ -325,13 +325,13 @@ class MainWindow(Tk):
         refresh.grid(row=0, column=1, sticky="w")
             
 
-        for file in os.listdir("./Audio bin/"):
+        for file in os.listdir("./data/audio"):
             if not file.endswith(".mp3"):
                 continue
 
             i += 1
             
-            duration = MP3("./Audio bin/" + file)
+            duration = MP3("./data/audio/" + file)
             duration = duration.info.length
             duration = str(datetime.timedelta(seconds=round(duration)))[2:]
         
@@ -369,13 +369,13 @@ class MainWindow(Tk):
             ).grid(row=i, column=2, sticky="e")
 
     def play(self, source, append_queue=False):
-        duration = MP3("./Audio bin/" + source + ".mp3")
+        duration = MP3("./data/audio/" + source + ".mp3")
         duration = duration.info.length
         self.duration = str(datetime.timedelta(seconds=round(duration)))[2:]
 
         self.current_song = source
 
-        self.audio._play(os.getcwd() + f"/Audio bin/{source}.mp3", append_queue=append_queue)
+        self.audio._play(os.getcwd() + f"/data/audio/{source}.mp3", append_queue=append_queue)
         self.update_now_playing()
 
         threading.Thread(target=self.start_duration).start()

@@ -61,7 +61,7 @@ def add_song(name: str):
 
 def verify_link_integrity():
     """Verifies the integrity of all files in playlists.json and songs.json, ensuring all MP3s are linked to a primary key."""
-    for file in os.listdir("./Audio bin/"):
+    for file in os.listdir("./data/audio"):
         if file.endswith(".mp3"):
             filename = file.split(".")
 

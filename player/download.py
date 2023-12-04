@@ -12,14 +12,14 @@ from tkinter.font import Font
 import player.data as data
 
 def file_convert(title):
-    mp4 = f'./Audio bin/{title}.mp4'
-    mp3 = f'./Audio bin/{title}.mp3'
+    mp4 = f'./data/audio/{title}.mp4'
+    mp3 = f'./data/audio/{title}.mp3'
     clip = VideoFileClip(mp4)
     audioclip = clip.audio
     audioclip.write_audiofile(mp3)
     audioclip.close()
     clip.close()
-    os.remove(f'./Audio bin/{title}.mp4')
+    os.remove(f'./data/audio/{title}.mp4')
 
 def download(*, title=None, link=None):
     win.destroy()
@@ -73,7 +73,7 @@ def download(*, title=None, link=None):
     print(f"Downloading: {title} ({link})")
     video = video.getbest()
     video.download(
-        filepath="./Audio bin/",
+        filepath="./data/audio",
         callback=_callback
     )
     prog_label.configure(text="Converting to audio")
@@ -99,7 +99,7 @@ def file_opener():
 
     filename = file.name.split("/")
     filename = filename[len(filename)-1]
-    shutil.copyfile(file.name, f"./Audio bin/{filename}")
+    shutil.copyfile(file.name, f"./data/audio/{filename}")
     # TODO: update song list
 
 def download_window():

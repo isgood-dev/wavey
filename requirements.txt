@@ -1,7 +1,6 @@
 moviepy
-audioplayer
 youtube-search-python
 mutagen
 pyglet
-git+https://github.com/acatiadroid/pafy
+pytube
 youtube-dl

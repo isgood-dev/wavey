@@ -197,7 +197,7 @@ class MainWindow(Tk):
                 font=self.assets["cascadia"],
                 fg="white"
             ).grid(row=i, column=2, sticky="e")
-
+    
     def play(self, source, append_queue=False):
         duration = MP3("./data/audio/" + source + ".mp3")
         duration = duration.info.length
@@ -208,9 +208,12 @@ class MainWindow(Tk):
         self.audio._play(os.getcwd() + f"/data/audio/{source}.mp3", append_queue=append_queue)
         self.update_now_playing()
 
+        print(1)
         self.timer = timer.Timer(self.duration)
-        
-        threading.Thread(target=self.timer.start).start()
+        print(2)
+        thread = threading.Thread(target=self.timer.start)
+        thread.daemon = True
+        thread.start()
 
         while self.timer.is_active:
             if self.audio.paused:

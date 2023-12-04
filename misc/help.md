@@ -15,7 +15,7 @@ This file is to help you on specific functions on the music.
 * To download a song by the YouTube URL, just enter the full URL into the "Add song by YT URL" box and click Download.
 
 
-* To import music from your computer, click the "Import Music from PC" button, find the MP3 file on your computer, click it and click "Open". The MP3 file will then get copied into the Audio bin directory.
+* To import music from your computer, click the "Import Music from PC" button, find the MP3 file on your computer, click it and click "Open". The MP3 file will then get copied into the `./data/audio/` directory.
 
 ## Play audio
 * Click the song you want to play in the list box.

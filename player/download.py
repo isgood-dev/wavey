@@ -12,24 +12,25 @@ from tkinter.font import Font
 import player.data as data
 
 def file_convert(title):
-    mp4 = f'./Audio bin/{title}.mp4'
-    mp3 = f'./Audio bin/{title}.mp3'
+    mp4 = f'./data/audio/{title}.mp4'
+    mp3 = f'./data/audio/{title}.mp3'
     clip = VideoFileClip(mp4)
     audioclip = clip.audio
     audioclip.write_audiofile(mp3)
     audioclip.close()
     clip.close()
-    os.remove(f'./Audio bin/{title}.mp4')
+    os.remove(f'./data/audio/{title}.mp4')
 
 def download(*, title=None, link=None):
     win.destroy()
-    global prog_window
-    prog_window = Toplevel()
-    prog_window.wm_title("Progress")
-    prog_window.configure(bg=data.view("back_colour", "c"))
+    global root
+    root = Toplevel()
+    root.wm_title("Progress")
+    root.wm_attributes("-topmost", 1)
+    root.configure(bg=data.view("back_colour", "c"))
     global prog_label
     prog_label = Label(
-        prog_window,
+        root,
         text="Starting download...",
         font=Font(size=14, family="Cascadia Mono"),
         fg="white",
@@ -73,13 +74,13 @@ def download(*, title=None, link=None):
     print(f"Downloading: {title} ({link})")
     video = video.getbest()
     video.download(
-        filepath="./Audio bin/",
+        filepath="./data/audio/",
         callback=_callback
     )
     prog_label.configure(text="Converting to audio")
     title = clean_name(title)
     file_convert(title)
-    prog_window.destroy()
+    root.destroy()
     messagebox.showinfo(
         title="Song Downloaded",
         message=f"Downloaded:\n{title}"
@@ -99,7 +100,7 @@ def file_opener():
 
     filename = file.name.split("/")
     filename = filename[len(filename)-1]
-    shutil.copyfile(file.name, f"./Audio bin/{filename}")
+    shutil.copyfile(file.name, f"./data/audio/{filename}")
     # TODO: update song list
 
 def download_window():

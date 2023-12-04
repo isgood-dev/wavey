@@ -155,7 +155,7 @@ class MainWindow(Tk):
         refresh.grid(row=0, column=1, sticky="w")
             
 
-        for file in os.listdir(".//"):
+        for file in os.listdir("./data/audio/"):
             if not file.endswith(".mp3"):
                 continue
 

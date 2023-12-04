@@ -52,14 +52,15 @@ def pick_colour(*, bg=False, fg=False, accent=False, songlist=False):
 
 
 def settings_window():
-    window = tk.Toplevel()
-    window.wm_title("Settings")
-    window.configure(bg=data.view("back_colour", "c"))
-    window.geometry("550x500")
-    window.resizable(False, False)
+    root = tk.Toplevel()
+    root.wm_title("Settings")
+    root.wm_attributes("-topmost", 1)
+    root.configure(bg=data.view("back_colour", "c"))
+    root.geometry("550x500")
+    root.resizable(False, False)
     
     try:
-        window.wm_iconbitmap("player/Assets/settings.ico")
+        root.wm_iconbitmap("player/Assets/settings.ico")
     except TclError:
         pass
 
@@ -68,7 +69,7 @@ def settings_window():
     font = Font(size=11, family="Cascadia Mono")
 
     tk.Label(
-        window,
+        root,
         font=Font(size=13, family="Cascadia Mono", weight="bold"),
         text="Settings",
         fg="white",
@@ -78,7 +79,7 @@ def settings_window():
     # Background
     
     tk.Label(
-        window,
+        root,
         text="Background Colour:",
         font=font,
         bg=BACK_COLOUR,
@@ -86,7 +87,7 @@ def settings_window():
     ).grid(row=3, column=0, sticky="e")
 
     current_bg = tk.Entry(
-        window,
+        root,
         bg=BACK_COLOUR,
         fg="white",
         width=10,
@@ -96,7 +97,7 @@ def settings_window():
     current_bg.insert(0, data.view("back_colour", "c"))
 
     change_bg = tk.Button(
-        window,
+        root,
         text="Change",
         command=lambda: pick_colour(bg=True),
         borderwidth=0,
@@ -109,7 +110,7 @@ def settings_window():
     # Foreground
     
     tk.Label(
-        window,
+        root,
         text="Foreground Colour:",
         font=font,
         bg=BACK_COLOUR,
@@ -117,7 +118,7 @@ def settings_window():
     ).grid(row=4, column=0, sticky="e")
 
     current_fg = tk.Entry(
-        window,
+        root,
         bg=BACK_COLOUR,
         fg="white",
         width=10,
@@ -127,7 +128,7 @@ def settings_window():
     current_fg.insert(0, data.view("fore_colour", "c"))
 
     change_fg = tk.Button(
-        window,
+        root,
         text="Change",
         command=lambda: pick_colour(fg=True),
         borderwidth=0,
@@ -140,7 +141,7 @@ def settings_window():
     # Accent
 
     tk.Label(
-        window,
+        root,
         text="Accent Colour:",
         font=font,
         bg=BACK_COLOUR,
@@ -148,7 +149,7 @@ def settings_window():
     ).grid(row=5, column=0, sticky="e")
 
     current_fg = tk.Entry(
-        window,
+        root,
         bg=BACK_COLOUR,
         fg="white",
         width=10,
@@ -158,7 +159,7 @@ def settings_window():
     current_fg.insert(0, data.view("accent_colour", "c"))
 
     change_fg = tk.Button(
-        window,
+        root,
         text="Change",
         command=lambda: pick_colour(accent=True),
         borderwidth=0,
@@ -171,7 +172,7 @@ def settings_window():
     # Songlist colour
 
     tk.Label(
-        window,
+        root,
         text="Song list Colour:",
         font=font,
         bg=BACK_COLOUR,
@@ -179,7 +180,7 @@ def settings_window():
     ).grid(row=6, column=0, sticky="e")
 
     current_songlist = tk.Entry(
-        window,
+        root,
         bg=BACK_COLOUR,
         fg="white",
         width=10,
@@ -189,7 +190,7 @@ def settings_window():
     current_songlist.insert(0, data.view("songlist_colour", "c"))
 
     change_songlist = tk.Button(
-        window,
+        root,
         text="Change",
         command=lambda: pick_colour(accent=True),
         borderwidth=0,
@@ -200,7 +201,7 @@ def settings_window():
     change_songlist.grid(row=6, column=2)
 
     tk.Label(
-        window,
+        root,
         text="Sync files:",
         font=font,
         bg=BACK_COLOUR,
@@ -208,7 +209,7 @@ def settings_window():
     ).grid(row=7, column=0)
 
     sync_files = tk.Button(
-        window,
+        root,
         text="Synchronize",
         fg="white",
         bg=FORE_COLOUR,

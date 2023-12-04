@@ -30,19 +30,20 @@ def rename_window():
     if not file:
         return 
         
-    window = tk.Toplevel()
-    window.configure(bg=data.view("back_colour", "c"))
-    window.geometry("450x300")
-    window.wm_title("Rename a file")
-    window.resizable(True, False)
+    root = tk.Toplevel()
+    root.configure(bg=data.view("back_colour", "c"))
+    root.geometry("450x300")
+    root.wm_attributes("-topmost", 1)
+    root.wm_title("Rename a file")
+    root.resizable(True, False)
     
     try:
-        window.iconbitmap("player/Assets/pencil.ico")
+        root.iconbitmap("player/Assets/pencil.ico")
     except TclError:
         pass
     
     tk.Label(
-        window,
+        root,
         text="Rename a file",
         font=Font(size=13, family="Cascadia Mono"),
         fg="white",
@@ -50,7 +51,7 @@ def rename_window():
     ).pack()
 
     tk.Label(
-        window,
+        root,
         text="Selected song",
         font=Font(size=10, family="Cascadia Mono"),
         fg="white",
@@ -58,7 +59,7 @@ def rename_window():
     )
 
     selected_song = tk.Label(
-        window,
+        root,
         text=file,
         fg="#2ca351",
         bg=data.view("back_colour", "c"),
@@ -66,7 +67,7 @@ def rename_window():
     ).pack()
 
     tk.Label(
-        window, 
+        root, 
         text="Enter new name: (don't include .mp3)",
         fg="white", 
         bg=data.view("back_colour", "c"), 
@@ -74,7 +75,7 @@ def rename_window():
     ).pack(pady=10)
 
     new_name = tk.Entry(
-        window,
+        root,
         fg="white",
         bg=data.view("back_colour", "c"),
         font=Font(size=10, family="Cascadia Mono")
@@ -83,14 +84,14 @@ def rename_window():
 
     def rename():
         os.rename(f"./data/audio/{file}", "./data/audio/" + new_name.get() + ".mp3")
-        window.destroy()
+        root.destroy()
         messagebox.showinfo(
             title="Success!",
             message="File renamed successfully."
         )
 
     btn = tk.Button(
-        window,
+        root,
         fg="white",
         bg=data.view("fore_colour", "c"),
         text="Done",

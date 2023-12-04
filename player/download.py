@@ -23,13 +23,14 @@ def file_convert(title):
 
 def download(*, title=None, link=None):
     win.destroy()
-    global prog_window
-    prog_window = Toplevel()
-    prog_window.wm_title("Progress")
-    prog_window.configure(bg=data.view("back_colour", "c"))
+    global root
+    root = Toplevel()
+    root.wm_title("Progress")
+    root.wm_attributes("-topmost", 1)
+    root.configure(bg=data.view("back_colour", "c"))
     global prog_label
     prog_label = Label(
-        prog_window,
+        root,
         text="Starting download...",
         font=Font(size=14, family="Cascadia Mono"),
         fg="white",
@@ -79,7 +80,7 @@ def download(*, title=None, link=None):
     prog_label.configure(text="Converting to audio")
     title = clean_name(title)
     file_convert(title)
-    prog_window.destroy()
+    root.destroy()
     messagebox.showinfo(
         title="Song Downloaded",
         message=f"Downloaded:\n{title}"

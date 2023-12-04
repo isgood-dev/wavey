@@ -24,7 +24,7 @@ def file_sync():
     with open("./data/songs.json") as file:
         stored_songs = json.load(file)
         
-    for f in os.listdir("./data/audio"):
+    for f in os.listdir("./data/audio/"):
         if f not in stored_songs.values():
             data.add_song(f)
     

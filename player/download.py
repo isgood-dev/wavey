@@ -74,7 +74,7 @@ def download(*, title=None, link=None):
     print(f"Downloading: {title} ({link})")
     video = video.getbest()
     video.download(
-        filepath="./data/audio",
+        filepath="./data/audio/",
         callback=_callback
     )
     prog_label.configure(text="Converting to audio")

@@ -170,7 +170,7 @@ class MainWindow(Tk):
         self.scroll_frame = self.sbf.scrolled_frame
         i = 1
 
-        if len([f for f in os.listdir("./data/audio") if f.endswith(".mp3")]) == 0:
+        if len([f for f in os.listdir("./data/audio/") if f.endswith(".mp3")]) == 0:
             Label(
                 self.scroll_frame,
                 text="Songs that you have will appear here, but you don't have any!",
@@ -207,7 +207,7 @@ class MainWindow(Tk):
         refresh.grid(row=0, column=1, sticky="w")
             
 
-        for file in os.listdir("./data/audio"):
+        for file in os.listdir(".//"):
             if not file.endswith(".mp3"):
                 continue
 

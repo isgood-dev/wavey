@@ -106,7 +106,7 @@ def delete_file():
     if not file:
         return
 
-    os.remove("./data/audio" + file)
+    os.remove("./data/audio/" + file)
 
     messagebox.showinfo(
         title="File deleted",

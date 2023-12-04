@@ -12,6 +12,7 @@ import player.window.widgets as widgets
 import player.data as data
 import player.audio as audio
 import player.files as files
+import player.timer as timer
 import player.download as download
 import player.settings as settings
 import player.updater as updater
@@ -31,6 +32,7 @@ class MainWindow(Tk):
         self.resizable(False, False)
 
         self.audio = audio.Audio()
+        self.timer = None
 
         self.assets = {
             "pauseplay": PhotoImage(file="player/Assets/pauseplay.png"),
@@ -222,60 +224,6 @@ class MainWindow(Tk):
         """Sets the "now playing" label"""
         return self.now_playing.configure(text=text)
 
-    def start_duration(self, from_paused=False, clear=False):
-        if clear:
-            self.now_playing.configure(text="Nothing is playing.")
-            self.duration_label.configure(text="00:00 / 00:00")
-            return
-        
-        if from_paused:
-            mins = self.duration_data["m"]
-            secs = self.duration_data["s"]
-        else:
-            mins = 0
-            secs = 0
-
-        playing = self.current_song
-        
-
-        while f"{str(secs).zfill(2)}:{str(mins).zfill(2)}" != self.duration:
-            if self.current_song != playing:
-                break
-
-            if not self.audio.player or not self.audio.song:
-                self.now_playing.configure(text="Nothing is playing.")
-                self.duration_label.configure(text="00:00 / 00:00")
-                break
-
-            if self.audio.paused:
-                # Stop the counter from continuing as player is paused.
-                self.duration_data = {
-                    "s": secs,
-                    "m": mins
-                }
-                return
-
-            if secs == 59:
-                mins += 1
-                secs = 0
-            else:
-                secs += 1
-                
-            sleep(1)
-
-            pad_zeros_mins = str(mins).zfill(2)
-            pad_zeros_secs = str(secs).zfill(2)
-            joined_duration = f"{pad_zeros_mins}:{pad_zeros_secs}"
-
-            if joined_duration == self.duration:
-                self.audio._stop()
-                self.now_playing.configure(text="Nothing is playing.")
-                self.duration_label.configure(text="00:00 / 00:00")
-                return
-            
-            self.duration_label.configure(
-                text=f"{str(pad_zeros_mins)}:{pad_zeros_secs} / {self.duration}")
-
     def refresh_songlist(self):
         if self.sbf:
             self.sbf.destroy()
@@ -378,7 +326,25 @@ class MainWindow(Tk):
         self.audio._play(os.getcwd() + f"/Audio bin/{source}.mp3", append_queue=append_queue)
         self.update_now_playing()
 
-        threading.Thread(target=self.start_duration).start()
+        self.timer = timer.Timer(self.duration)
+        
+        threading.Thread(target=self.timer.start).start()
+
+        while self.timer.is_active:
+            if self.audio.paused:
+                continue
+            
+            if self.timer.end_reached:
+                self.audio._stop()
+                self.now_playing.configure(text="Nothing is playing.")
+                self.duration_label.configure(text="00:00 / 00:00")
+                return
+            
+            self.duration_label.configure(
+                text=f"{self.timer.current_time} / {self.duration}"
+            )
+            
+
     
     def update_now_playing(self):
         song = self.current_song

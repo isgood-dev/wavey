@@ -1,3 +1,15 @@
+# 05/12/2023
+This is the first update in a while. In the time between the last update, many essential functionalities of the music player stopped working. This addresses those issues.
+* All downloaded audio will now download into `data/audio/` instead of `Audio bin/`.
+* Sub menus will be pushed as the topmost window now.
+* Implemented song progress timer as separate class instead of having it entirely done in the main class.
+* `requirements.txt` hadn't been updated for a while and included loads of old, outdated dependancies. This has been fixed.
+* Replaced Pafy with PyTube. In reality I should've done this sooner since I've had issue after issue with Pafy. It seems that the Pafy library had become neglected and no longer worked.
+    - For example, Pafy still doesn't account for YouTube removing the dislike count and still tries to grab it, causing an error.
+    - As a result, downloading audio has become *a lot* quicker.
+        - If it was downloading a high quality song, it would take minutes, whereas this only takes seconds.
+* Cleaned up a lot of code.
+
 # 22/10/2022 (pre-release)
 * Using Pyglet for audio playing.
 * Added Music Player installer.

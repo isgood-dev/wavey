@@ -67,7 +67,7 @@ class MainWindow(Tk):
         self.ispaused = Label(self, text="", bg=FORE_COLOUR, fg="white", font=self.assets["cascadia"])
         self.ispaused.place(relx=0.5, rely=0.97, anchor=CENTER)
 
-        self.pauseplay_button = Button(self, image=self.assets["pauseplay"], background=FORE_COLOUR, borderwidth=0, command=self.audio.pause_or_resume, activebackground=FORE_COLOUR)
+        self.pauseplay_button = Button(self, image=self.assets["pauseplay"], background=FORE_COLOUR, borderwidth=0, command=self.pause_or_resume, activebackground=FORE_COLOUR)
         self.pauseplay_button.place(relx=0.499, rely=0.93, anchor=CENTER)
 
         self.addmusic_button = widgets.HoverButton(self, text="Add music", bg=BACK_COLOUR, fg="white", compound="left", borderwidth=0, command=download.download_window, activebackground=BACK_COLOUR, activeforeground=data.view("accent_colour", "c"))
@@ -218,7 +218,7 @@ class MainWindow(Tk):
         thread.start()
 
         
-    def pause_or_resume(self):
+    def pause_or_resume(self, event=None):
         if self.audio.paused:
             self.audio.pause_or_resume()
             self.timer.paused = False

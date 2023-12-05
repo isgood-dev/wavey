@@ -1,26 +1,38 @@
 from time import sleep
 
 class Timer:
-    def __init__(self, duration):
+    def __init__(self, duration=None):
         self.minutes = 0
         self.seconds = 0
         self.current_time = ""
 
-        self.duration = duration
+        self.total_duration = duration
         self.paused = False
         self.is_active = False
         self.end_reached = False
+        self.stop = False
 
-    def start(self):
+        self.first_iteration = True
+
+    def start(self, progress_label):
+        """Starts the progress timer."""
+        self.is_active = True
         formatted_mins = str(self.minutes).zfill(2)
         formatted_secs = str(self.seconds).zfill(2)
         formatted_duration = f"{formatted_mins}:{formatted_secs}"
 
-        while formatted_duration != self.duration:
-            self.is_active = True
+        while formatted_duration != self.total_duration:
+            if not self.first_iteration:
+                sleep(1)
 
             if self.paused:
+                continue
+
+            if self.stop:
                 break
+
+            if self.first_iteration:
+                self.first_iteration = False
             
             if self.seconds == 59:
                 self.minutes += 1
@@ -28,13 +40,12 @@ class Timer:
             else:
                 self.seconds += 1
 
-            sleep(1)
-
             new_secs = str(self.seconds).zfill(2)
             new_mins = str(self.minutes).zfill(2)
             self.current_time = f"{new_mins}:{new_secs}"
 
-            if self.current_time == self.duration:
+            progress_label.configure(text=f"{self.current_time} / {self.total_duration}")
+
+            if self.current_time == self.total_duration:
                 self.end_reached = True
-                self.is_active = False
-                return
+                break

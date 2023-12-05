@@ -32,7 +32,7 @@ class MainWindow(Tk):
         self.resizable(False, False)
 
         self.audio = audio.Audio()
-        self.timer = None
+        self.timer = timer.Timer()
 
         self.assets = {
             "pauseplay": PhotoImage(file="player/Assets/pauseplay.png"),
@@ -46,7 +46,7 @@ class MainWindow(Tk):
         self.current_song = None
         self.refresh_songlist()
 
-        self.bind("<space>", self.audio.pause_or_resume)
+        self.bind("<space>", self.pause_or_resume)
         self.bind("<Escape>", self.close_window)
 
         try:
@@ -99,7 +99,7 @@ class MainWindow(Tk):
         self.volume.bind("<ButtonRelease-1>", self.set_volume)
         self.volume.place(x=530, y=535)
 
-        self.stop_button = Button(self, image=self.assets["stop"], background=FORE_COLOUR, borderwidth=0, command=self.audio._stop, activebackground=FORE_COLOUR)
+        self.stop_button = Button(self, image=self.assets["stop"], background=FORE_COLOUR, borderwidth=0, command=self.stop, activebackground=FORE_COLOUR)
         self.stop_button.place(x=375, y=545)
     
     def set_np(self, text: str):
@@ -199,6 +199,10 @@ class MainWindow(Tk):
             ).grid(row=i, column=2, sticky="e")
     
     def play(self, source, append_queue=False):
+        if self.timer.is_active:
+            self.audio._stop() # if a song is already playing, stop that song to allow new one to play
+            self.timer.stop = True
+
         duration = MP3("./data/audio/" + source + ".mp3")
         duration = duration.info.length
         self.duration = str(datetime.timedelta(seconds=round(duration)))[2:]
@@ -208,28 +212,27 @@ class MainWindow(Tk):
         self.audio._play(os.getcwd() + f"/data/audio/{source}.mp3", append_queue=append_queue)
         self.update_now_playing()
 
-        print(1)
         self.timer = timer.Timer(self.duration)
-        print(2)
-        thread = threading.Thread(target=self.timer.start)
+        thread = threading.Thread(target=lambda: self.timer.start(self.duration_label))
         thread.daemon = True
         thread.start()
 
-        while self.timer.is_active:
-            if self.audio.paused:
-                continue
-            
-            if self.timer.end_reached:
-                self.audio._stop()
-                self.now_playing.configure(text="Nothing is playing.")
-                self.duration_label.configure(text="00:00 / 00:00")
-                return
-            
-            self.duration_label.configure(
-                text=f"{self.timer.current_time} / {self.duration}"
-            )
-            
+        
+    def pause_or_resume(self):
+        if self.audio.paused:
+            self.audio.pause_or_resume()
+            self.timer.paused = False
+        else:
+            self.audio.pause_or_resume()
+            self.timer.paused = True
 
+    def stop(self):
+        self.audio._stop()
+        self.timer.stop = True
+
+        self.duration_label.configure(text="00:00 / 00:00")
+        self.now_playing.configure(text="Nothing is playing.")
+            
     
     def update_now_playing(self):
         song = self.current_song

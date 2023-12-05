@@ -1,7 +1,7 @@
 <h1 align="center">Music Player</h1>
 <h3 align="center">A simple music player created using Python and Tkinter to play music (or any audio) from YouTube or your computer!
 
-*Created by acatia#5378*
+*Created by acatia*
 
 </h3>
 

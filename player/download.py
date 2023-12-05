@@ -1,9 +1,10 @@
 import threading
-import pafy
 import os
 import shutil
+from pytube import YouTube
+from pytube.exceptions import RegexMatchError
 from youtubesearchpython import VideosSearch
-from moviepy.video.io.VideoFileClip import VideoFileClip # Importing from submodule as moviepy.editor is intended for manual use.
+from moviepy.video.io.VideoFileClip import VideoFileClip
 from tkinter import *
 from tkinter import messagebox
 from tkinter import filedialog
@@ -12,33 +13,32 @@ from tkinter.font import Font
 import player.data as data
 
 def file_convert(title):
-    mp4 = f'./Audio bin/{title}.mp4'
-    mp3 = f'./Audio bin/{title}.mp3'
+    mp4 = f'./data/audio/{title}.mp4'
+    mp3 = f'./data/audio/{title}.mp3'
     clip = VideoFileClip(mp4)
     audioclip = clip.audio
     audioclip.write_audiofile(mp3)
     audioclip.close()
     clip.close()
-    os.remove(f'./Audio bin/{title}.mp4')
+    os.remove(f'./data/audio/{title}.mp4')
 
 def download(*, title=None, link=None):
     win.destroy()
-    global prog_window
-    prog_window = Toplevel()
-    prog_window.wm_title("Progress")
-    prog_window.configure(bg=data.view("back_colour", "c"))
+    global root
+    root = Toplevel()
+    root.wm_title("Progress")
+    root.wm_attributes("-topmost", 1)
+    root.configure(bg=data.view("back_colour", "c"))
+
     global prog_label
     prog_label = Label(
-        prog_window,
+        root,
         text="Starting download...",
         font=Font(size=14, family="Cascadia Mono"),
         fg="white",
         bg=data.view("back_colour", "c")
     )
     prog_label.pack()
-
-    def _callback(total, recvd, ratio, rate, eta):
-        prog_label.configure(text=f"Downloading: {round(ratio*100)}% [{eta}s]")
 
     def clean_name(title):
         """Removes any illegal file characters from the name given from YT"""
@@ -57,29 +57,31 @@ def download(*, title=None, link=None):
         url = result["link"]
         title = result["title"]
         
-        video = pafy.new(url)   
-    
+        video = YouTube(url)   
     else:
         try:
-            video = pafy.new(link)
-        except ValueError:
+            video = YouTube(link)
+        except RegexMatchError:
             return messagebox.showerror(
                 title="Invalid URL",
                 message="The URL provided is invalid. Please provide the 11 character video id or the URL to the video."
             )
-        title = video.title
-        link = video.watchv_url
+    
+    video_info = video.streams.filter(progressive=True, file_extension="mp4").order_by("resolution").first()
+    title = video_info.title
+    link = video_info.url
     
     print(f"Downloading: {title} ({link})")
-    video = video.getbest()
-    video.download(
-        filepath="./Audio bin/",
-        callback=_callback
-    )
+    prog_label.configure(text=f"Downloading: {title}")
+
+    clean_title = clean_name(title)
+    video_info.download("./data/audio/", clean_title + ".mp4")
+
     prog_label.configure(text="Converting to audio")
-    title = clean_name(title)
-    file_convert(title)
-    prog_window.destroy()
+    file_convert(clean_title)
+    
+    root.destroy()
+
     messagebox.showinfo(
         title="Song Downloaded",
         message=f"Downloaded:\n{title}"
@@ -99,7 +101,7 @@ def file_opener():
 
     filename = file.name.split("/")
     filename = filename[len(filename)-1]
-    shutil.copyfile(file.name, f"./Audio bin/{filename}")
+    shutil.copyfile(file.name, f"./data/audio/{filename}")
     # TODO: update song list
 
 def download_window():

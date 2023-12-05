@@ -72,7 +72,7 @@ class Audio():
         if self.player:
             self.player.volume = interpolate_volume(amount)
     
-    def pause_or_resume(self, _):
+    def pause_or_resume(self):
         """Pauses/resumes the player depending on whether player is paused or not"""
         if self.paused:
             self.player.play()

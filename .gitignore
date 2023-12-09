@@ -2,5 +2,6 @@
 **.part
 **.exe
 **.json
+**.log
 test.py
 **/__pycache__

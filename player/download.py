@@ -1,10 +1,12 @@
 import threading
 import os
 import shutil
+import logging
 from pytube import YouTube
 from pytube.exceptions import RegexMatchError
 from youtubesearchpython import VideosSearch
 from moviepy.video.io.VideoFileClip import VideoFileClip
+
 from tkinter import *
 from tkinter import messagebox
 from tkinter import filedialog
@@ -12,184 +14,191 @@ from tkinter.font import Font
 
 import player.data as data
 
-def file_convert(title):
-    mp4 = f'./data/audio/{title}.mp4'
-    mp3 = f'./data/audio/{title}.mp3'
-    clip = VideoFileClip(mp4)
-    audioclip = clip.audio
-    audioclip.write_audiofile(mp3)
-    audioclip.close()
-    clip.close()
-    os.remove(f'./data/audio/{title}.mp4')
 
-def download(*, title=None, link=None):
-    win.destroy()
-    global root
-    root = Toplevel()
-    root.wm_title("Progress")
-    root.wm_attributes("-topmost", 1)
-    root.configure(bg=data.view("back_colour", "c"))
+class Download:
+    def __init__(self):
+        self._log = logging.getLogger("app.download")
+        self._log.info("Download has been initialized")
+        self.root = None
+        self.dl_root = None
 
-    global prog_label
-    prog_label = Label(
-        root,
-        text="Starting download...",
-        font=Font(size=14, family="Cascadia Mono"),
-        fg="white",
-        bg=data.view("back_colour", "c")
-    )
-    prog_label.pack()
+        self.prog_label = None
 
-    def clean_name(title):
-        """Removes any illegal file characters from the name given from YT"""
-        bannedchars = ["<", ">", ":", "\"", "/", "\\", "|", "?", "*"] # banned characters in Windows.
-        for char in bannedchars:                                      # may not apply to other operating systems.
-            if char in title:
-                title = title.replace(char, "_")
+    def file_convert(self, title):
+        mp4 = f'./data/audio/{title}.mp4'
+        mp3 = f'./data/audio/{title}.mp3'
+        clip = VideoFileClip(mp4)
+        audioclip = clip.audio
+        audioclip.write_audiofile(mp3)
+        audioclip.close()
+        clip.close()
+        os.remove(f'./data/audio/{title}.mp4')
+
+    def download(self, *, title=None, link=None):
+        self.dl_root.destroy()
         
-        return title
-    
-    if not link and title:
-        search = VideosSearch(title, limit=1)
-        search = search.result()
+        self.root = Toplevel()
+        self.root.wm_title("Progress")
+        self.root.wm_attributes("-topmost", 1)
+        self.root.configure(bg=data.view("back_colour", "c"))
 
-        result = search["result"][0]
-        url = result["link"]
-        title = result["title"]
-        
-        video = YouTube(url)   
-    else:
-        try:
-            video = YouTube(link)
-        except RegexMatchError:
-            return messagebox.showerror(
-                title="Invalid URL",
-                message="The URL provided is invalid. Please provide the 11 character video id or the URL to the video."
-            )
-    
-    video_info = video.streams.filter(progressive=True, file_extension="mp4").order_by("resolution").first()
-    title = video_info.title
-    link = video_info.url
-    
-    print(f"Downloading: {title} ({link})")
-    prog_label.configure(text=f"Downloading: {title}")
-
-    clean_title = clean_name(title)
-    video_info.download("./data/audio/", clean_title + ".mp4")
-
-    prog_label.configure(text="Converting to audio")
-    file_convert(clean_title)
-    
-    root.destroy()
-
-    messagebox.showinfo(
-        title="Song Downloaded",
-        message=f"Downloaded:\n{title}"
-    )
-
-def file_opener():
-    file = filedialog.askopenfile(
-        initialdir=".",
-        title="Select an MP3 file",
-        filetypes=(
-            ("MP3 files", "*.mp3"),
-            ("all files", "*.*")
+        self.prog_label = Label(
+            self.root,
+            text="Starting download...",
+            font=Font(size=14, family="Cascadia Mono"),
+            fg="white",
+            bg=data.view("back_colour", "c")
         )
-    )
-    if not file:
-        return
+        self.prog_label.pack()
 
-    filename = file.name.split("/")
-    filename = filename[len(filename)-1]
-    shutil.copyfile(file.name, f"./data/audio/{filename}")
-    # TODO: update song list
+        def clean_name(title):
+            """Removes any illegal file characters from the name given from YT"""
+            bannedchars = ["<", ">", ":", "\"", "/", "\\", "|", "?", "*"] # banned characters in Windows.
+            for char in bannedchars:                                      # may not apply to other operating systems.
+                if char in title:
+                    title = title.replace(char, "_")
+            
+            return title
+        
+        if not link and title:
+            search = VideosSearch(title, limit=1)
+            search = search.result()
 
-def download_window():
-    back_colour = data.view("back_colour", "c")
-    fore_colour = data.view("fore_colour", "c")
+            result = search["result"][0]
+            url = result["link"]
+            title = result["title"]
+            
+            video = YouTube(url)   
+        else:
+            try:
+                video = YouTube(link)
+            except RegexMatchError:
+                return messagebox.showerror(
+                    title="Invalid URL",
+                    message="The URL provided is invalid. Please provide the 11 character video id or the URL to the video."
+                )
+        
+        video_info = video.streams.filter(progressive=True, file_extension="mp4").order_by("resolution").first()
+        title = video_info.title
+        link = video_info.url
+        
+        print(f"Downloading: {title} ({link})")
+        self.prog_label.configure(text=f"Downloading: {title}")
 
-    window = Toplevel()
-    window.configure(bg=data.view("back_colour", "c"))
-    window.geometry("300x300")
-    window.wm_title("Add music")
-    window.resizable(False, False)
-    
-    try:
-        window.iconbitmap("player/Assets/downloadicon.ico")
-    except TclError:
-        pass
+        clean_title = clean_name(title)
+        video_info.download("./data/audio/", clean_title + ".mp4")
 
-    global win
-    win = window
-    
-    Label(
-        window,
-        text="Add song by name:",
-        bg=back_colour,
-        fg="white",
-        font=Font(size=10, family="Cascadia Mono")
-    ).pack()
+        self.prog_label.configure(text="Converting to audio")
+        self.file_convert(clean_title)
+        
+        self.root.destroy()
 
-    add_name_entry = Entry(
-        window,
-        fg="white",
-        bg=fore_colour,
-        font=Font(size=10, family="Cascadia Mono")
-    )
-    add_name_entry.pack()
-    
-    download_name = Button(
-        window,
-        fg="white",
-        bg=fore_colour,
-        font=Font(size=10, family="Cascadia Mono"),
-        text="Download",
-        borderwidth=0,
-        command=lambda: threading.Thread(
-            target=lambda: download(
-                title=add_name_entry.get()
+        messagebox.showinfo(
+            title="Song Downloaded",
+            message=f"Downloaded:\n{title}"
+        )
+
+    def file_opener(self):
+        file = filedialog.askopenfile(
+            initialdir=".",
+            title="Select an MP3 file",
+            filetypes=(
+                ("MP3 files", "*.mp3"),
+                ("all files", "*.*")
             )
-        ).start()
-    )
-    download_name.pack()
+        )
+        if not file:
+            return
 
-    Label(
-        window,
-        text="Add song by YT URL:",
-        fg="white",
-        bg=back_colour,
-        font=Font(size=10, family="Cascadia Mono")
-    ).pack()
+        filename = file.name.split("/")
+        filename = filename[len(filename)-1]
+        shutil.copyfile(file.name, f"./data/audio/{filename}")
+        # TODO: update song list
 
-    add_by_url_entry = Entry(
-        window,
-        fg="white",
-        bg=fore_colour,
-        font=Font(size=10, family="Cascadia Mono")
-    )
-    add_by_url_entry.pack()
+    def download_window(self):
+        back_colour = data.view("back_colour", "c")
+        fore_colour = data.view("fore_colour", "c")
 
-    download_url = Button(
-        window,
-        fg="white",
-        bg=fore_colour,
-        font=Font(size=10, family="Cascadia Mono"),
-        text="Download",
-        borderwidth=0,
-        command=lambda: threading.Thread(
-            target=lambda: download(
-                link=add_by_url_entry.get()
-            )
-        ).start()
-    )
-    download_url.pack()
+        self.dl_root = Toplevel()
 
-    import_music = Button(
-        window,
-        fg="white",
-        bg=fore_colour,
-        font=Font(size=10, family="Cascadia Mono"),
-        text="Import Music from PC",
-        command=file_opener
-    )
-    import_music.pack(pady=20)
+        self.dl_root.configure(bg=data.view("back_colour", "c"))
+        self.dl_root.geometry("300x300")
+        self.dl_root.wm_title("Add music")
+        self.dl_root.resizable(False, False)
+        
+        try:
+            self.dl_root.iconbitmap("player/Assets/downloadicon.ico")
+        except TclError:
+            pass
+
+        Label(
+            self.dl_root,
+            text="Add song by name:",
+            bg=back_colour,
+            fg="white",
+            font=Font(size=10, family="Cascadia Mono")
+        ).pack()
+
+        add_name_entry = Entry(
+            self.dl_root,
+            fg="white",
+            bg=fore_colour,
+            font=Font(size=10, family="Cascadia Mono")
+        )
+        add_name_entry.pack()
+        
+        download_name = Button(
+            self.dl_root,
+            fg="white",
+            bg=fore_colour,
+            font=Font(size=10, family="Cascadia Mono"),
+            text="Download",
+            borderwidth=0,
+            command=lambda: threading.Thread(
+                target=lambda: self.download(
+                    title=add_name_entry.get()
+                )
+            ).start()
+        )
+        download_name.pack()
+
+        Label(
+            self.dl_root,
+            text="Add song by YT URL:",
+            fg="white",
+            bg=back_colour,
+            font=Font(size=10, family="Cascadia Mono")
+        ).pack()
+
+        add_by_url_entry = Entry(
+            self.dl_root,
+            fg="white",
+            bg=fore_colour,
+            font=Font(size=10, family="Cascadia Mono")
+        )
+        add_by_url_entry.pack()
+
+        download_url = Button(
+            self.dl_root,
+            fg="white",
+            bg=fore_colour,
+            font=Font(size=10, family="Cascadia Mono"),
+            text="Download",
+            borderwidth=0,
+            command=lambda: threading.Thread(
+                target=lambda: self.download(
+                    link=add_by_url_entry.get()
+                )
+            ).start()
+        )
+        download_url.pack()
+
+        import_music = Button(
+            self.dl_root,
+            fg="white",
+            bg=fore_colour,
+            font=Font(size=10, family="Cascadia Mono"),
+            text="Import Music from PC",
+            command=self.file_opener
+        )
+        import_music.pack(pady=20)

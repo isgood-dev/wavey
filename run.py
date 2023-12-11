@@ -1,15 +1,9 @@
-"""
-This file will run the music player.
+# Entry point to run the music player
 
-Please refer to the README.md for guidance on how to set up this music player - you may need to install some dependencies.
+import player.sys_logger as logger
+import logging
 
-Please respect the GPL v3.0 license in the LICENSE file.
-
-Created by acatia (acatia#5378)
-
-Check out misc/help.mdown if you need help with something or join the Discord server:
-https://discord.gg/p5bURjs
-"""
+_log = logging.getLogger("app.runner")
 
 class Runner:
     def __init__(self) -> None:
@@ -20,7 +14,9 @@ class Runner:
     def run(self):
         self.mainwindow._run()
 
+logger.setup_logging()
 runner = Runner()
 
 if __name__ == "__main__":
+    _log.info("Runner has been initialized")
     runner.run()

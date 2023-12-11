@@ -1,7 +1,7 @@
 import datetime
 import os
 import threading
-from time import sleep
+import logging
 from mutagen.mp3 import MP3
 
 from tkinter import *
@@ -21,6 +21,8 @@ import player.playlist as playlist
 BACK_COLOUR = data.view("back_colour", "c")
 FORE_COLOUR = data.view("fore_colour", "c")
 
+_log = logging.getLogger("app.main")
+
 class MainWindow(Tk):
     def __init__(self):
         super().__init__()
@@ -30,9 +32,6 @@ class MainWindow(Tk):
         self.wm_title("Music Player")
         self.geometry("850x600")
         self.resizable(False, False)
-
-        self.audio = audio.Audio()
-        self.timer = timer.Timer()
 
         self.assets = {
             "pauseplay": PhotoImage(file="player/Assets/pauseplay.png"),
@@ -54,9 +53,21 @@ class MainWindow(Tk):
         except TclError:
             pass
 
-        bottom_bar = Label(self, bg=FORE_COLOUR, height=35, width=600).place(x=0, y=500)
-        sep1 = Frame(self, bg=data.view("accent_colour", "c"), height=2, bd=0).pack(fill=X, side=BOTTOM, pady=100)
-        sep2 = Frame(self, bg=data.view("accent_colour", "c"), width=2, height=500, bd=0 ).place(x=198, y=0)
+        self._setup_extensions()
+        self._setup_widgets()
+    
+    def _setup_extensions(self):
+        self.audio = audio.Audio()
+        self.timer = timer.Timer()
+        self.settings = settings.Settings()
+        self.files = files.Files()
+        self.download = download.Download()
+        _log.info("Extensions have been started.")
+
+    def _setup_widgets(self):
+        Label(self, bg=FORE_COLOUR, height=35, width=600).place(x=0, y=500)
+        Frame(self, bg=data.view("accent_colour", "c"), height=2, bd=0).pack(fill=X, side=BOTTOM, pady=100)
+        Frame(self, bg=data.view("accent_colour", "c"), width=2, height=500, bd=0 ).place(x=198, y=0)
 
         self.duration_label = Label(self, text="00:00 / 00:00", bg=FORE_COLOUR, fg="white", font=self.assets["cascadia"])
         self.duration_label.place(x=250, y=545)
@@ -70,19 +81,19 @@ class MainWindow(Tk):
         self.pauseplay_button = Button(self, image=self.assets["pauseplay"], background=FORE_COLOUR, borderwidth=0, command=self.pause_or_resume, activebackground=FORE_COLOUR)
         self.pauseplay_button.place(relx=0.499, rely=0.93, anchor=CENTER)
 
-        self.addmusic_button = widgets.HoverButton(self, text="Add music", bg=BACK_COLOUR, fg="white", compound="left", borderwidth=0, command=download.download_window, activebackground=BACK_COLOUR, activeforeground=data.view("accent_colour", "c"))
+        self.addmusic_button = widgets.HoverButton(self, text="Add music", bg=BACK_COLOUR, fg="white", compound="left", borderwidth=0, command=self.download.download_window, activebackground=BACK_COLOUR, activeforeground=data.view("accent_colour", "c"))
         self.addmusic_button["font"] = Font(size=12, family="Cascadia Mono", weight="bold")
         self.addmusic_button.place(x=25, y=40)
 
-        self.rename_file = widgets.HoverButton(self, text="Rename a file", bg=BACK_COLOUR, fg="white", compound="left", borderwidth=0, command=files.rename_window, activebackground=BACK_COLOUR, activeforeground=data.view("accent_colour", "c"))
+        self.rename_file = widgets.HoverButton(self, text="Rename a file", bg=BACK_COLOUR, fg="white", compound="left", borderwidth=0, command=self.files.rename_window, activebackground=BACK_COLOUR, activeforeground=data.view("accent_colour", "c"))
         self.rename_file["font"] = Font(size=12, family="Cascadia Mono", weight="bold")
         self.rename_file.place(x=25, y=70)
         
-        self.settings = widgets.HoverButton(self, text="Settings", bg=BACK_COLOUR, fg="white", compound="left", borderwidth=0, command=settings.settings_window, activebackground=BACK_COLOUR, activeforeground=data.view("accent_colour", "c"))
-        self.settings["font"] = Font(size=12, family="Cascadia Mono", weight="bold")
-        self.settings.place(x=25, y=100)
+        self.settings_btn = widgets.HoverButton(self, text="Settings", bg=BACK_COLOUR, fg="white", compound="left", borderwidth=0, command=self.settings.settings_window, activebackground=BACK_COLOUR, activeforeground=data.view("accent_colour", "c"))
+        self.settings_btn["font"] = Font(size=12, family="Cascadia Mono", weight="bold")
+        self.settings_btn.place(x=25, y=100)
 
-        self.delete_song = widgets.HoverButton(self, text="Delete a file", bg=BACK_COLOUR, fg="white", compound="left", borderwidth=0, command=files.delete_file, activebackground=BACK_COLOUR, activeforeground=data.view("accent_colour", "c"))
+        self.delete_song = widgets.HoverButton(self, text="Delete a file", bg=BACK_COLOUR, fg="white", compound="left", borderwidth=0, command=self.files.delete_file, activebackground=BACK_COLOUR, activeforeground=data.view("accent_colour", "c"))
         self.delete_song["font"] = Font(size=12, family="Cascadia Mono", weight="bold")
         self.delete_song.place(x=25, y=130)
 
@@ -101,12 +112,13 @@ class MainWindow(Tk):
 
         self.stop_button = Button(self, image=self.assets["stop"], background=FORE_COLOUR, borderwidth=0, command=self.stop, activebackground=FORE_COLOUR)
         self.stop_button.place(x=375, y=545)
-    
+
     def set_np(self, text: str):
         """Sets the "now playing" label"""
         return self.now_playing.configure(text=text)
 
     def refresh_songlist(self):
+        _log.info("Refresh songlist")
         if self.sbf:
             self.sbf.destroy()
 
@@ -199,6 +211,8 @@ class MainWindow(Tk):
             ).grid(row=i, column=2, sticky="e")
     
     def play(self, source, append_queue=False):
+        _log.info(f"Play - source:{source}")
+
         if self.timer.is_active:
             self.audio._stop() # if a song is already playing, stop that song to allow new one to play
             self.timer.stop = True
@@ -219,6 +233,7 @@ class MainWindow(Tk):
 
         
     def pause_or_resume(self, event=None):
+        _log.info(f"Pause - event:{event}")
         if self.audio.paused:
             self.audio.pause_or_resume()
             self.timer.paused = False
@@ -227,6 +242,7 @@ class MainWindow(Tk):
             self.timer.paused = True
 
     def stop(self):
+        _log.info("Stop")
         self.audio._stop()
         self.timer.stop = True
 
@@ -238,12 +254,13 @@ class MainWindow(Tk):
         song = self.current_song
         self.now_playing.configure(text=song)
     
-    def set_volume(self, _):
+    def set_volume(self, event=None):
         amount = round(self.volume.get())
 
         self.audio._set_vol(amount)
         
-    def close_window(self, _):
+    def close_window(self, event=None):
+        _log.info(f"Close window prompted - event:{event}")
         ask = messagebox.askyesno(
             title="Close Music Player",
             message="Are you sure you want to close the Music Player?"
@@ -254,5 +271,6 @@ class MainWindow(Tk):
     
     def _run(self):
         """Calls the mainloop, instantiating the window"""
+        _log.info("Running MainWindow...")
         print("Go to https://musicplayer.isgood.dev/ for help")
         self.mainloop()

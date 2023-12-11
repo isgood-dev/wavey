@@ -1,7 +1,12 @@
+import logging
 from time import sleep
+
+_log = logging.getLogger("app.timer")
 
 class Timer:
     def __init__(self, duration=None):
+        _log.info("Timer has been initialized")
+
         self.minutes = 0
         self.seconds = 0
         self.current_time = ""
@@ -16,6 +21,7 @@ class Timer:
 
     def start(self, progress_label):
         """Starts the progress timer."""
+        _log.info("Timer has started")
         self.is_active = True
         formatted_mins = str(self.minutes).zfill(2)
         formatted_secs = str(self.seconds).zfill(2)

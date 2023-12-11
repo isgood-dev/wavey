@@ -33,12 +33,6 @@ class MainWindow(Tk):
         self.geometry("850x600")
         self.resizable(False, False)
 
-        self.audio = audio.Audio()
-        self.timer = timer.Timer()
-        self.settings = settings.Settings()
-        self.files = files.Files()
-        self.download = download.Download()
-
         self.assets = {
             "pauseplay": PhotoImage(file="player/Assets/pauseplay.png"),
             "stop": PhotoImage(file="player/Assets/stopicon.png"),
@@ -59,6 +53,18 @@ class MainWindow(Tk):
         except TclError:
             pass
 
+        self._setup_extensions()
+        self._setup_widgets()
+    
+    def _setup_extensions(self):
+        self.audio = audio.Audio()
+        self.timer = timer.Timer()
+        self.settings = settings.Settings()
+        self.files = files.Files()
+        self.download = download.Download()
+        _log.info("Extensions have been started.")
+
+    def _setup_widgets(self):
         Label(self, bg=FORE_COLOUR, height=35, width=600).place(x=0, y=500)
         Frame(self, bg=data.view("accent_colour", "c"), height=2, bd=0).pack(fill=X, side=BOTTOM, pady=100)
         Frame(self, bg=data.view("accent_colour", "c"), width=2, height=500, bd=0 ).place(x=198, y=0)
@@ -107,8 +113,6 @@ class MainWindow(Tk):
         self.stop_button = Button(self, image=self.assets["stop"], background=FORE_COLOUR, borderwidth=0, command=self.stop, activebackground=FORE_COLOUR)
         self.stop_button.place(x=375, y=545)
 
-        _log.info("MainWindow has been initialized")
-    
     def set_np(self, text: str):
         """Sets the "now playing" label"""
         return self.now_playing.configure(text=text)

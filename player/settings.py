@@ -18,10 +18,11 @@ content = """All files have a corresponding unique ID associated with them. This
         
 Why? If a file doesn't have an ID, it won't be recognised or be able to be added to playlists, etc."""
 
+_log = logging.getLogger("app.settings")
+
 class Settings:
     def __init__(self):
-        self._log = logging.getLogger("app.settings")
-        self._log.info("Settings has been initialized")
+        _log.info("Settings has been initialized")
 
     def file_sync(self):
         messagebox.showinfo(

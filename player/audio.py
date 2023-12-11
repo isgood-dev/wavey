@@ -4,6 +4,8 @@ import logging
 
 import player.data as data
 
+_log = logging.getLogger("app.audio")
+
 def interpolate_volume(vol):
     """Converts 0-100 to 0.0 to 1.0 for clean audio"""
     return round(vol / 100, 2)
@@ -11,8 +13,7 @@ def interpolate_volume(vol):
 class Audio():
     def __init__(self):
         """Control audio"""
-        self._log = logging.getLogger("app.audio")
-        self._log.info("Audio has been initialized")
+        _log.info("Audio has been initialized")
 
         self.song = None
         self.paused = False
@@ -25,7 +26,7 @@ class Audio():
         """Plays or queues an audio source 
         
         append_queue - whether to append requested song to a queue or play now"""
-        self._log.info(f"Audio requested - file:{file} append_queue:{append_queue}")
+        _log.info(f"Audio requested - file:{file} append_queue:{append_queue}")
         if not os.path.exists(file):
             return
         
@@ -52,7 +53,7 @@ class Audio():
 
     def _pause(self):
         """Pauses player"""
-        self._log.info("Paused")
+        _log.info("Paused")
         if not self.song:
             return
 
@@ -65,7 +66,7 @@ class Audio():
     
     def _stop(self):
         """Stops player and releases resources"""
-        self._log.info("Stop")
+        _log.info("Stop")
         if not self.player:
             return
         
@@ -75,7 +76,7 @@ class Audio():
     
     def _set_vol(self, amount):
         """Sets the volume as an integer, between 0 and 100 (also stores volume on disk)"""
-        self._log.info(f"Volume set to {amount}")
+        _log.info(f"Volume set to {amount}")
         data.write("volume", amount, "c")
         if self.player:
             self.player.volume = interpolate_volume(amount)

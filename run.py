@@ -14,9 +14,9 @@ class Runner:
     def run(self):
         self.mainwindow._run()
 
+logger.setup_logging()
 runner = Runner()
 
 if __name__ == "__main__":
-    logger.setup_logging()
     _log.info("Runner has been initialized")
     runner.run()

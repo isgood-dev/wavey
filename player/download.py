@@ -14,11 +14,12 @@ from tkinter.font import Font
 
 import player.data as data
 
+_log = logging.getLogger("app.download")
 
 class Download:
     def __init__(self):
-        self._log = logging.getLogger("app.download")
-        self._log.info("Download has been initialized")
+        _log.info("Download has been initialized")
+        
         self.root = None
         self.dl_root = None
 

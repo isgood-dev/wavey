@@ -8,7 +8,7 @@ from tkinter.font import Font
 
 import player.data as data
 
-_log = logging.getLogger("app.files").info("Files has been initialized")
+_log = logging.getLogger("app.files")
 
 class Files:
     def __init__(self):

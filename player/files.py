@@ -41,7 +41,6 @@ class Files:
         root = tk.Toplevel()
         root.configure(bg=data.view("back_colour", "c"))
         root.geometry("450x300")
-        root.wm_attributes("-topmost", 1)
         root.wm_title("Rename a file")
         root.resizable(True, False)
         

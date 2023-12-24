@@ -62,7 +62,6 @@ class Settings:
     def settings_window(self):
         root = tk.Toplevel()
         root.wm_title("Settings")
-        root.wm_attributes("-topmost", 1)
         root.configure(bg=data.view("back_colour", "c"))
         root.geometry("550x500")
         root.resizable(False, False)

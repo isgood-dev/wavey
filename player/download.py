@@ -40,7 +40,6 @@ class Download:
         
         self.root = Toplevel()
         self.root.wm_title("Progress")
-        self.root.wm_attributes("-topmost", 1)
         self.root.configure(bg=data.view("back_colour", "c"))
 
         self.prog_label = Label(

@@ -4,10 +4,10 @@ import logging
 
 import tkinter as tk
 from tkinter import TclError, messagebox
-from tkinter.font import Font
 from tkinter.colorchooser import askcolor
 
-import player.data as data
+import player.utils.data as data
+import player.utils.constants as constants
 
 # These remain cosntant as we do not want to make the colour
 # of the settings window customizable
@@ -23,6 +23,9 @@ _log = logging.getLogger("app.settings")
 class Settings:
     def __init__(self):
         _log.info("Settings has been initialized")
+        
+        self.fonts = constants.Font()
+        self.images = constants.Image()
 
     def file_sync(self):
         messagebox.showinfo(
@@ -62,23 +65,20 @@ class Settings:
     def settings_window(self):
         root = tk.Toplevel()
         root.wm_title("Settings")
-        root.wm_attributes("-topmost", 1)
         root.configure(bg=data.view("back_colour", "c"))
         root.geometry("550x500")
         root.resizable(False, False)
         
         try:
-            root.wm_iconbitmap("player/Assets/settings.ico")
+            root.wm_iconbitmap(self.images.SETTINGS)
         except TclError:
             pass
 
         # Labels
 
-        font = Font(size=11, family="Cascadia Mono")
-
         tk.Label(
             root,
-            font=Font(size=13, family="Cascadia Mono", weight="bold"),
+            font=self.fonts.MEDIUM,
             text="Settings",
             fg="white",
             bg=BACK_COLOUR
@@ -89,7 +89,7 @@ class Settings:
         tk.Label(
             root,
             text="Background Colour:",
-            font=font,
+            font=self.fonts.MAIN,
             bg=BACK_COLOUR,
             fg="white"
         ).grid(row=3, column=0, sticky="e")
@@ -99,7 +99,7 @@ class Settings:
             bg=BACK_COLOUR,
             fg="white",
             width=10,
-            font=font,
+            font=self.fonts.MAIN,
         )
         current_bg.grid(row=3, column=1)
         current_bg.insert(0, data.view("back_colour", "c"))
@@ -111,7 +111,7 @@ class Settings:
             borderwidth=0,
             fg="white",
             bg=FORE_COLOUR,
-            font=Font(size=10, family="Cascadia Mono")
+            font=self.fonts.MAIN
         )
         change_bg.grid(row=3, column=2)
 
@@ -120,7 +120,7 @@ class Settings:
         tk.Label(
             root,
             text="Foreground Colour:",
-            font=font,
+            font=self.fonts.MAIN,
             bg=BACK_COLOUR,
             fg="white"
         ).grid(row=4, column=0, sticky="e")
@@ -130,7 +130,7 @@ class Settings:
             bg=BACK_COLOUR,
             fg="white",
             width=10,
-            font=font,
+            font=self.fonts.MAIN,
         )
         current_fg.grid(row=4, column=1)
         current_fg.insert(0, data.view("fore_colour", "c"))
@@ -142,7 +142,7 @@ class Settings:
             borderwidth=0,
             fg="white",
             bg=FORE_COLOUR,
-            font=Font(size=10, family="Cascadia Mono")
+            font=self.fonts.MAIN
         )
         change_fg.grid(row=4, column=2)
 
@@ -151,7 +151,7 @@ class Settings:
         tk.Label(
             root,
             text="Accent Colour:",
-            font=font,
+            font=self.fonts.MAIN,
             bg=BACK_COLOUR,
             fg="white"
         ).grid(row=5, column=0, sticky="e")
@@ -161,7 +161,7 @@ class Settings:
             bg=BACK_COLOUR,
             fg="white",
             width=10,
-            font=font,
+            font=self.fonts.MAIN,
         )
         current_fg.grid(row=5, column=1)
         current_fg.insert(0, data.view("accent_colour", "c"))
@@ -173,7 +173,7 @@ class Settings:
             borderwidth=0,
             fg="white",
             bg=FORE_COLOUR,
-            font=Font(size=10, family="Cascadia Mono")
+            font=self.fonts.MAIN
         )
         change_fg.grid(row=5, column=2)
 
@@ -182,7 +182,7 @@ class Settings:
         tk.Label(
             root,
             text="Song list Colour:",
-            font=font,
+            font=self.fonts.MAIN,
             bg=BACK_COLOUR,
             fg="white"
         ).grid(row=6, column=0, sticky="e")
@@ -192,7 +192,7 @@ class Settings:
             bg=BACK_COLOUR,
             fg="white",
             width=10,
-            font=font,
+            font=self.fonts.MAIN,
         )
         current_songlist.grid(row=6, column=1)
         current_songlist.insert(0, data.view("songlist_colour", "c"))
@@ -204,14 +204,14 @@ class Settings:
             borderwidth=0,
             fg="white",
             bg=FORE_COLOUR,
-            font=Font(size=10, family="Cascadia Mono")
+            font=self.fonts.MAIN
         )
         change_songlist.grid(row=6, column=2)
 
         tk.Label(
             root,
             text="Sync files:",
-            font=font,
+            font=self.fonts.MAIN,
             bg=BACK_COLOUR,
             fg="white"
         ).grid(row=7, column=0)
@@ -221,7 +221,7 @@ class Settings:
             text="Synchronize",
             fg="white",
             bg=FORE_COLOUR,
-            font=Font(size=10, family="Cascadia Mono"),
+            font=self.fonts.MAIN,
             command=self.file_sync
         )
         sync_files.grid(row=7, column=1)

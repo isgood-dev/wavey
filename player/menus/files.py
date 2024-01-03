@@ -4,15 +4,16 @@ import logging
 import tkinter as tk
 from tkinter import TclError, messagebox
 import tkinter.filedialog as filedialog
-from tkinter.font import Font
 
-import player.data as data
+import player.utils.data as data
+import player.utils.constants as constants
 
 _log = logging.getLogger("app.files")
 
 class Files:
     def __init__(self):
-        pass
+        self.fonts = constants.Font()
+        self.images = constants.Image()
 
     def open_filedialog(self, split=False):
         file = filedialog.askopenfile(
@@ -41,19 +42,18 @@ class Files:
         root = tk.Toplevel()
         root.configure(bg=data.view("back_colour", "c"))
         root.geometry("450x300")
-        root.wm_attributes("-topmost", 1)
         root.wm_title("Rename a file")
         root.resizable(True, False)
         
         try:
-            root.iconbitmap("player/Assets/pencil.ico")
+            root.iconbitmap(self.images.PENCIL)
         except TclError:
             pass
         
         tk.Label(
             root,
             text="Rename a file",
-            font=Font(size=13, family="Cascadia Mono"),
+            font=self.fonts.LARGE,
             fg="white",
             bg=data.view("back_colour", "c")
         ).pack()
@@ -61,7 +61,7 @@ class Files:
         tk.Label(
             root,
             text="Selected song",
-            font=Font(size=10, family="Cascadia Mono"),
+            font=self.fonts.MAIN,
             fg="white",
             bg=data.view("back_colour", "c")
         )
@@ -71,7 +71,7 @@ class Files:
             text=file,
             fg="#2ca351",
             bg=data.view("back_colour", "c"),
-            font=Font(size=12, family="Cascadia Mono")
+            font=self.fonts.MEDIUM
         ).pack()
 
         tk.Label(
@@ -79,14 +79,14 @@ class Files:
             text="Enter new name: (don't include .mp3)",
             fg="white", 
             bg=data.view("back_colour", "c"), 
-            font=Font(size=10, family="Cascadia Mono")
+            font=self.fonts.MAIN
         ).pack(pady=10)
 
         new_name = tk.Entry(
             root,
             fg="white",
             bg=data.view("back_colour", "c"),
-            font=Font(size=10, family="Cascadia Mono")
+            font=self.fonts.MAIN
         )
         new_name.pack()
 
@@ -103,7 +103,7 @@ class Files:
             fg="white",
             bg=data.view("fore_colour", "c"),
             text="Done",
-            font=Font(size=10, family="Cascadia Mono"),
+            font=self.fonts.MAIN,
             command=rename
         )
         btn.pack(pady=20)

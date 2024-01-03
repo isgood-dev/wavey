@@ -58,6 +58,7 @@ class MainWindow(Tk):
         self.settings = settings.Settings()
         self.files = files.Files()
         self.download = download.Download()
+        self.playlists = playlists.Playlists
         _log.info("Extensions have been started.")
 
     def _setup_widgets(self):

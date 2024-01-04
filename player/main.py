@@ -12,12 +12,6 @@ import player.widgets as widgets
 import player.utils.data as data
 import player.utils.audio as audio
 import player.utils.timer as timer
-import player.utils.constants as constants
-import player.menus.files as files
-import player.menus.download as download
-import player.menus.settings as settings
-import player.menus.updater as updater
-import player.menus.playlists as playlist
 
 BACK_COLOUR = data.view("back_colour", "c")
 FORE_COLOUR = data.view("fore_colour", "c")
@@ -33,33 +27,43 @@ class MainWindow(Tk):
         self.wm_title("Music Player")
         self.geometry("850x600")
         self.resizable(False, False)
-        
-        self.fonts = constants.Font()
-        self.images = constants.Image()
 
         self.sbf = None
         self.current_song = None
-        self.refresh_songlist()
 
         self.bind("<space>", self.pause_or_resume)
         self.bind("<Escape>", self.close_window)
+
+        self._setup_extensions()
+        self._setup_constants()
+        self._setup_widgets()
 
         try:
             self.iconbitmap(self.images.MAIN)
         except TclError:
             pass
 
-        self._setup_extensions()
-        self._setup_widgets()
-    
+        self.refresh_songlist()
+
     def _setup_extensions(self):
+        import player.menus.download as download
+        import player.menus.settings as settings
+        import player.menus.files as files
+        # import player.menus.updater as updater
+        # import player.menus.playlists as playlist
+
         self.audio = audio.Audio()
         self.timer = timer.Timer()
         self.settings = settings.Settings()
         self.files = files.Files()
         self.download = download.Download()
-        self.playlists = playlists.Playlists
         _log.info("Extensions have been started.")
+
+    def _setup_constants(self):
+        import player.utils.constants as constants
+
+        self.fonts = constants.Font()
+        self.images = constants.Image()
 
     def _setup_widgets(self):
         Label(self, bg=FORE_COLOUR, height=35, width=600).place(x=0, y=500)
@@ -94,11 +98,11 @@ class MainWindow(Tk):
         self.delete_song["font"] = self.fonts.MEDIUM
         self.delete_song.place(x=25, y=130)
 
-        self.myplaylists = widgets.HoverButton(self, text="My Playlists", bg=BACK_COLOUR, fg="white", compound="left", borderwidth=0, command=playlist.show_playlists, activebackground=BACK_COLOUR, activeforeground=data.view("accent_colour", "c"))
+        self.myplaylists = widgets.HoverButton(self, text="My Playlists", bg=BACK_COLOUR, fg="white", compound="left", borderwidth=0, command=None, activebackground=BACK_COLOUR, activeforeground=data.view("accent_colour", "c"))
         self.myplaylists["font"] = self.fonts.MEDIUM
         self.myplaylists.place(x=25, y=160)
 
-        self.update = widgets.HoverButton(self, text="Check for updates", bg=BACK_COLOUR, fg="white", compound="left", borderwidth=0, command=updater.check_updates, activebackground=BACK_COLOUR, activeforeground=data.view("accent_colour", "c"))
+        self.update = widgets.HoverButton(self, text="Check for updates", bg=BACK_COLOUR, fg="white", compound="left", borderwidth=0, command=None, activebackground=BACK_COLOUR, activeforeground=data.view("accent_colour", "c"))
         self.update["font"] = self.fonts.MEDIUM
         self.update.place(x=15, y=460)
 

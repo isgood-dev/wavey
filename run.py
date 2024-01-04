@@ -7,7 +7,7 @@ _log = logging.getLogger("app.runner")
 
 class Runner:
     def __init__(self) -> None:
-        import player.window.main as main
+        import player.main as main
 
         self.mainwindow = main.MainWindow()
 

@@ -2,7 +2,7 @@ import pyglet
 import os
 import logging
 
-import player.data as data
+import player.utils.data as data
 
 _log = logging.getLogger("app.audio")
 

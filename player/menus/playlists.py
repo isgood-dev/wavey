@@ -1,15 +1,15 @@
-import string
 import os
 
 import tkinter as tk
-from tkinter.font import Font
 
-import player.data as data
-import player.window.widgets as widgets
+import player.utils.data as data
+import player.utils.constants as constants
+import player.widgets as widgets
 
 class Playlists:
     def __init__(self):
-          pass
+          self.images = constants.Image()
+          self.fonts = constants.Font()
      
     def show_playlists(self):
         """Retrieves list of playlists"""
@@ -40,7 +40,7 @@ class Playlists:
                 text="You don't have any playlists",
                 bg=data.view("songlist_colour", "c"),
                 fg="white",
-                font="Cascadia Mono"
+                font=self.fonts.MAIN
             ).grid(row=0, column=0)
             return
         
@@ -60,7 +60,7 @@ class Playlists:
                     text="[Load]",
                     borderwidth=0,
                     bg=data.view("songlist_colour", "c"),
-                    font=Font(size=18),
+                    font=self.fonts.MAIN,
                     fg=data.view("accent_colour", "c"),
                     command=self.open_playlist,
                     activebackground=data.view("songlist_colour", "c"),
@@ -71,7 +71,7 @@ class Playlists:
                     self.scroll_frame,
                     text=file,
                     bg=data.view("songlist_colour", "c"),
-                    font=self.assets["cascadia"],
+                    font=self.fonts.MAIN,
                     fg="white",
                 ).grid(row=i, column=1, sticky="w")
 
@@ -79,7 +79,7 @@ class Playlists:
                     self.scroll_frame,
                     text="        " + duration,
                     bg=data.view("songlist_colour", "c"),
-                    font=self.assets["cascadia"],
+                    font=self.fonts.MAIN,
                     fg="white"
                 ).grid(row=i, column=2, sticky="e")
                 

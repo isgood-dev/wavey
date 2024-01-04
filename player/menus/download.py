@@ -10,9 +10,9 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 from tkinter import *
 from tkinter import messagebox
 from tkinter import filedialog
-from tkinter.font import Font
 
-import player.data as data
+import player.utils.data as data
+import player.utils.constants as constants
 
 _log = logging.getLogger("app.download")
 
@@ -24,6 +24,9 @@ class Download:
         self.dl_root = None
 
         self.prog_label = None
+
+        self.fonts = constants.Font()
+        self.images = constants.Image()
 
     def file_convert(self, title):
         mp4 = f'./data/audio/{title}.mp4'
@@ -45,7 +48,7 @@ class Download:
         self.prog_label = Label(
             self.root,
             text="Starting download...",
-            font=Font(size=14, family="Cascadia Mono"),
+            font=self.fonts.LARGE,
             fg="white",
             bg=data.view("back_colour", "c")
         )
@@ -127,7 +130,7 @@ class Download:
         self.dl_root.resizable(False, False)
         
         try:
-            self.dl_root.iconbitmap("player/Assets/downloadicon.ico")
+            self.dl_root.iconbitmap(self.images.DOWNLOAD)
         except TclError:
             pass
 
@@ -136,14 +139,14 @@ class Download:
             text="Add song by name:",
             bg=back_colour,
             fg="white",
-            font=Font(size=10, family="Cascadia Mono")
+            font=self.fonts.MAIN
         ).pack()
 
         add_name_entry = Entry(
             self.dl_root,
             fg="white",
             bg=fore_colour,
-            font=Font(size=10, family="Cascadia Mono")
+            font=self.fonts.MAIN
         )
         add_name_entry.pack()
         
@@ -151,7 +154,7 @@ class Download:
             self.dl_root,
             fg="white",
             bg=fore_colour,
-            font=Font(size=10, family="Cascadia Mono"),
+            font=self.fonts.MAIN,
             text="Download",
             borderwidth=0,
             command=lambda: threading.Thread(
@@ -167,14 +170,14 @@ class Download:
             text="Add song by YT URL:",
             fg="white",
             bg=back_colour,
-            font=Font(size=10, family="Cascadia Mono")
+            font=self.fonts.MAIN
         ).pack()
 
         add_by_url_entry = Entry(
             self.dl_root,
             fg="white",
             bg=fore_colour,
-            font=Font(size=10, family="Cascadia Mono")
+            font=self.fonts.MAIN
         )
         add_by_url_entry.pack()
 
@@ -182,7 +185,7 @@ class Download:
             self.dl_root,
             fg="white",
             bg=fore_colour,
-            font=Font(size=10, family="Cascadia Mono"),
+            font=self.fonts.MAIN,
             text="Download",
             borderwidth=0,
             command=lambda: threading.Thread(
@@ -197,7 +200,7 @@ class Download:
             self.dl_root,
             fg="white",
             bg=fore_colour,
-            font=Font(size=10, family="Cascadia Mono"),
+            font=self.fonts.MAIN,
             text="Import Music from PC",
             command=self.file_opener
         )

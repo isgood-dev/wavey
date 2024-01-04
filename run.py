@@ -1,13 +1,13 @@
 # Entry point to run the music player
 
-import player.sys_logger as logger
+import player.utils.sys_logger as logger
 import logging
 
 _log = logging.getLogger("app.runner")
 
 class Runner:
     def __init__(self) -> None:
-        import player.window.main as main
+        import player.main as main
 
         self.mainwindow = main.MainWindow()
 

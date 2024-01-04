@@ -3,11 +3,13 @@ import os
 import tkinter as tk
 
 import player.utils.data as data
+import player.utils.constants as constants
 import player.widgets as widgets
 
 class Playlists:
     def __init__(self):
-          pass
+          self.images = constants.Image()
+          self.fonts = constants.Font()
      
     def show_playlists(self):
         """Retrieves list of playlists"""

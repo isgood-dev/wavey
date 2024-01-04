@@ -1,3 +1,6 @@
+#04/01/2024
+* Major code restructure and clean up.
+
 # 05/12/2023
 This is the first update in a while. In the time between the last update, many essential functionalities of the music player stopped working. This addresses those issues.
 * All downloaded audio will now download into `data/audio/` instead of `Audio bin/`.

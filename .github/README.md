@@ -8,6 +8,11 @@
 </div>
 
 ## About
+Site: https://acatiadroid.github.io/music-player-site/
+
+This is a music player that lets you download music to your computer. It is made using Python and Tkinter.
+
+Check out the releases to install onto your machine.
 
 ## How to run
 You will need the following:

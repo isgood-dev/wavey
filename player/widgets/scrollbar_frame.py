@@ -24,6 +24,12 @@ class ScrollbarFrame(tk.Frame):
         self.canvas.create_window(
             (4, 4), window=self.scrolled_frame, anchor="nw")
         
-
         # Configures the scrollregion of the Canvas dynamically
         self.scrolled_frame.bind("<Configure>", self.on_configure)
+
+    def on_configure(self, event):
+        """Set the scroll region to encompass the scrolled frame"""
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def _on_mousewheel(self, event):
+        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")

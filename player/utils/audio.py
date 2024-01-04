@@ -83,6 +83,9 @@ class Audio():
     
     def pause_or_resume(self):
         """Pauses/resumes the player depending on whether player is paused or not"""
+        if not self.player:
+            return
+        
         if self.paused:
             self.player.play()
             self.paused = False

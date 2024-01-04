@@ -49,7 +49,7 @@ class MainWindow(Tk):
         import player.menus.download as download
         import player.menus.settings as settings
         import player.menus.files as files
-        # import player.menus.updater as updater
+        import player.menus.updater as updater
         # import player.menus.playlists as playlist
 
         self.audio = audio.Audio()
@@ -57,6 +57,7 @@ class MainWindow(Tk):
         self.settings = settings.Settings()
         self.files = files.Files()
         self.download = download.Download()
+        self.updater = updater.Updater()
         _log.info("Extensions have been started.")
 
     def _setup_constants(self):
@@ -102,7 +103,7 @@ class MainWindow(Tk):
         self.myplaylists["font"] = self.fonts.MEDIUM
         self.myplaylists.place(x=25, y=160)
 
-        self.update = widgets.HoverButton(self, text="Check for updates", bg=BACK_COLOUR, fg="white", compound="left", borderwidth=0, command=None, activebackground=BACK_COLOUR, activeforeground=data.view("accent_colour", "c"))
+        self.update = widgets.HoverButton(self, text="Check for updates", bg=BACK_COLOUR, fg="white", compound="left", borderwidth=0, command=self.updater.update, activebackground=BACK_COLOUR, activeforeground=data.view("accent_colour", "c"))
         self.update["font"] = self.fonts.MEDIUM
         self.update.place(x=15, y=460)
 
@@ -273,5 +274,5 @@ class MainWindow(Tk):
     def _run(self):
         """Calls the mainloop, instantiating the window"""
         _log.info("Running MainWindow...")
-        print("Go to https://musicplayer.isgood.dev/ for help")
+        print("Go to https://acatiadroid.github.io/music-player-site/ for help")
         self.mainloop()

@@ -1,4 +1,5 @@
 from tkinter.font import Font as TkFont
+from tkinter import PhotoImage
 
 class Image:
     DOWNLOAD = "./data/assets/download.ico"
@@ -7,9 +8,9 @@ class Image:
     SETTINGS = "./data/assets/settings.ico"
     UPDATE = "./data/assets/update.ico"
 
-    LOOP = "./data/assets/loop.png"
-    PAUSEPLAY = "./data/assets/pauseplay.png"
-    STOP = "./data/assets/stop.png"
+    LOOP = PhotoImage(file="./data/assets/loop.png")
+    PAUSEPLAY = PhotoImage(file="./data/assets/pauseplay.png")
+    STOP = PhotoImage(file="./data/assets/stop.png")
 
 class Font:
     MAIN = TkFont(size=10, family="Cascadia Mono")

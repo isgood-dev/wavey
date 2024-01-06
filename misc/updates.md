@@ -1,3 +1,7 @@
+# 06/01/2024
+* Finally implemented an updater.
+    - This works by getting the current version on the `main` branch and comparing it to the local version. If there's a mismatch, it will run a `git pull`.
+
 # 04/01/2024
 * Major code restructure and clean up.
 

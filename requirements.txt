@@ -4,3 +4,4 @@ mutagen
 pyglet
 pytube
 youtube-dl
+requests

@@ -1,9 +1,15 @@
 # Entry point to run the music player
 
-import player.utils.sys_logger as logger
 import logging
+import argparse
+
+import player.utils.sys_logger as logger
 
 _log = logging.getLogger("app.runner")
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--updated', action="store_true")
+args = parser.parse_args()
 
 class Runner:
     def __init__(self) -> None:
@@ -12,7 +18,7 @@ class Runner:
         self.mainwindow = main.MainWindow()
 
     def run(self):
-        self.mainwindow._run()
+        self.mainwindow._run(args.updated)
 
 logger.setup_logging()
 runner = Runner()

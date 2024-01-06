@@ -271,8 +271,10 @@ class MainWindow(Tk):
         if ask:
             return self.destroy()
     
-    def _run(self):
+    def _run(self, startup_msg = None):
         """Calls the mainloop, instantiating the window"""
+        if startup_msg:
+            messagebox.showinfo("Update Successful", "Music Player has been updated.")
         _log.info("Running MainWindow...")
         print("Go to https://acatiadroid.github.io/music-player-site/ for help")
         self.mainloop()

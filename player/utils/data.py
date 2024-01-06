@@ -6,6 +6,7 @@ import random
 config_file = "./data/config.json"
 song_file = "./data/songs.json"
 playlist_file = "./data/playlists.json"
+version_file = "./data/VERSION"
 
 def parse_file(name):
     if name in ["playlist", "playlists", "p"]:
@@ -42,6 +43,12 @@ def view(key: str, which: str):
             return False
     else:
         return False
+    
+def get_local_version():
+    with open(version_file) as file:
+        decoded = file.read()
+
+    return decoded
 
 def add_song(name: str):
     with open(song_file) as file:

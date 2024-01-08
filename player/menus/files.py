@@ -2,7 +2,7 @@ import os
 import logging
 
 import tkinter as tk
-from tkinter import TclError, messagebox
+from tkinter import messagebox
 import tkinter.filedialog as filedialog
 
 import player.utils.data as data
@@ -47,7 +47,7 @@ class Files:
         
         try:
             root.iconbitmap(self.images.PENCIL)
-        except TclError:
+        except tk.TclError:
             pass
         
         tk.Label(

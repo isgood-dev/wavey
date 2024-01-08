@@ -7,7 +7,7 @@ from pytube.exceptions import RegexMatchError
 from youtubesearchpython import VideosSearch
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
-from tkinter import *
+import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog
 
@@ -41,11 +41,11 @@ class Download:
     def download(self, *, title=None, link=None):
         self.dl_root.destroy()
         
-        self.root = Toplevel()
+        self.root = tk.Toplevel()
         self.root.wm_title("Progress")
         self.root.configure(bg=data.view("back_colour", "c"))
 
-        self.prog_label = Label(
+        self.prog_label = tk.Label(
             self.root,
             text="Starting download...",
             font=self.fonts.LARGE,
@@ -122,7 +122,7 @@ class Download:
         back_colour = data.view("back_colour", "c")
         fore_colour = data.view("fore_colour", "c")
 
-        self.dl_root = Toplevel()
+        self.dl_root = tk.Toplevel()
 
         self.dl_root.configure(bg=data.view("back_colour", "c"))
         self.dl_root.geometry("300x300")
@@ -131,10 +131,10 @@ class Download:
         
         try:
             self.dl_root.iconbitmap(self.images.DOWNLOAD)
-        except TclError:
+        except tk.TclError:
             pass
 
-        Label(
+        tk.Label(
             self.dl_root,
             text="Add song by name:",
             bg=back_colour,
@@ -142,7 +142,7 @@ class Download:
             font=self.fonts.MAIN
         ).pack()
 
-        add_name_entry = Entry(
+        add_name_entry = tk.Entry(
             self.dl_root,
             fg="white",
             bg=fore_colour,
@@ -150,7 +150,7 @@ class Download:
         )
         add_name_entry.pack()
         
-        download_name = Button(
+        download_name = tk.Button(
             self.dl_root,
             fg="white",
             bg=fore_colour,
@@ -165,7 +165,7 @@ class Download:
         )
         download_name.pack()
 
-        Label(
+        tk.Label(
             self.dl_root,
             text="Add song by YT URL:",
             fg="white",
@@ -173,7 +173,7 @@ class Download:
             font=self.fonts.MAIN
         ).pack()
 
-        add_by_url_entry = Entry(
+        add_by_url_entry = tk.Entry(
             self.dl_root,
             fg="white",
             bg=fore_colour,
@@ -181,7 +181,7 @@ class Download:
         )
         add_by_url_entry.pack()
 
-        download_url = Button(
+        download_url = tk.Button(
             self.dl_root,
             fg="white",
             bg=fore_colour,
@@ -196,7 +196,7 @@ class Download:
         )
         download_url.pack()
 
-        import_music = Button(
+        import_music = tk.Button(
             self.dl_root,
             fg="white",
             bg=fore_colour,

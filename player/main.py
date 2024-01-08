@@ -4,7 +4,7 @@ import threading
 import logging
 from mutagen.mp3 import MP3
 
-from tkinter import *
+import tkinter as tk
 from tkinter import messagebox
 from tkinter.font import Font
 
@@ -18,7 +18,7 @@ FORE_COLOUR = data.view("fore_colour", "c")
 
 _log = logging.getLogger("app.main")
 
-class MainWindow(Tk):
+class MainWindow(tk.Tk):
     def __init__(self):
         super().__init__()
         
@@ -40,7 +40,7 @@ class MainWindow(Tk):
 
         try:
             self.iconbitmap(self.images.MAIN)
-        except TclError:
+        except tk.TclError:
             pass
 
         self.refresh_songlist()
@@ -67,21 +67,21 @@ class MainWindow(Tk):
         self.images = constants.Image()
 
     def _setup_widgets(self):
-        Label(self, bg=FORE_COLOUR, height=35, width=600).place(x=0, y=500)
-        Frame(self, bg=data.view("accent_colour", "c"), height=2, bd=0).pack(fill=X, side=BOTTOM, pady=100)
-        Frame(self, bg=data.view("accent_colour", "c"), width=2, height=500, bd=0 ).place(x=198, y=0)
+        tk.Label(self, bg=FORE_COLOUR, height=35, width=600).place(x=0, y=500)
+        tk.Frame(self, bg=data.view("accent_colour", "c"), height=2, bd=0).pack(fill=tk.X, side=tk.BOTTOM, pady=100)
+        tk.Frame(self, bg=data.view("accent_colour", "c"), width=2, height=500, bd=0 ).place(x=198, y=0)
 
-        self.duration_label = Label(self, text="00:00 / 00:00", bg=FORE_COLOUR, fg="white", font=self.fonts.MAIN)
+        self.duration_label = tk.Label(self, text="00:00 / 00:00", bg=FORE_COLOUR, fg="white", font=self.fonts.MAIN)
         self.duration_label.place(x=250, y=545)
         
-        self.now_playing = Label(self, text="Nothing is playing. Play a song by finding a song in the song list and clicking the ▶ next to it!", bg=FORE_COLOUR, fg="white", font=self.fonts.MAIN)
-        self.now_playing.place(relx=0.5, rely=0.86, anchor=CENTER)
+        self.now_playing = tk.Label(self, text="Nothing is playing. Play a song by finding a song in the song list and clicking the ▶ next to it!", bg=FORE_COLOUR, fg="white", font=self.fonts.MAIN)
+        self.now_playing.place(relx=0.5, rely=0.86, anchor=tk.CENTER)
         
-        self.ispaused = Label(self, text="", bg=FORE_COLOUR, fg="white", font=self.fonts.MAIN)
-        self.ispaused.place(relx=0.5, rely=0.97, anchor=CENTER)
+        self.ispaused = tk.Label(self, text="", bg=FORE_COLOUR, fg="white", font=self.fonts.MAIN)
+        self.ispaused.place(relx=0.5, rely=0.97, anchor=tk.CENTER)
 
-        self.pauseplay_button = Button(self, image=self.images.PAUSEPLAY, background=FORE_COLOUR, borderwidth=0, command=self.pause_or_resume, activebackground=FORE_COLOUR)
-        self.pauseplay_button.place(relx=0.499, rely=0.93, anchor=CENTER)
+        self.pauseplay_button = tk.Button(self, image=self.images.PAUSEPLAY, background=FORE_COLOUR, borderwidth=0, command=self.pause_or_resume, activebackground=FORE_COLOUR)
+        self.pauseplay_button.place(relx=0.499, rely=0.93, anchor=tk.CENTER)
 
         self.addmusic_button = widgets.HoverButton(self, text="Add music", bg=BACK_COLOUR, fg="white", compound="left", borderwidth=0, command=self.download.download_window, activebackground=BACK_COLOUR, activeforeground=data.view("accent_colour", "c"))
         self.addmusic_button["font"] = self.fonts.MEDIUM
@@ -107,12 +107,12 @@ class MainWindow(Tk):
         self.update["font"] = self.fonts.MEDIUM
         self.update.place(x=15, y=460)
 
-        self.volume = Scale(self, orient=HORIZONTAL, variable=DoubleVar(), bg=FORE_COLOUR, fg="white", troughcolor=BACK_COLOUR, highlightthickness=0)
+        self.volume = tk.Scale(self, orient=tk.HORIZONTAL, variable=tk.DoubleVar(), bg=FORE_COLOUR, fg="white", troughcolor=BACK_COLOUR, highlightthickness=0)
         self.volume.set(data.view("volume", "c"))
         self.volume.bind("<ButtonRelease-1>", self.set_volume)
         self.volume.place(x=530, y=535)
 
-        self.stop_button = Button(self, image=self.images.STOP, background=FORE_COLOUR, borderwidth=0, command=self.stop, activebackground=FORE_COLOUR)
+        self.stop_button = tk.Button(self, image=self.images.STOP, background=FORE_COLOUR, borderwidth=0, command=self.stop, activebackground=FORE_COLOUR)
         self.stop_button.place(x=375, y=545)
 
     def set_np(self, text: str):
@@ -133,7 +133,7 @@ class MainWindow(Tk):
         i = 1
 
         if len([f for f in os.listdir("./data/audio/") if f.endswith(".mp3")]) == 0:
-            Label(
+            tk.Label(
                 self.scroll_frame,
                 text="Songs that you have will appear here, but you don't have any!",
                 bg=data.view("songlist_colour", "c"),
@@ -141,7 +141,7 @@ class MainWindow(Tk):
                 font=self.fonts.MAIN
             ).grid(row=0, column=0)
             
-            refnosongs = Button(
+            refnosongs = tk.Button(
                 self.scroll_frame,
                 text="[Refresh]",
                 bg=data.view("songlist_colour", "c"),
@@ -196,7 +196,7 @@ class MainWindow(Tk):
                 activeforeground="white"
             )
             btn.grid(row=i, column=0)
-            Label(
+            tk.Label(
                 self.scroll_frame,
                 text=file,
                 bg=data.view("songlist_colour", "c"),
@@ -204,7 +204,7 @@ class MainWindow(Tk):
                 fg="white",
             ).grid(row=i, column=1, sticky="w")
 
-            Label(
+            tk.Label(
                 self.scroll_frame,
                 text="        " + duration,
                 bg=data.view("songlist_colour", "c"),

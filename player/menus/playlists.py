@@ -7,7 +7,8 @@ import player.utils.constants as constants
 import player.widgets as widgets
 
 class Playlists:
-    def __init__(self):
+    def __init__(self, win_properties):
+          self.pos = win_properties
           self.images = constants.Image()
           self.fonts = constants.Font()
      
@@ -16,7 +17,7 @@ class Playlists:
         window = tk.Toplevel()
         window.wm_title("Your playlists")
         window.configure(bg=data.view("back_colour", "c"))
-        window.geometry("500x500")
+        window.geometry(f"500x500+{self.pos[0]}+{self.pos[1]}")
         window.resizable(False, False)
         data.get_playlists()
         

@@ -33,7 +33,9 @@ class MainWindow(tk.Tk):
 
         self.bind("<space>", self.pause_or_resume)
         self.bind("<Escape>", self.close_window)
-
+        
+        self.update()
+        
         self._setup_extensions()
         self._setup_constants()
         self._setup_widgets()
@@ -51,13 +53,15 @@ class MainWindow(tk.Tk):
         import player.menus.files as files
         import player.menus.updater as updater
         # import player.menus.playlists as playlist
+        win_properties = self.get_win_properties()
 
         self.audio = audio.Audio()
         self.timer = timer.Timer()
-        self.settings = settings.Settings()
-        self.files = files.Files()
-        self.download = download.Download()
-        self.updater = updater.Updater()
+
+        self.settings = settings.Settings(win_properties)
+        self.files = files.Files(win_properties)
+        self.download = download.Download(win_properties)
+        self.updater = updater.Updater(win_properties)
         _log.info("Extensions have been started.")
 
     def _setup_constants(self):
@@ -270,6 +274,16 @@ class MainWindow(tk.Tk):
 
         if ask:
             return self.destroy()
+        
+    def get_win_properties(self):
+        width = self.winfo_width()
+        x_pos = self.winfo_x()
+        y_pos = self.winfo_y()
+
+        offset_x = x_pos + width + 30
+        offset_y = y_pos
+
+        return [offset_x, offset_y]
     
     def _run(self, startup_msg = None):
         """Calls the mainloop, instantiating the window"""

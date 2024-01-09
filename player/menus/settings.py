@@ -21,9 +21,11 @@ Why? If a file doesn't have an ID, it won't be recognised or be able to be added
 _log = logging.getLogger("app.settings")
 
 class Settings:
-    def __init__(self):
+    def __init__(self, win_properties):
         _log.info("Settings has been initialized")
         
+        self.pos = win_properties
+
         self.fonts = constants.Font()
         self.images = constants.Image()
 
@@ -66,7 +68,7 @@ class Settings:
         root = tk.Toplevel()
         root.wm_title("Settings")
         root.configure(bg=data.view("back_colour", "c"))
-        root.geometry("550x500")
+        root.geometry(f"550x500+{self.pos[0]}+{self.pos[1]}")
         root.resizable(False, False)
         
         try:

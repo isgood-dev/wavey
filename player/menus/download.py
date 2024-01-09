@@ -17,8 +17,10 @@ import player.utils.constants as constants
 _log = logging.getLogger("app.download")
 
 class Download:
-    def __init__(self):
+    def __init__(self, win_properties):
         _log.info("Download has been initialized")
+        
+        self.pos = win_properties
         
         self.root = None
         self.dl_root = None
@@ -125,7 +127,7 @@ class Download:
         self.dl_root = tk.Toplevel()
 
         self.dl_root.configure(bg=data.view("back_colour", "c"))
-        self.dl_root.geometry("300x300")
+        self.dl_root.geometry(f"300x300+{self.pos[0]}+{self.pos[1]}")
         self.dl_root.wm_title("Add music")
         self.dl_root.resizable(False, False)
         

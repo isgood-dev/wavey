@@ -15,7 +15,9 @@ UPDATE_URL = "https://raw.githubusercontent.com/acatiadroid/music-player/main/da
 RUN_SCRIPT = "./player/utils/update_runner.py"
 
 class Updater:
-    def __init__(self):
+    def __init__(self, win_properties):
+        self.pos = win_properties
+
         self.root = None
 
         self.fonts = constants.Font()
@@ -64,7 +66,7 @@ class Updater:
         self.root = tk.Toplevel()
         self.root.wm_title("Update Music Player")
         self.root.configure(bg=data.view("back_colour", "c"))
-        self.root.geometry("300x200")
+        self.root.geometry(f"300x200+{self.pos[0]}+{self.pos[1]}")
 
         def start_check():
             checking = tk.Label(

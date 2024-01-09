@@ -11,7 +11,8 @@ import player.utils.constants as constants
 _log = logging.getLogger("app.files")
 
 class Files:
-    def __init__(self):
+    def __init__(self, win_properties):
+        self.pos = win_properties
         self.fonts = constants.Font()
         self.images = constants.Image()
 
@@ -41,7 +42,7 @@ class Files:
             
         root = tk.Toplevel()
         root.configure(bg=data.view("back_colour", "c"))
-        root.geometry("450x300")
+        root.geometry(f"450x300+{self.pos[0]}+{self.pos[1]}")
         root.wm_title("Rename a file")
         root.resizable(True, False)
         

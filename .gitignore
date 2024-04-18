@@ -6,4 +6,4 @@
 test.py
 **/__pycache__
 /target
-Cargo.toml
+Cargo.lock

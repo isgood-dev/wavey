@@ -1,3 +1,6 @@
+> [!NOTE]  
+> The music player is being re-written in [iced-rs](https://github.com/iced-rs/iced) (Rust).
+
 <h1 align="center">Music Player</h1>
 <h3 align="center">A simple music player created using Python and Tkinter to play music (or any audio) on your computer!</h3>
 

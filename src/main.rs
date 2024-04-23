@@ -1,5 +1,7 @@
-use iced::{Alignment, Element, Length, Theme};
-use iced::widget::{button, column, container, horizontal_space, row, scrollable, text};
+mod download;
+mod ui;
+
+use iced::{Element, Command};
 
 pub fn main() -> iced::Result {
     iced::program("Music Player", MusicPlayer::update, MusicPlayer::view)
@@ -7,70 +9,46 @@ pub fn main() -> iced::Result {
         .run()
 }
 
-enum Page {
-    StartPage,
-}
 struct MusicPlayer {
-    current_page: Page,
+    home_page: ui::track_list::State,
 }
 
-#[derive(Debug, Clone, Copy)]
-pub enum Message {}
+#[derive(Debug, Clone)]
+pub enum Message {
+    HomePage(ui::track_list::Event)
+}
 
 impl MusicPlayer {
     fn new() -> Self {
         Self {
-            current_page: Page::StartPage,
+            home_page: Default::default(),
         }
     }
 
-    pub fn update(&mut self, message: Message) {
-        match message {}
+    pub fn update(&mut self, message: Message) -> Command<Message> {
+        match message {
+        //     Message::TestDownload => {
+        //         println!("Download started");
+
+        //         self.home_page.view().map(Message::HomePage);
+
+        //         Command::none()
+
+        //         // Command::perform(download_video("https://www.youtube.com/watch?v=wyDZc50mafw"), Message::DownloadRequested)
+        //     }
+
+        //     Message::DownloadRequested(result) => {
+        //         println!("Video downloaded");
+
+        //         Command::none()
+        //     }
+
+            Message::HomePage(x) => self.home_page.update(x).map(Message::HomePage),
+        }
     }
 
-    pub fn view(&self) -> Element<Message> {
-        let header = container(
-            row![
-                text("Music Player"),
-                horizontal_space(),
-                "Test",
-            ]
-            .padding(10)
-            .align_items(Alignment::Center),
-        )
-        .style(|theme: &Theme| {
-            let pallette = theme.extended_palette();
-
-            container::Style::default()
-                .with_border(pallette.background.strong.color, 1)
-        });
-
-        let sidebar = container(
-            column!["Sidebar", button("Test Button 1"), button("Test Button 2")]
-                .spacing(40)
-                .padding(10)
-                .width(200)
-                .align_items(Alignment::Center),
-        )
-        .style(container::rounded_box)
-        .height(Length::Fill);
-
-        let content = container(
-            scrollable(
-                column![
-                    "Downloaded Songs",
-                    row![button("Test Button"), text("Test")]
-                ]
-                .spacing(40)
-                .align_items(Alignment::Start)
-                .width(Length::Fill),
-            )
-            .height(Length::Fill)
-        )
-        .padding(10);
-
-
-        column![header, row![sidebar, content]].into()
+    pub fn view(&self) -> Element<Message> {    
+        self.home_page.view().map(Message::HomePage)
     }
 }
 

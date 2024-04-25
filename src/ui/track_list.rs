@@ -16,7 +16,7 @@ impl State {
     pub fn update(&mut self, message: Event) -> Command<Event> {
         match message {
             Event::DownloadPagePressed => {
-                Pages
+                // somehow switch the page here
 
                 Command::none()
             },
@@ -53,7 +53,7 @@ impl State {
 
         let content = container(
             scrollable(
-                column![text("abc"), button("content")]
+                column![text("abc"), button("content").on_press(Event::DownloadPagePressed)]
                 .spacing(40)
                 .align_items(Alignment::Start)
                 .width(Length::Fill),

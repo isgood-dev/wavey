@@ -1,24 +1,27 @@
 use iced::{Alignment, Command, Length, Theme};
 use iced::widget::{button, column, container, horizontal_space, row, scrollable, text};
 
+use super::pages::{Page, Pages};
+
 pub struct State {
     counter: i32,
 }
 
 #[derive(Debug, Clone)]
 pub enum Event {
-    Increment,
+    DownloadPagePressed,
 }
 
 impl State {
     pub fn update(&mut self, message: Event) -> Command<Event> {
         match message {
-            Event::Increment => {
-                self.counter += 1;
+            Event::DownloadPagePressed => {
+                Pages
 
                 Command::none()
-            }
+            },
         }
+
     }
 
     pub fn view(&self) -> iced::Element<Event> {
@@ -50,10 +53,7 @@ impl State {
 
         let content = container(
             scrollable(
-                column![
-                    "Downloaded Songs",
-                    row![button("Test Button"), text("Test")].align_items(Alignment::Center).spacing(20)
-                ]
+                column![text("abc"), button("content")]
                 .spacing(40)
                 .align_items(Alignment::Start)
                 .width(Length::Fill),
@@ -62,8 +62,10 @@ impl State {
         )
         .padding(10);
 
-
-        column![header, row![sidebar, content]].into()
+        container(
+            column!(header, row![sidebar, content])
+        )
+        .into()
     }
 }
 

@@ -1,23 +1,19 @@
 use iced::{Alignment, Command, Length, Theme, Element};
-use iced::widget::{button, column, container, horizontal_space, row, text};
+use iced::widget::{button, column, container, horizontal_space, row, scrollable, text, text_input};
 
 pub struct State {
-    counter: i32,
+    youtube_url: String,
 }
 
 #[derive(Debug, Clone)]
 pub enum Event {
-    Increment,
+
 }
 
 impl State {
     pub fn update(&mut self, message: Event) -> Command<Event> {
         match message {
-            Event::Increment => {
-                self.counter += 1;
 
-                Command::none()
-            }
         }
     }
 
@@ -48,12 +44,33 @@ impl State {
         .style(container::rounded_box)
         .height(Length::Fill);
 
-        column![header, row![sidebar]].into()
+        let content = container(
+            scrollable(
+                column![
+                    text("Download/Import audio").size(16),
+                    text("Download new songs or import ones from your device."),
+                    text_input("Enter YouTube URL here...", &self.youtube_url),
+                    button("content")
+                ]
+                .spacing(40)
+                .align_items(Alignment::Start)
+                .width(Length::Fill),
+            )
+            .height(Length::Fill)
+        )
+        .padding(10);
+
+        container(
+            column!(header, row![sidebar, content])
+        )
+        .into()
     }
 }
 
 impl Default for State {
     fn default() -> Self {
-        Self { counter: 0 }
+        Self { 
+            youtube_url: String::new(),
+        }
     }
 }

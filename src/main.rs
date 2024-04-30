@@ -1,9 +1,28 @@
-use iced::{Command, Element};
+use iced::{Settings, Command, Element, window};
+use image::GenericImageView;
 
 mod pages;
 
 pub fn main() -> iced::Result {
+    static ICON: &[u8] = include_bytes!("../assets/main.ico");
+
+    let image = image::load_from_memory(ICON).unwrap();
+    let (width, height) = image.dimensions();
+    let rgba = image.into_rgba8();
+    let icon = window::icon::from_rgba(rgba.into_raw(), width, height).unwrap();
+
+    let settings = Settings {
+        window: iced::window::Settings {
+            icon: Some(icon),
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+
     iced::program("Music Player", MusicPlayer::update, MusicPlayer::view)
+        .settings(settings)
+        .window_size((900.0, 700.0))
+        .font(include_bytes!("../assets/icons.ttf").as_slice())
         .run()
 }
 

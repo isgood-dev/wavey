@@ -27,7 +27,7 @@ pub fn main() -> iced::Result {
         .run()
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Message {
     Pages(ui::Event),
 }

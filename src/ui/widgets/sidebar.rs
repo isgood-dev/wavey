@@ -1,5 +1,7 @@
+use super::icons::{action_with_text, download_icon, edit_icon, home_icon, settings_icon};
+
 use iced::{
-    widget::{button, column, container},
+    widget::{column, container},
     Alignment, Command, Length
 };
 
@@ -28,10 +30,10 @@ impl State {
     pub fn view(&self) -> iced::Element<Event> {
         container(
             column![
-                button("Home Page").on_press(Event::OpenTrackList),
-                button("Edit Audio").on_press(Event::OpenEdit),
-                button("Download Audio").on_press(Event::OpenDownload),
-                button("Settings").on_press(Event::OpenSettings),
+                action_with_text(home_icon(), "Home Page", Some(Event::OpenTrackList)),
+                action_with_text(edit_icon(), "Edit Music", Some(Event::OpenEdit)),
+                action_with_text(download_icon(), "Add Music", Some(Event::OpenDownload)),
+                action_with_text(settings_icon(), "Settings", Some(Event::OpenSettings)),
             ]
             .spacing(20)
             .padding(10)

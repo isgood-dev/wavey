@@ -1,15 +1,17 @@
-use iced::{widget::row, Command};
+use iced::{widget::{row, column}, Command};
 
 mod edit;
 mod track_list;
 mod settings;
 mod download;
-mod sidebar;
+mod widgets;
+
 
 pub struct Pages {
     pub current_page: Page,
 
-    sidebar: sidebar::State,
+    sidebar: widgets::sidebar::State,
+    controls: widgets::control_bar::State,
 
     track_list: track_list::State,
     edit: edit::State,
@@ -27,13 +29,16 @@ pub enum Page {
     Download
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Event {
+    SidebarPressed(widgets::sidebar::Event),
+    ControlsPressed(widgets::control_bar::Event),
+
     TrackListPressed(track_list::Event),
     EditPressed(edit::Event),
     SettingsPressed(settings::Event),
     DownloadPressed(download::Event),
-    SidebarPressed(sidebar::Event),
+    
 }
 
 impl Pages {
@@ -45,13 +50,17 @@ impl Pages {
             Event::TrackListPressed(x) =>  self.track_list.update(x).map(Event::TrackListPressed),            
             Event::SidebarPressed(x) => {
                 match x {
-                    sidebar::Event::OpenDownload => self.current_page = Page::Download,
-                    sidebar::Event::OpenEdit => self.current_page = Page::Edit,
-                    sidebar::Event::OpenSettings => self.current_page = Page::Settings,
-                    sidebar::Event::OpenTrackList => self.current_page = Page::TrackList,
+                    widgets::sidebar::Event::OpenDownload => self.current_page = Page::Download,
+                    widgets::sidebar::Event::OpenEdit => self.current_page = Page::Edit,
+                    widgets::sidebar::Event::OpenSettings => self.current_page = Page::Settings,
+                    widgets::sidebar::Event::OpenTrackList => self.current_page = Page::TrackList,
                 }
 
                 self.sidebar.update(x).map(Event::SidebarPressed)
+            }
+            
+            Event::ControlsPressed(x) => {
+                self.controls.update(x).map(Event::ControlsPressed)
             }
         }
     }
@@ -59,30 +68,42 @@ impl Pages {
     pub fn view(&self) -> iced::Element<Event> {
         match &self.current_page {
             Page::TrackList => {
-                row![
-                    self.sidebar.view().map(Event::SidebarPressed),
-                    self.track_list.view().map(Event::TrackListPressed),
+                column![
+                    row![
+                        self.sidebar.view().map(Event::SidebarPressed),
+                        self.track_list.view().map(Event::TrackListPressed),
+                    ],
+                    self.controls.view().map(Event::ControlsPressed),
                 ].into()
             }
 
             Page::Download => {
-                row![
-                    self.sidebar.view().map(Event::SidebarPressed),
-                    self.download.view().map(Event::DownloadPressed),
+                column![
+                    row![
+                        self.sidebar.view().map(Event::SidebarPressed),
+                        self.download.view().map(Event::DownloadPressed),
+                    ],
+                    self.controls.view().map(Event::ControlsPressed),
                 ].into()
             }
 
             Page::Edit => {
-                row![
-                    self.sidebar.view().map(Event::SidebarPressed),
-                    self.edit.view().map(Event::EditPressed),
+                column![
+                    row![
+                        self.sidebar.view().map(Event::SidebarPressed),
+                        self.edit.view().map(Event::EditPressed),
+                    ],
+                    self.controls.view().map(Event::ControlsPressed),
                 ].into()
             }
 
             Page::Settings => {
-                row![
-                    self.sidebar.view().map(Event::SidebarPressed),
-                    self.settings.view().map(Event::SettingsPressed),
+                column![
+                    row![
+                        self.sidebar.view().map(Event::SidebarPressed),
+                        self.settings.view().map(Event::SettingsPressed),
+                    ],
+                    self.controls.view().map(Event::ControlsPressed),
                 ].into()
             }           
         }
@@ -95,6 +116,7 @@ impl Default for Pages {
             current_page: Default::default(),
 
             sidebar: Default::default(),
+            controls: Default::default(),
 
             track_list: Default::default(),
             download: Default::default(),

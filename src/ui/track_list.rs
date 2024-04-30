@@ -1,10 +1,12 @@
+use super::super::core::audio_dir::get_audio_files;
+
 use iced::{
     widget::{button, column, container, row, scrollable, text},
     Alignment, Command, Length,
 };
 
 pub struct State {
-    
+    audio_files: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -13,6 +15,12 @@ pub enum Event {
 }
 
 impl State {
+    fn new() -> Self {
+        Self {
+            audio_files: get_audio_files(),
+        }
+    }
+
     pub fn update(&mut self, message: Event) -> Command<Event> {
         match message {
 
@@ -40,6 +48,6 @@ impl State {
 
 impl Default for State {
     fn default() -> Self {
-        Self {}
+        Self::new()
     }
 }

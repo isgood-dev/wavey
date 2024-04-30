@@ -1,7 +1,8 @@
 use iced::{Settings, Command, Element, window};
 use image::GenericImageView;
 
-mod pages;
+mod ui;
+mod core;
 
 pub fn main() -> iced::Result {
     static ICON: &[u8] = include_bytes!("../assets/main.ico");
@@ -21,18 +22,18 @@ pub fn main() -> iced::Result {
 
     iced::program("Music Player", MusicPlayer::update, MusicPlayer::view)
         .settings(settings)
-        .window_size((900.0, 700.0))
+        .window_size((800.0, 600.0))
         .font(include_bytes!("../assets/icons.ttf").as_slice())
         .run()
 }
 
 #[derive(Debug)]
 enum Message {
-    Pages(pages::Event),
+    Pages(ui::Event),
 }
 
 struct MusicPlayer {
-    pages: pages::Pages,
+    pages: ui::Pages,
 }
 
 impl MusicPlayer {

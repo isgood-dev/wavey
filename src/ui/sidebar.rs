@@ -1,7 +1,8 @@
 use iced::{
-    widget::{button, column, container, horizontal_space, row, scrollable, text},
-    Alignment, Command, Length, Theme,
+    widget::{button, column, container},
+    Alignment, Command, Length
 };
+
 pub struct State {
     
 }
@@ -25,48 +26,21 @@ impl State {
     }
 
     pub fn view(&self) -> iced::Element<Event> {
-        let header = container(
-            row![text("Music Player"), horizontal_space(), "Test",]
-                .padding(10)
-                .align_items(Alignment::Center),
-        )
-        .style(|theme: &Theme| {
-            let pallette = theme.extended_palette();
-
-            container::Style::default().with_border(pallette.background.strong.color, 1)
-        });
-
-        let sidebar = container(
+        container(
             column![
                 button("Home Page").on_press(Event::OpenTrackList),
                 button("Edit Audio").on_press(Event::OpenEdit),
                 button("Download Audio").on_press(Event::OpenDownload),
-                horizontal_space(),
                 button("Settings").on_press(Event::OpenSettings),
             ]
-            .spacing(40)
+            .spacing(20)
             .padding(10)
             .width(200)
             .align_items(Alignment::Center),
         )
         .style(container::rounded_box)
-        .height(Length::Fill);
-
-
-        let content = container(
-            scrollable(
-                column![
-                    "Edit Songs",
-                ]
-                .spacing(40)
-                .align_items(Alignment::Start)
-                .width(Length::Fill),
-            )
-            .height(Length::Fill),
-        )
-        .padding(10);
-
-        column![header, row![sidebar, content]].into()
+        .height(Length::Fill)
+        .into()
     }
 }
 

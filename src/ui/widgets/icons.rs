@@ -1,4 +1,4 @@
-use iced::{widget::{button, container, row, text, tooltip, Space}, Alignment, Element, Font};
+use iced::{widget::{button, container, row, text, tooltip}, Alignment, Element, Font};
 
 fn icon<'a, Message>(codepoint: char) -> Element<'a, Message> {
     const ICON_FONT: Font = Font::with_name("editor-icons");
@@ -39,7 +39,7 @@ pub fn action<'a, Message: Clone + 'a>(
 ) -> Element<'a, Message> {
     let action = button(
         container(content)
-            .width(30)
+            .width(15)
             .center_x(),
     );
 

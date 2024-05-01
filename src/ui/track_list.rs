@@ -1,7 +1,8 @@
 use super::super::core::audio_dir::get_audio_files;
+use super::widgets::icons::{action, play_icon};
 
 use iced::{
-    widget::{button, column, container, row, scrollable, text},
+    widget::{column, container, row, scrollable, text},
     Alignment, Command, Length,
 };
 
@@ -11,7 +12,7 @@ pub struct State {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Event {
-
+    PlaySongPressed,
 }
 
 impl State {
@@ -23,20 +24,29 @@ impl State {
 
     pub fn update(&mut self, message: Event) -> Command<Event> {
         match message {
-
+            Event::PlaySongPressed => {
+                println!("Play song pressed");
+                Command::none()
+            }
         }
     }
 
     pub fn view(&self) -> iced::Element<Event> {
+        let mut column = column![].spacing(10);
+
+        for file in &self.audio_files {
+            let action = action(play_icon(), "Play", Some(Event::PlaySongPressed));
+            let text = text(file);
+
+            column = column.push(row![action, text].spacing(10).align_items(Alignment::Center));
+        }
+
         let content = container(
             scrollable(
-                column![
-                    "Track list",
-                    row![button("Test Button"), text("Test")]
-                ]
-                .spacing(40)
-                .align_items(Alignment::Start)
-                .width(Length::Fill),
+                column![column]
+                    .spacing(40)
+                    .align_items(Alignment::Start)
+                    .width(Length::Fill),
             )
             .height(Length::Fill),
         )

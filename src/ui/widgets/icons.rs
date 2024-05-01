@@ -84,3 +84,11 @@ pub fn play_icon<'a, Message>() -> Element<'a, Message> {
 pub fn home_icon<'a, Message>() -> Element<'a, Message> {
     icon('\u{0e807}')
 }
+
+pub fn forward_icon<'a, Message>() -> Element<'a, Message> {
+    icon('\u{0e806}')
+}
+
+pub fn backward_icon<'a, Message>() -> Element<'a, Message> {
+    icon('\u{0e808}')
+}

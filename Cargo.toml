@@ -10,3 +10,4 @@ iced = {git = "https://github.com/iced-rs/iced.git" , features = ["tokio", "adva
 rustube = "0.6.0"
 image = "0.25.1"
 serde_json = "1"
+async-rusqlite = "0.4.0"

@@ -4,7 +4,7 @@ use image::GenericImageView;
 mod ui;
 mod core;
 
-use core::sql::{self, DatabaseError};
+use core::sql;
 
 
 
@@ -34,7 +34,6 @@ pub fn main() -> iced::Result {
 #[derive(Debug, Clone)]
 enum Message {
     Pages(ui::Event),
-    CreatedDatabase(Result<bool, DatabaseError>),
 }
 
 struct MusicPlayer {
@@ -43,7 +42,10 @@ struct MusicPlayer {
 
 impl MusicPlayer {
     fn new() -> Self {
-        let _ = Command::perform(sql::create_database_tables(), Message::CreatedDatabase);
+        
+        if !sql::check_database_exists() {
+            let _ = sql::create_database_tables();
+        }
 
         Self {
             pages: Default::default(),
@@ -53,11 +55,6 @@ impl MusicPlayer {
     fn update(&mut self, message: Message) -> Command<Message> {
         match message {
             Message::Pages(x) => self.pages.update(x).map(Message::Pages),
-            Message::CreatedDatabase(_) => {
-                println!("Database was made.");
-
-                Command::none()
-            }
         }
     }
 

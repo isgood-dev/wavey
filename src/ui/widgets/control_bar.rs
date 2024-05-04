@@ -1,12 +1,13 @@
 use iced::{
-    widget::{column, container, row, slider},
-    Alignment, Command, Length,
+    widget::{column, container, row, slider}, Alignment, Command, Length, Color
 };
 
 use super::icons::{action, backward_icon, forward_icon, play_icon};
+use crate::core::playback;
 
 pub struct State {
     slider_value: f32,
+    audio: playback::Audio,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -15,6 +16,7 @@ pub enum Event {
     ForwardPressed,
     PlayPressed,
     SliderChanged(f32),
+    AudioPlayed,
 }
 
 impl State {
@@ -29,12 +31,15 @@ impl State {
                 Command::none()
             }
             Event::PlayPressed => {
-                println!("Play pressed");
-                Command::none()
+                Command::perform(playback::play(self.audio.sink.clone()), |_| Event::AudioPlayed)
             }
             Event::SliderChanged(value) => {
                 self.slider_value = value;
                 println!("Slider changed: {}", value);
+                Command::none()
+            }
+            Event::AudioPlayed => {
+                println!("Audio played");
                 Command::none()
             }
         }
@@ -54,7 +59,11 @@ impl State {
             .align_items(Alignment::Center)
             .spacing(10),
         )
-        .style(container::rounded_box)
+        .style(|_theme| {
+            container::Style::default()
+                .with_background(Color::from_rgba(0.102, 0.102, 0.102, 1.0))
+                .with_border(Color::from_rgb(255.0, 0.0, 0.0), 0)
+        })
         .width(Length::Fill)
         .height(80)
         .padding(10)
@@ -67,6 +76,7 @@ impl Default for State {
     fn default() -> Self {
         Self {
             slider_value: 0.0,
+            audio: Default::default(),
         }
     }
 }

@@ -2,12 +2,10 @@ use super::icons::{action_with_text, download_icon, edit_icon, home_icon, settin
 
 use iced::{
     widget::{column, container},
-    Alignment, Command, Length
+    Alignment, Color, Command, Length,
 };
 
-pub struct State {
-    
-}
+pub struct State {}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Event {
@@ -40,7 +38,11 @@ impl State {
             .width(200)
             .align_items(Alignment::Center),
         )
-        .style(container::rounded_box)
+        .style(|_theme| {
+            container::Style::default()
+                .with_background(Color::from_rgba(0.102, 0.102, 0.102, 1.0))
+                .with_border(Color::from_rgb(255.0, 0.0, 0.0), 0)
+        })
         .height(Length::Fill)
         .into()
     }

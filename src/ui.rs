@@ -4,14 +4,14 @@ mod edit;
 mod track_list;
 mod settings;
 mod download;
-mod widgets;
+mod components;
 
 
 pub struct Pages {
     pub current_page: Page,
 
-    sidebar: widgets::sidebar::State,
-    controls: widgets::control_bar::State,
+    sidebar: components::sidebar::State,
+    controls: components::control_bar::State,
 
     track_list: track_list::State,
     edit: edit::State,
@@ -31,8 +31,8 @@ pub enum Page {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Event {
-    SidebarPressed(widgets::sidebar::Event),
-    ControlsPressed(widgets::control_bar::Event),
+    SidebarPressed(components::sidebar::Event),
+    ControlsPressed(components::control_bar::Event),
 
     TrackListPressed(track_list::Event),
     EditPressed(edit::Event),
@@ -50,10 +50,10 @@ impl Pages {
             Event::TrackListPressed(x) =>  self.track_list.update(x).map(Event::TrackListPressed),            
             Event::SidebarPressed(x) => {
                 match x {
-                    widgets::sidebar::Event::OpenDownload => self.current_page = Page::Download,
-                    widgets::sidebar::Event::OpenEdit => self.current_page = Page::Edit,
-                    widgets::sidebar::Event::OpenSettings => self.current_page = Page::Settings,
-                    widgets::sidebar::Event::OpenTrackList => self.current_page = Page::TrackList,
+                    components::sidebar::Event::OpenDownload => self.current_page = Page::Download,
+                    components::sidebar::Event::OpenEdit => self.current_page = Page::Edit,
+                    components::sidebar::Event::OpenSettings => self.current_page = Page::Settings,
+                    components::sidebar::Event::OpenTrackList => self.current_page = Page::TrackList,
                 }
 
                 self.sidebar.update(x).map(Event::SidebarPressed)

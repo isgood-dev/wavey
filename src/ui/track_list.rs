@@ -1,5 +1,5 @@
 use super::super::core::audio_dir::get_audio_files;
-use super::widgets::icons::{action, play_icon};
+use super::components::icons::{action, play_icon};
 
 use iced::{
     widget::{column, container, row, scrollable, text},

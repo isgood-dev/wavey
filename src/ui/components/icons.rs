@@ -1,4 +1,4 @@
-use iced::{widget::{button, container, row, text, tooltip}, Alignment, Element, Font};
+use iced::{widget::{button, container, row, text, tooltip}, Alignment, Color, Element, Font, Background};
 
 fn icon<'a, Message>(codepoint: char) -> Element<'a, Message> {
     const ICON_FONT: Font = Font::with_name("editor-icons");
@@ -12,11 +12,10 @@ pub fn action_with_text<'a, Message: Clone + 'a>(
     on_press: Option<Message>,
 ) -> Element<'a, Message> {
     let action = button(
-        row![container(content).center_x(), text(label)]
+        row![content, text(label)]
             .width(130)
             .align_items(Alignment::Center)
             .spacing(20)
-            
     );
 
     if let Some(on_press) = on_press {
@@ -28,7 +27,7 @@ pub fn action_with_text<'a, Message: Clone + 'a>(
         .style(container::rounded_box)
         .into()
     } else {
-        action.style(button::secondary).into()
+        action.into()
     }
 }
 
@@ -38,10 +37,14 @@ pub fn action<'a, Message: Clone + 'a>(
     on_press: Option<Message>,
 ) -> Element<'a, Message> {
     let action = button(
-        container(content)
-            .width(15)
-            .center_x(),
-    );
+        content
+    ).style(|_theme, _status| {
+            button::Style {
+                background: Some(Background::Color(Color::TRANSPARENT)),
+                text_color: Color::WHITE,
+                ..button::Style::default()
+            }
+        });
 
     if let Some(on_press) = on_press {
         tooltip(
@@ -52,7 +55,7 @@ pub fn action<'a, Message: Clone + 'a>(
         .style(container::rounded_box)
         .into()
     } else {
-        action.style(button::secondary).into()
+        action.into()
     }
 
 }

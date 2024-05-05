@@ -122,7 +122,7 @@ impl Default for Pages {
             download: Default::default(),
             edit: Default::default(),
             settings: Default::default(),
-            
+
         }
     }
 }

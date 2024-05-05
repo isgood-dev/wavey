@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{collections::HashMap, path::Path};
 
 use rusqlite::{Connection, Error as RusqliteError};
 
@@ -45,6 +45,21 @@ pub fn create_database_tables() -> Result<(), DatabaseError> {
             playlist_id INTEGER REFERENCES playlists(playlist_id)
         )",
         [],
+    )?;
+
+    Ok(())
+}
+
+pub fn add_music(video_data: HashMap<String, String>) -> Result<(), DatabaseError> {
+    let conn = Connection::open("./assets/data.db")?;
+
+    let video_id = video_data.get("video_id").unwrap();
+    let extension = video_data.get("format_type").unwrap();
+
+    conn.execute(
+        "INSERT INTO music (video_id, extension)
+        VALUES (?1, ?2)",
+        [&video_id, &extension],
     )?;
 
     Ok(())

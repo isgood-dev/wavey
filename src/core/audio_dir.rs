@@ -8,7 +8,7 @@ pub fn get_audio_files() -> Vec<String> {
         let path = path.unwrap().path();
         let path = path.to_str().unwrap().to_string();
         
-        if !path.ends_with("mkv") {
+        if !path.ends_with("webm") {
             continue;
         }
 

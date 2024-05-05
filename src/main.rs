@@ -6,8 +6,6 @@ mod core;
 
 use core::sql;
 
-
-
 pub fn main() -> iced::Result {
     static ICON: &[u8] = include_bytes!("../assets/main.ico");
 

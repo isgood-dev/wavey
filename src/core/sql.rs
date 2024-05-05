@@ -55,11 +55,12 @@ pub fn add_music(video_data: HashMap<String, String>) -> Result<(), DatabaseErro
 
     let video_id = video_data.get("video_id").unwrap();
     let extension = video_data.get("format_type").unwrap();
+    let display_name = video_data.get("display_name").unwrap();
 
     conn.execute(
-        "INSERT INTO music (video_id, extension)
+        "INSERT INTO music (video_id, extension, display_name)
         VALUES (?1, ?2)",
-        [&video_id, &extension],
+        [&video_id, &extension, &display_name],
     )?;
 
     Ok(())

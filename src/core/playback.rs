@@ -20,7 +20,7 @@ impl Audio {
 
 pub async fn play(sink: Arc<rodio::Sink>) {
     tokio::task::spawn_blocking(move || {
-        let file = File::open("./assets/audio/chronos.mkv").unwrap();
+        let file = File::open("./assets/audio/wyDZc50mafw.mp3").unwrap();
 
         sink.append(rodio::Decoder::new(file).unwrap());
         sink.set_volume(1.0);

@@ -1,5 +1,5 @@
 use iced::{
-    widget::{column, container, row, slider}, Alignment, Command, Length, Color
+    widget::{column, container, row, slider}, Alignment, Color, Command, Length
 };
 
 use super::icons::{action, backward_icon, forward_icon, play_icon};
@@ -8,6 +8,7 @@ use crate::core::playback;
 pub struct State {
     slider_value: f32,
     audio: playback::Audio,
+    duration: String,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -54,7 +55,7 @@ impl State {
                     action(forward_icon(), "Forward", Some(Event::ForwardPressed)),
                 ]
                 .spacing(10),
-                slider(0.0..=100.0, self.slider_value, Event::SliderChanged).step(1.0)
+                slider(0.0..=100.0, self.slider_value, Event::SliderChanged).step(1.0).width(350),
             ]
             .align_items(Alignment::Center)
             .spacing(10),
@@ -77,6 +78,7 @@ impl Default for State {
         Self {
             slider_value: 0.0,
             audio: Default::default(),
+            duration: String::from("0:00"),
         }
     }
 }

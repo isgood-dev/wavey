@@ -24,6 +24,7 @@ pub async fn download_from_url(url: String) -> bool {
     to_store.insert("format_type".to_string(), "mp3".to_string());
     to_store.insert("video_id".to_string(), video_info.video_details.video_id);
     to_store.insert("display_name".to_string(), video_info.video_details.title);
+    to_store.insert("duration".to_string(), video_info.video_details.length_seconds.to_string());
     
     let _ = sql::add_music(to_store);
     

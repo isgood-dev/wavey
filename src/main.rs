@@ -1,4 +1,4 @@
-use iced::{window, Command, Element, Settings};
+use iced::{window, Command, Element, Font, Settings};
 use image::GenericImageView;
 
 mod ui;
@@ -15,6 +15,7 @@ pub fn main() -> iced::Result {
     let icon = window::icon::from_rgba(rgba.into_raw(), width, height).unwrap();
 
     let settings = Settings {
+        default_font: Font::MONOSPACE,
         window: iced::window::Settings {
             icon: Some(icon),
             ..Default::default()

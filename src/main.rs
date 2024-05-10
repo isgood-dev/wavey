@@ -32,7 +32,7 @@ pub fn main() -> iced::Result {
 
 #[derive(Debug, Clone)]
 enum Message {
-    Pages(ui::Event),
+    Pages(ui::UiEvent),
 }
 
 struct MusicPlayer {

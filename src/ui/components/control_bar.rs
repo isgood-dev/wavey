@@ -3,21 +3,20 @@ use iced::{
 };
 
 use super::icons::{action, backward_icon, forward_icon, play_icon};
-use crate::core::playback;
 
 pub struct State {
     slider_value: f32,
-    audio: playback::Audio,
-    duration: String,
+    
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Event {
     BackwardPressed,
     ForwardPressed,
-    PlayPressed,
+    PlayPressed(String),
     SliderChanged(f32),
     AudioPlayed,
+    PauseOrResume,
 }
 
 impl State {
@@ -31,9 +30,8 @@ impl State {
                 println!("Forward pressed");
                 Command::none()
             }
-            Event::PlayPressed => {
-                Command::perform(playback::play(self.audio.sink.clone()), |_| Event::AudioPlayed)
-            }
+            Event::PlayPressed(video_id) => Command::none(),
+            
             Event::SliderChanged(value) => {
                 self.slider_value = value;
                 println!("Slider changed: {}", value);
@@ -43,6 +41,8 @@ impl State {
                 println!("Audio played");
                 Command::none()
             }
+            Event::PauseOrResume => Command::none(),
+            
         }
     }
 
@@ -51,7 +51,7 @@ impl State {
             column![
                 row![
                     action(backward_icon(), "Back", Some(Event::BackwardPressed)),
-                    action(play_icon(), "Play", Some(Event::PlayPressed)),
+                    action(play_icon(), "Play", Some(Event::PauseOrResume)),
                     action(forward_icon(), "Forward", Some(Event::ForwardPressed)),
                 ]
                 .spacing(10),
@@ -77,8 +77,6 @@ impl Default for State {
     fn default() -> Self {
         Self {
             slider_value: 0.0,
-            audio: Default::default(),
-            duration: String::from("0:00"),
         }
     }
 }

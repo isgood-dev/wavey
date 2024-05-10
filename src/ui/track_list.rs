@@ -16,6 +16,7 @@ pub struct State {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Event {
     PlayTrack(String),
+    Ignore,
 }
 
 impl State {
@@ -36,6 +37,8 @@ impl State {
 
                 Command::none()
             }
+
+            Event::Ignore => Command::none(),
         }
     }
 

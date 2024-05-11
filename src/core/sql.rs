@@ -22,18 +22,18 @@ struct Music {
     display_name: String,
 }
 
-#[derive(Debug)]
-struct Playlist {
-    playlist_id: i32,
-    name: String,
-}
+// #[derive(Debug)]
+// struct Playlist {
+//     playlist_id: i32,
+//     name: String,
+// }
 
-#[derive(Debug)]
-struct MusicPlaylist {
-    music_playlist_id: i32,
-    music_id: i32,
-    playlist_id: i32,
-}
+// #[derive(Debug)]
+// struct MusicPlaylist {
+//     music_playlist_id: i32,
+//     music_id: i32,
+//     playlist_id: i32,
+// }
 
 pub fn check_database_exists() -> bool {
     Path::new("./assets/data.db").exists()
@@ -93,16 +93,20 @@ pub fn add_music(video_data: HashMap<String, String>) -> Result<(), DatabaseErro
 pub fn get_music(video_id: String) -> HashMap<String, String> {
     let conn = Connection::open("./assets/data.db").unwrap();
 
-    let mut statement = conn.prepare("SELECT * FROM music WHERE video_id = ?1").unwrap();
-    let music_iter = statement.query_map(&[&video_id], |row| {
-        Ok(Music {
-            music_id: row.get(0)?,
-            video_id: row.get(1)?,
-            extension: row.get(2)?,
-            duration: row.get(3)?,
-            display_name: row.get(4)?,
+    let mut statement = conn
+        .prepare("SELECT * FROM music WHERE video_id = ?1")
+        .unwrap();
+    let music_iter = statement
+        .query_map(&[&video_id], |row| {
+            Ok(Music {
+                music_id: row.get(0)?,
+                video_id: row.get(1)?,
+                extension: row.get(2)?,
+                duration: row.get(3)?,
+                display_name: row.get(4)?,
+            })
         })
-    }).unwrap();
+        .unwrap();
 
     let mut music_data = HashMap::new();
 
@@ -122,15 +126,17 @@ pub fn verify_data_integrity() -> Result<(), DatabaseError> {
     let conn = Connection::open("./assets/data.db")?;
 
     let mut statement = conn.prepare("SELECT * FROM music").unwrap();
-    let music_iter = statement.query_map([], |row| {
-        Ok(Music {
-            music_id: row.get(0)?,
-            video_id: row.get(1)?,
-            extension: row.get(2)?,
-            duration: row.get(3)?,
-            display_name: row.get(4)?,
+    let music_iter = statement
+        .query_map([], |row| {
+            Ok(Music {
+                music_id: row.get(0)?,
+                video_id: row.get(1)?,
+                extension: row.get(2)?,
+                duration: row.get(3)?,
+                display_name: row.get(4)?,
+            })
         })
-    }).unwrap();
+        .unwrap();
 
     for music in music_iter {
         let music = music.unwrap();
@@ -149,15 +155,17 @@ pub fn get_all_music() -> Vec<HashMap<String, String>> {
     let conn = Connection::open("./assets/data.db").unwrap();
 
     let mut statement = conn.prepare("SELECT * FROM music").unwrap();
-    let music_iter = statement.query_map([], |row| {
-        Ok(Music {
-            music_id: row.get(0)?,
-            video_id: row.get(1)?,
-            extension: row.get(2)?,
-            duration: row.get(3)?,
-            display_name: row.get(4)?,
+    let music_iter = statement
+        .query_map([], |row| {
+            Ok(Music {
+                music_id: row.get(0)?,
+                video_id: row.get(1)?,
+                extension: row.get(2)?,
+                duration: row.get(3)?,
+                display_name: row.get(4)?,
+            })
         })
-    }).unwrap();
+        .unwrap();
 
     let mut music_data = Vec::new();
 

@@ -2,11 +2,14 @@ use std::{collections::HashMap, path::Path};
 use tokio::fs;
 use tokio::process::Command;
 
-use rusty_ytdl::{Video, VideoOptions, VideoQuality, VideoSearchOptions};
+use rusty_ytdl::{
+    search::{SearchResult, YouTube},
+    Video, VideoOptions, VideoQuality, VideoSearchOptions,
+};
 
 use crate::sql;
 
-pub async fn ffmpeg_convert_codec(video_id: String) -> bool {
+async fn ffmpeg_convert_codec(video_id: String) -> bool {
     let in_file = format!("./assets/audio/{}.webm", video_id);
     let out_file = format!("./assets/audio/{}.mp3", video_id);
 
@@ -24,6 +27,27 @@ pub async fn ffmpeg_convert_codec(video_id: String) -> bool {
     fs::remove_file(in_file).await.unwrap();
 
     true
+}
+
+async fn get_search_results(query: String) -> Vec<HashMap<String, String>> {
+    let youtube = YouTube::new().unwrap();
+
+    let res = youtube.search("jaws sleep token", None).await.unwrap();
+
+    let mut results = Vec::new();
+
+    for video in res {
+        if let SearchResult::Video(video) = video {
+            let mut result = HashMap::new();
+            result.insert("title".to_string(), video.title);
+            result.insert("url".to_string(), video.url);
+            result.insert("thumbnail".to_string(), video.thumbnails[0].url.clone());
+            result.insert("channel".to_string(), video.channel.name);
+            results.push(result);
+        }
+    }
+
+    results
 }
 
 pub async fn download_from_url(url: String) -> bool {

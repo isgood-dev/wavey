@@ -1,12 +1,13 @@
 use iced::{window, Command, Element, Font, Settings};
 use image::GenericImageView;
 
-mod ui;
 mod core;
+mod ui;
 
-use core::sql;
+use core::sql::{self, verify_data_integrity};
 
 pub fn main() -> iced::Result {
+    // Setting the app icon.
     static ICON: &[u8] = include_bytes!("../assets/main.ico");
 
     let image = image::load_from_memory(ICON).unwrap();
@@ -41,10 +42,13 @@ struct MusicPlayer {
 
 impl MusicPlayer {
     fn new() -> Self {
-        
+        // Creates the database if it doesn't exist.
         if !sql::check_database_exists() {
             let _ = sql::create_database_tables();
         }
+
+        // Verifies validity of the data in the database.
+        let _ = verify_data_integrity();
 
         Self {
             pages: Default::default(),
@@ -60,10 +64,10 @@ impl MusicPlayer {
     fn view(&self) -> Element<Message> {
         self.pages.view().map(Message::Pages).into()
     }
- }
+}
 
- impl Default for MusicPlayer {
+impl Default for MusicPlayer {
     fn default() -> Self {
         Self::new()
     }
- }
+}

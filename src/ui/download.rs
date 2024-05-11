@@ -1,6 +1,6 @@
 use iced::{
-    widget::{button, column, container, scrollable, text_input},
-    Alignment, Command, Length
+    widget::{button, column, container, scrollable, text, text_input},
+    Alignment, Command, Length,
 };
 
 use super::super::core::youtube::download_from_url;
@@ -55,7 +55,7 @@ impl State {
         let content = container(
             scrollable(
                 column![
-                    "Downloaded Songs",
+                    text("Download/Import Music").size(18),
                     text_input("Youtube URL...", &self.yt_url).on_input(Event::YouTubeURLInput),
                     text_input("Song Name...", &self.title).on_input(Event::SongNameInput),
                     button("Download").on_press(Event::Download)

@@ -43,8 +43,7 @@ impl State {
     }
 
     pub fn view(&self) -> iced::Element<Event> {
-        let mut column = column![].spacing(10);
-        
+        let mut column = column![text("Your Music").size(18)].spacing(10);
 
         for audio_file in &self.track_list {
             let video_id = audio_file.get("video_id").unwrap();

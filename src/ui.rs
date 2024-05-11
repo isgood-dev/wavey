@@ -1,15 +1,18 @@
-use iced::{widget::{row, column}, Command};
+use iced::{
+    widget::{column, row},
+    Command,
+};
 use rodio::{OutputStream, Sink};
 
-use std::{fs::File, sync::mpsc};
 use std::thread;
+use std::{fs::File, sync::mpsc};
 
-mod edit;
-mod track_list;
-mod settings;
-mod download;
 mod components;
-
+mod download;
+mod edit;
+mod results;
+mod settings;
+mod track_list;
 
 pub struct Pages {
     pub current_page: Page,
@@ -22,9 +25,7 @@ pub struct Pages {
     settings: settings::State,
     download: download::State,
 
-    slider_value: f32,
     audio_playback_sender: mpsc::Sender<AudioEvent>,
-    duration: String,    
 }
 
 #[derive(Default)]
@@ -33,7 +34,7 @@ pub enum Page {
     TrackList,
     Edit,
     Settings,
-    Download
+    Download,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -46,12 +47,12 @@ pub enum UiEvent {
     SettingsPressed(settings::Event),
     DownloadPressed(download::Event),
 
-    PlaySuccess,    
+    PlaySuccess,
 }
 
 #[derive(Debug, Clone)]
 enum AudioEvent {
-    Play(String),
+    Queue(String, bool),
     Pause,
 }
 
@@ -83,11 +84,7 @@ impl Pages {
             edit: Default::default(),
             settings: Default::default(),
 
-            slider_value: 0.0,
-            duration: String::from("0:00"),
-
             audio_playback_sender: sender,
-
         }
     }
     pub fn update(&mut self, message: UiEvent) -> Command<UiEvent> {
@@ -98,7 +95,6 @@ impl Pages {
                 Command::none()
             }
 
-
             UiEvent::DownloadPressed(x) => self.download.update(x).map(UiEvent::DownloadPressed),
             UiEvent::EditPressed(x) => self.edit.update(x).map(UiEvent::EditPressed),
             UiEvent::SettingsPressed(x) => self.settings.update(x).map(UiEvent::SettingsPressed),
@@ -107,93 +103,100 @@ impl Pages {
                 match x {
                     track_list::Event::PlayTrack(video_id) => {
                         println!("{}", video_id);
-                        // return Command::perform(playback::play(self.audio.sink.clone(), video_id.to_string()), |_| Event::PlaySuccess);
                         self.audio_playback_sender
-                            .send(AudioEvent::Play(video_id.to_string()))
+                            .send(AudioEvent::Queue(video_id.clone().to_string(), true))
                             .expect("Failed to send play command");
+
+                        let _ =
+                            self.controls
+                                .update(components::control_bar::Event::UpdateNowPlaying(
+                                    video_id.to_string(),
+                                ));
                     }
                     track_list::Event::Ignore => (),
-                    
                 }
 
-                self.track_list.update(x.clone()).map(UiEvent::TrackListPressed)
+                self.track_list
+                    .update(x.clone())
+                    .map(UiEvent::TrackListPressed)
             }
-                      
+
             UiEvent::SidebarPressed(x) => {
                 match x {
                     components::sidebar::Event::OpenDownload => self.current_page = Page::Download,
                     components::sidebar::Event::OpenEdit => self.current_page = Page::Edit,
                     components::sidebar::Event::OpenSettings => self.current_page = Page::Settings,
-                    components::sidebar::Event::OpenTrackList => self.current_page = Page::TrackList,
+                    components::sidebar::Event::OpenTrackList => {
+                        self.current_page = Page::TrackList
+                    }
                 }
 
                 self.sidebar.update(x).map(UiEvent::SidebarPressed)
             }
-            
-            UiEvent::ControlsPressed(x) => {
-                self.controls.update(x).map(UiEvent::ControlsPressed)
-            }
+
+            UiEvent::ControlsPressed(x) => self.controls.update(x).map(UiEvent::ControlsPressed),
         }
     }
 
     pub fn view(&self) -> iced::Element<UiEvent> {
         match &self.current_page {
-            Page::TrackList => {
-                column![
-                    row![
-                        self.sidebar.view().map(UiEvent::SidebarPressed),
-                        self.track_list.view().map(UiEvent::TrackListPressed),
-                    ],
-                    self.controls.view().map(UiEvent::ControlsPressed),
-                ].into()
-            }
+            Page::TrackList => column![
+                row![
+                    self.sidebar.view().map(UiEvent::SidebarPressed),
+                    self.track_list.view().map(UiEvent::TrackListPressed),
+                ],
+                self.controls.view().map(UiEvent::ControlsPressed),
+            ]
+            .into(),
 
-            Page::Download => {
-                column![
-                    row![
-                        self.sidebar.view().map(UiEvent::SidebarPressed),
-                        self.download.view().map(UiEvent::DownloadPressed),
-                    ],
-                    self.controls.view().map(UiEvent::ControlsPressed),
-                ].into()
-            }
+            Page::Download => column![
+                row![
+                    self.sidebar.view().map(UiEvent::SidebarPressed),
+                    self.download.view().map(UiEvent::DownloadPressed),
+                ],
+                self.controls.view().map(UiEvent::ControlsPressed),
+            ]
+            .into(),
 
-            Page::Edit => {
-                column![
-                    row![
-                        self.sidebar.view().map(UiEvent::SidebarPressed),
-                        self.edit.view().map(UiEvent::EditPressed),
-                    ],
-                    self.controls.view().map(UiEvent::ControlsPressed),
-                ].into()
-            }
+            Page::Edit => column![
+                row![
+                    self.sidebar.view().map(UiEvent::SidebarPressed),
+                    self.edit.view().map(UiEvent::EditPressed),
+                ],
+                self.controls.view().map(UiEvent::ControlsPressed),
+            ]
+            .into(),
 
-            Page::Settings => {
-                column![
-                    row![
-                        self.sidebar.view().map(UiEvent::SidebarPressed),
-                        self.settings.view().map(UiEvent::SettingsPressed),
-                    ],
-                    self.controls.view().map(UiEvent::ControlsPressed),
-                ].into()
-            }           
+            Page::Settings => column![
+                row![
+                    self.sidebar.view().map(UiEvent::SidebarPressed),
+                    self.settings.view().map(UiEvent::SettingsPressed),
+                ],
+                self.controls.view().map(UiEvent::ControlsPressed),
+            ]
+            .into(),
         }
     }
 }
 
 fn process_audio_command(command: AudioEvent, sink: &Sink) {
     match command {
-        AudioEvent::Play(video_id) => {
-            println!("{}", format!("./assets/audio/{}.mp3", video_id.clone()));
+        AudioEvent::Pause => {
+            sink.pause();
+        }
+
+        AudioEvent::Queue(video_id, force) => {
+            if force {
+                sink.stop();
+            }
 
             let file = File::open(format!("./assets/audio/{}.mp3", video_id)).unwrap();
-            
-            sink.append(rodio::Decoder::new(file).unwrap());
-            sink.set_volume(1.0);
-        }   
 
-        AudioEvent::Pause => {
-            sink.stop();
+            sink.append(rodio::Decoder::new(file).unwrap());
+
+            if force {
+                sink.play();
+            }
         }
     }
 }

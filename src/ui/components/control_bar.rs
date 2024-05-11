@@ -1,22 +1,23 @@
 use iced::{
-    widget::{column, container, row, slider}, Alignment, Color, Command, Length
+    widget::{column, container, row, slider, text},
+    Alignment, Color, Command, Length,
 };
 
 use super::icons::{action, backward_icon, forward_icon, play_icon};
 
 pub struct State {
     slider_value: f32,
-    
+    now_playing: String,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Event {
     BackwardPressed,
     ForwardPressed,
-    PlayPressed(String),
     SliderChanged(f32),
-    AudioPlayed,
-    PauseOrResume,
+    UpdateNowPlaying(String),
+    Pause,
+    Resume,
 }
 
 impl State {
@@ -30,32 +31,35 @@ impl State {
                 println!("Forward pressed");
                 Command::none()
             }
-            Event::PlayPressed(video_id) => Command::none(),
-            
+
             Event::SliderChanged(value) => {
                 self.slider_value = value;
                 println!("Slider changed: {}", value);
                 Command::none()
             }
-            Event::AudioPlayed => {
-                println!("Audio played");
+            Event::UpdateNowPlaying(text) => {
+                self.now_playing = text;
                 Command::none()
             }
-            Event::PauseOrResume => Command::none(),
-            
+
+            Event::Pause => Command::none(),
+            Event::Resume => Command::none(),
         }
     }
 
     pub fn view(&self) -> iced::Element<Event> {
         container(
             column![
+                text(&self.now_playing).size(12),
                 row![
                     action(backward_icon(), "Back", Some(Event::BackwardPressed)),
-                    action(play_icon(), "Play", Some(Event::PauseOrResume)),
+                    action(play_icon(), "Play", Some(Event::Resume)),
                     action(forward_icon(), "Forward", Some(Event::ForwardPressed)),
                 ]
                 .spacing(10),
-                slider(0.0..=100.0, self.slider_value, Event::SliderChanged).step(1.0).width(350),
+                slider(0.0..=100.0, self.slider_value, Event::SliderChanged)
+                    .step(1.0)
+                    .width(350),
             ]
             .align_items(Alignment::Center)
             .spacing(10),
@@ -66,7 +70,7 @@ impl State {
                 .with_border(Color::from_rgb(255.0, 0.0, 0.0), 0)
         })
         .width(Length::Fill)
-        .height(80)
+        .height(100)
         .padding(10)
         .center_x()
         .into()
@@ -77,6 +81,7 @@ impl Default for State {
     fn default() -> Self {
         Self {
             slider_value: 0.0,
+            now_playing: String::from("Nothing is playing."),
         }
     }
 }

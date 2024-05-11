@@ -1,33 +1,25 @@
 use iced::{
-    widget::{ column, container, scrollable},
+    widget::{column, container, scrollable, text},
     Alignment, Command, Length,
 };
 
-pub struct State {
-    
-}
+pub struct State {}
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum Event {
-
-}
+pub enum Event {}
 
 impl State {
     pub fn update(&mut self, message: Event) -> Command<Event> {
-        match message {
-
-        }
+        match message {}
     }
 
     pub fn view(&self) -> iced::Element<Event> {
         let content = container(
             scrollable(
-                column![
-                    "Settings",
-                ]
-                .spacing(40)
-                .align_items(Alignment::Start)
-                .width(Length::Fill),
+                column![text("Settings").size(18),]
+                    .spacing(40)
+                    .align_items(Alignment::Start)
+                    .width(Length::Fill),
             )
             .height(Length::Fill),
         )

@@ -48,6 +48,7 @@ pub async fn get_search_results(query: String) -> Vec<HashMap<String, String>> {
             result.insert("url".to_string(), video.url);
             result.insert("thumbnail".to_string(), video.thumbnails[0].url.clone());
             result.insert("channel".to_string(), video.channel.name);
+            result.insert("video_id".to_string(), video.id);
             results.push(result);
 
             index += 1;

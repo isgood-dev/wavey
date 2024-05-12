@@ -100,39 +100,39 @@ impl Pages {
             }
 
             UiEvent::DownloadPressed(x) => {
-                match x.clone() {
+                let download_command = self.download.update(x.clone()).map(UiEvent::DownloadPressed);
+                match x {
                     download::Event::DownloadQueryReceived(data) => {
                         self.current_page = Page::Results;
 
-                        let _ = self.results.update(results::Event::PopulateResults(data));
+                        Command::batch(vec![
+                            self.results.update(results::Event::PopulateResults(data)).map(UiEvent::Results),
+                            download_command,
+                        ])
                     }
-                    _ => (),
+                    _ => download_command,
                 }
-                self.download.update(x).map(UiEvent::DownloadPressed)
             },
             UiEvent::EditPressed(x) => self.edit.update(x).map(UiEvent::EditPressed),
             UiEvent::SettingsPressed(x) => self.settings.update(x).map(UiEvent::SettingsPressed),
             UiEvent::TrackListPressed(ref x) => {
-                println!("1");
+                let track_list_command = self.track_list.update(x.clone()).map(UiEvent::TrackListPressed);
                 match x {
                     track_list::Event::PlayTrack(video_id) => {
+                        
                         println!("{}", video_id);
                         self.audio_playback_sender
                             .send(AudioEvent::Queue(video_id.clone().to_string(), true))
                             .expect("Failed to send play command");
 
-                        let _ =
-                            self.controls
-                                .update(components::control_bar::Event::UpdateNowPlaying(
-                                    video_id.to_string(),
-                                ));
+                        Command::batch(vec![
+                            self.controls.update(components::control_bar::Event::UpdateNowPlaying(video_id.to_string())).map(UiEvent::ControlsPressed),
+                            track_list_command,
+                        ])
                     }
-                    track_list::Event::Ignore => (),
+                    _ => track_list_command
+                    
                 }
-
-                self.track_list
-                    .update(x.clone())
-                    .map(UiEvent::TrackListPressed)
             }
 
             UiEvent::SidebarPressed(x) => {

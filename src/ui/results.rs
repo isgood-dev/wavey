@@ -1,23 +1,26 @@
 use std::collections::HashMap;
 
+use super::components::icons::{action, download_icon};
+
 use iced::advanced::image::Bytes;
 use iced::{
-    widget::{button, column, container, image, row, scrollable, text, Container},
+    widget::{column, container, image, row, scrollable, text, Container},
     Alignment, Command, Length,
 };
 use reqwest::Client;
-// use bytes::Bytes;
 
 pub struct State {
     loading: bool,
     results: Vec<HashMap<String, String>>,
     thumbnails: Vec<Vec<u8>>,
+    search_query: String,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Event {
     PopulateResults(Vec<HashMap<String, String>>),
     ThumbnailReceived(Vec<Vec<u8>>),
+    DownloadPressed(String),
 }
 
 impl State {
@@ -26,22 +29,25 @@ impl State {
             loading: true,
             results: Vec::new(),
             thumbnails: Vec::new(),
+            search_query: String::new(),
         }
     }
 
     pub fn update(&mut self, message: Event) -> Command<Event> {
         match message {
+            Event::DownloadPressed(url) => {
+                println!("Downloading: {}", url);
+
+                Command::none()
+            }
             Event::PopulateResults(data) => {
-                println!("1");
                 self.results = data.clone();
 
                 Command::perform(request_all_thumbnails(data), Event::ThumbnailReceived)
             }
 
             Event::ThumbnailReceived(data) => {
-                println!("2");
                 self.thumbnails = data;
-                println!("{}", self.thumbnails.len());
                 self.loading = false;
 
                 Command::none()
@@ -56,17 +62,26 @@ impl State {
                 .center_y()
                 .into()
         } else {
-            let mut column = column![text("Please select what to download").size(18)].spacing(10);
+            let mut column = column![];
 
             for (index, result) in self.results.iter().enumerate() {
+                let heading = format!(
+                    "{} - {}",
+                    result.get("title").unwrap(),
+                    result.get("channel").unwrap()
+                );
                 let row = row![
-                    thumbnail(self.thumbnails[index].clone()), // Clone the value here
-                    column![
-                        text(result.get("title").unwrap()),
-                        text(result.get("url").unwrap()),
-                        text(result.get("channel").unwrap()),
-                    ],
-                    button("Download"),
+                    action(
+                        download_icon(),
+                        "Download",
+                        Some(Event::DownloadPressed(
+                            result.get("video_id").unwrap().to_string()
+                        ))
+                    ),
+                    thumbnail(self.thumbnails[index].clone())
+                        .width(150)
+                        .max_width(150), // Clone the value here
+                    column![text(heading), text(result.get("url").unwrap())],
                 ]
                 .align_items(Alignment::Center)
                 .spacing(10);
@@ -74,15 +89,16 @@ impl State {
                 column = column.push(row);
             }
 
-            let content = container(
+            let content = container(column![
+                text("Search Results").size(18),
                 scrollable(
                     column
-                        .spacing(40)
-                        .align_items(Alignment::Center)
+                        .spacing(20)
+                        .align_items(Alignment::Start)
                         .width(Length::Fill),
                 )
                 .height(Length::Fill),
-            )
+            ])
             .padding(10);
 
             content.into()
@@ -98,16 +114,13 @@ impl Default for State {
 
 fn thumbnail<'a>(url: Vec<u8>) -> Container<'a, Event> {
     let handle = image::Handle::from_bytes(Bytes::from(url));
-    container(image(handle).width(100).height(70)).center_x()
+    container(image(handle).width(120).height(90)).center_x()
 }
 
 async fn request_thumbnail(url: String) -> Result<Bytes, reqwest::Error> {
-    println!("Requesting thumbnail: {}", url);
     let client = Client::new();
 
     let response = client.get(&url).send().await?;
-
-    println!("Response: {:?}", response.status());
 
     let bytes = response.bytes().await?;
 
@@ -115,11 +128,9 @@ async fn request_thumbnail(url: String) -> Result<Bytes, reqwest::Error> {
 }
 
 async fn request_all_thumbnails(results: Vec<HashMap<String, String>>) -> Vec<Vec<u8>> {
-    println!("3");
     let mut thumbnails = Vec::new();
 
     for result in results {
-        println!("Requesting thumbnail: {}", result.get("thumbnail").unwrap());
         let url = result.get("thumbnail").unwrap().clone();
 
         let bytes = request_thumbnail(url).await.unwrap();

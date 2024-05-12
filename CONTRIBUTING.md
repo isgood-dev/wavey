@@ -2,11 +2,11 @@
 
 Thank you for considering to contribute to this repository!
 
-In the spirit of open-source coding, we encourage contributions. Any help in making the music player better is appreciated.
+In the spirit of open-source coding, we encourage contributions. Any help in making wavey better is appreciated.
 
 ## How to contribute
-* Create a [pull request](https://github.com/acatiadroid/music-player/pulls)
-* Create an [issue](https://github.com/acatiadroid/music-player/issues/new)
+* Create a [pull request](https://github.com/isgood-development/wavey/pulls)
+* Create an [issue](https://github.com/isgood-development/wavey/issues/new)
 
 ## Guidelines to contribute
 To ensure a level of consistency, please do the following when making contributions where applicable:
@@ -18,7 +18,7 @@ To ensure a level of consistency, please do the following when making contributi
 
 ## Types of contributions we welcome
 * Bug fixes
-    * Please heavily test bug fixes to ensure they don't create other bugs/impare functionaly of anything on the music player.
+    * Please heavily test bug fixes to ensure they don't create other bugs/impare functionaly of anything on Wavey.
 * Spelling mistakes
 * Syntax improvements
 * Feature requests/implimentations

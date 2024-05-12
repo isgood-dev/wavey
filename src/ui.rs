@@ -24,6 +24,7 @@ pub struct Pages {
     edit: edit::State,
     settings: settings::State,
     download: download::State,
+    results: results::State,
 
     audio_playback_sender: mpsc::Sender<AudioEvent>,
 }
@@ -35,6 +36,7 @@ pub enum Page {
     Edit,
     Settings,
     Download,
+    Results,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -46,6 +48,7 @@ pub enum UiEvent {
     EditPressed(edit::Event),
     SettingsPressed(settings::Event),
     DownloadPressed(download::Event),
+    Results(results::Event),
 
     PlaySuccess,
 }
@@ -83,6 +86,7 @@ impl Pages {
             download: Default::default(),
             edit: Default::default(),
             settings: Default::default(),
+            results: Default::default(),
 
             audio_playback_sender: sender,
         }
@@ -95,7 +99,17 @@ impl Pages {
                 Command::none()
             }
 
-            UiEvent::DownloadPressed(x) => self.download.update(x).map(UiEvent::DownloadPressed),
+            UiEvent::DownloadPressed(x) => {
+                match x.clone() {
+                    download::Event::DownloadQueryReceived(data) => {
+                        self.current_page = Page::Results;
+
+                        let _ = self.results.update(results::Event::PopulateResults(data));
+                    }
+                    _ => (),
+                }
+                self.download.update(x).map(UiEvent::DownloadPressed)
+            },
             UiEvent::EditPressed(x) => self.edit.update(x).map(UiEvent::EditPressed),
             UiEvent::SettingsPressed(x) => self.settings.update(x).map(UiEvent::SettingsPressed),
             UiEvent::TrackListPressed(ref x) => {
@@ -135,11 +149,21 @@ impl Pages {
             }
 
             UiEvent::ControlsPressed(x) => self.controls.update(x).map(UiEvent::ControlsPressed),
+            UiEvent::Results(x) => self.results.update(x).map(UiEvent::Results),
         }
     }
 
     pub fn view(&self) -> iced::Element<UiEvent> {
         match &self.current_page {
+            Page::Results => column![
+                row![
+                    self.sidebar.view().map(UiEvent::SidebarPressed),
+                    self.results.view().map(UiEvent::Results),
+                ],
+                self.controls.view().map(UiEvent::ControlsPressed),
+            ]
+            .into(),
+
             Page::TrackList => column![
                 row![
                     self.sidebar.view().map(UiEvent::SidebarPressed),

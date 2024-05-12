@@ -1,5 +1,5 @@
 [package]
-name = "music"
+name = "wavey"
 version = "0.1.0"
 edition = "2021"
 
@@ -12,3 +12,4 @@ rodio = { version = "0.17.3", features = ["symphonia-all"] }
 rusty_ytdl = "0.7.1"
 tokio = {version = "1.21.2", features = ["sync", "fs"] }
 image = "0.25.1"
+reqwest = "0.11"

@@ -29,14 +29,19 @@ async fn ffmpeg_convert_codec(video_id: String) -> bool {
     true
 }
 
-async fn get_search_results(query: String) -> Vec<HashMap<String, String>> {
+pub async fn get_search_results(query: String) -> Vec<HashMap<String, String>> {
     let youtube = YouTube::new().unwrap();
 
-    let res = youtube.search("jaws sleep token", None).await.unwrap();
+    let res = youtube.search(query, None).await.unwrap();
 
     let mut results = Vec::new();
+    let mut index = 0;
 
     for video in res {
+        if index > 6 {
+            break;
+        }
+
         if let SearchResult::Video(video) = video {
             let mut result = HashMap::new();
             result.insert("title".to_string(), video.title);
@@ -44,6 +49,8 @@ async fn get_search_results(query: String) -> Vec<HashMap<String, String>> {
             result.insert("thumbnail".to_string(), video.thumbnails[0].url.clone());
             result.insert("channel".to_string(), video.channel.name);
             results.push(result);
+
+            index += 1;
         }
     }
 

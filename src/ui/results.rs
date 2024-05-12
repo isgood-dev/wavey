@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use crate::core::youtube::download_from_url;
+
 use super::components::icons::{action, download_icon};
 
 use iced::advanced::image::Bytes;
@@ -13,7 +15,6 @@ pub struct State {
     loading: bool,
     results: Vec<HashMap<String, String>>,
     thumbnails: Vec<Vec<u8>>,
-    search_query: String,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -21,6 +22,7 @@ pub enum Event {
     PopulateResults(Vec<HashMap<String, String>>),
     ThumbnailReceived(Vec<Vec<u8>>),
     DownloadPressed(String),
+    DownloadComplete(bool),
 }
 
 impl State {
@@ -29,17 +31,13 @@ impl State {
             loading: true,
             results: Vec::new(),
             thumbnails: Vec::new(),
-            search_query: String::new(),
         }
     }
 
     pub fn update(&mut self, message: Event) -> Command<Event> {
         match message {
-            Event::DownloadPressed(url) => {
-                println!("Downloading: {}", url);
-
-                Command::none()
-            }
+            Event::DownloadComplete(_status) => Command::none(),
+            Event::DownloadPressed(url) => Command::perform(download_from_url(url), Event::DownloadComplete),
             Event::PopulateResults(data) => {
                 self.results = data.clone();
 

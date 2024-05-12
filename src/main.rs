@@ -16,7 +16,7 @@ pub fn main() -> iced::Result {
     let icon = window::icon::from_rgba(rgba.into_raw(), width, height).unwrap();
 
     let settings = Settings {
-        default_font: Font::MONOSPACE,
+        default_font: Font::with_name("Nunito"),
         window: iced::window::Settings {
             icon: Some(icon),
             ..Default::default()
@@ -24,10 +24,11 @@ pub fn main() -> iced::Result {
         ..Default::default()
     };
 
-    iced::program("Music Player", MusicPlayer::update, MusicPlayer::view)
+    iced::program("wavey", Wavey::update, Wavey::view)
         .settings(settings)
         .window_size((800.0, 600.0))
         .font(include_bytes!("../assets/icons.ttf").as_slice())
+        .font(include_bytes!("../assets/Nunito-Bold.ttf").as_slice())
         .run()
 }
 
@@ -36,11 +37,11 @@ enum Message {
     Pages(ui::UiEvent),
 }
 
-struct MusicPlayer {
+struct Wavey {
     pages: ui::Pages,
 }
 
-impl MusicPlayer {
+impl Wavey {
     fn new() -> Self {
         // Creates the database if it doesn't exist.
         if !sql::check_database_exists() {
@@ -66,7 +67,7 @@ impl MusicPlayer {
     }
 }
 
-impl Default for MusicPlayer {
+impl Default for Wavey {
     fn default() -> Self {
         Self::new()
     }

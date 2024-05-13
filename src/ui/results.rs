@@ -79,7 +79,7 @@ impl State {
                     thumbnail(self.thumbnails[index].clone())
                         .width(150)
                         .max_width(150), // Clone the value here
-                    column![text(heading), text(result.get("url").unwrap())],
+                    text(heading).size(16),
                 ]
                 .align_items(Alignment::Center)
                 .spacing(10);

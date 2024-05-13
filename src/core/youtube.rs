@@ -45,7 +45,6 @@ pub async fn get_search_results(query: String) -> Vec<HashMap<String, String>> {
         if let SearchResult::Video(video) = video {
             let mut result = HashMap::new();
             result.insert("title".to_string(), video.title);
-            result.insert("url".to_string(), video.url);
             result.insert("thumbnail".to_string(), video.thumbnails[0].url.clone());
             result.insert("channel".to_string(), video.channel.name);
             result.insert("video_id".to_string(), video.id);

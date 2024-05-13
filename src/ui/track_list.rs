@@ -2,10 +2,10 @@ use std::collections::HashMap;
 
 use crate::core::{format::format_duration, sql};
 
-use super::components::icons::{action, play_icon};
+use super::components::icons::{action, edit_icon, play_icon};
 
 use iced::{
-    widget::{column, container, horizontal_space, row, scrollable, text},
+    widget::{button, column, container, horizontal_space, row, scrollable, text},
     Alignment, Command, Length,
 };
 
@@ -16,7 +16,8 @@ pub struct State {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Event {
     PlayTrack(String),
-    Ignore,
+    EditTrack(String),
+    Refresh,
 }
 
 impl State {
@@ -28,6 +29,11 @@ impl State {
 
     pub fn update(&mut self, message: Event) -> Command<Event> {
         match message {
+            Event::EditTrack(video_id) => {
+                println!("Editing: {}", video_id);
+
+                Command::none()
+            }
             Event::PlayTrack(video_id) => {
                 let data = sql::get_music(video_id);
 
@@ -37,13 +43,16 @@ impl State {
 
                 Command::none()
             }
+            Event::Refresh => {
+                self.track_list = sql::get_all_music();
 
-            Event::Ignore => Command::none(),
+                Command::none()
+            }
         }
     }
 
     pub fn view(&self) -> iced::Element<Event> {
-        let mut column = column![text("Your Music").size(18)].spacing(10);
+        let mut column = column![row![text("Your Music").size(18), button("Refresh").on_press(Event::Refresh)].align_items(Alignment::Center).spacing(20)].spacing(10);
 
         for audio_file in &self.track_list {
             let video_id = audio_file.get("video_id").unwrap();
@@ -56,6 +65,11 @@ impl State {
                     play_icon(),
                     display_name,
                     Some(Event::PlayTrack(video_id.clone())),
+                ),
+                action(
+                    edit_icon(),
+                    "Edit",
+                    Some(Event::EditTrack(video_id.clone()))
                 ),
                 text(display_name.clone()),
                 horizontal_space(),

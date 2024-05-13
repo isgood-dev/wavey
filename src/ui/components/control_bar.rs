@@ -16,8 +16,7 @@ pub enum Event {
     ForwardPressed,
     SliderChanged(f32),
     UpdateNowPlaying(String),
-    Pause,
-    Resume,
+    PlayAction,
 }
 
 impl State {
@@ -42,8 +41,10 @@ impl State {
                 Command::none()
             }
 
-            Event::Pause => Command::none(),
-            Event::Resume => Command::none(),
+            Event::PlayAction => {
+                println!("Play action");
+                Command::none()
+            }
         }
     }
 
@@ -53,7 +54,7 @@ impl State {
                 text(&self.now_playing).size(12),
                 row![
                     action(backward_icon(), "Back", Some(Event::BackwardPressed)),
-                    action(play_icon(), "Play", Some(Event::Resume)),
+                    action(play_icon(), "Play", Some(Event::PlayAction)),
                     action(forward_icon(), "Forward", Some(Event::ForwardPressed)),
                 ]
                 .spacing(10),

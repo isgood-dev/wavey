@@ -49,8 +49,6 @@ pub enum UiEvent {
     SettingsPressed(settings::Event),
     DownloadPressed(download::Event),
     Results(results::Event),
-
-    PlaySuccess,
 }
 
 #[derive(Debug, Clone)]
@@ -93,12 +91,6 @@ impl Pages {
     }
     pub fn update(&mut self, message: UiEvent) -> Command<UiEvent> {
         match message {
-            UiEvent::PlaySuccess => {
-                println!("Play Successful");
-
-                Command::none()
-            }
-
             UiEvent::DownloadPressed(x) => {
                 let download_command = self.download.update(x.clone()).map(UiEvent::DownloadPressed);
                 match x {

@@ -2,6 +2,13 @@ use iced::{
     widget::{column, row},
     Command,
 };
+
+use crate::core::youtube::YouTubeError;
+
+use self::components::toast;
+
+use super::ui::components::toast::{Status, Toast};
+
 use rodio::{OutputStream, Sink};
 
 use std::thread;
@@ -27,6 +34,8 @@ pub struct Pages {
     results: results::State,
 
     audio_playback_sender: mpsc::Sender<AudioEvent>,
+
+    toasts: Vec<Toast>,
 }
 
 #[derive(Default)]
@@ -49,6 +58,8 @@ pub enum UiEvent {
     SettingsPressed(settings::Event),
     DownloadPressed(download::Event),
     Results(results::Event),
+
+    CloseToast(usize),
 }
 
 #[derive(Debug, Clone)]
@@ -87,43 +98,74 @@ impl Pages {
             results: Default::default(),
 
             audio_playback_sender: sender,
+            toasts: vec![],
         }
     }
     pub fn update(&mut self, message: UiEvent) -> Command<UiEvent> {
         match message {
+            UiEvent::CloseToast(index) => {
+                self.toasts.remove(index);
+
+                Command::none()
+            }
+
             UiEvent::DownloadPressed(x) => {
-                let download_command = self.download.update(x.clone()).map(UiEvent::DownloadPressed);
+                let download_command = self
+                    .download
+                    .update(x.clone())
+                    .map(UiEvent::DownloadPressed);
                 match x {
                     download::Event::DownloadQueryReceived(data) => {
                         self.current_page = Page::Results;
 
+                        let data = match data {
+                            Ok(data) => data,
+                            Err(error) => {
+                                match error {
+                                    YouTubeError::NetworkError => self.toasts.push(Toast {
+                                        title: "Network Error".into(),
+                                        body: "Failed to fetch search results".into(),
+                                        status: Status::Danger,
+                                    }),
+                                }
+                                return download_command;
+                            }
+                        };
+
                         Command::batch(vec![
-                            self.results.update(results::Event::PopulateResults(data)).map(UiEvent::Results),
+                            self.results
+                                .update(results::Event::PopulateResults(data))
+                                .map(UiEvent::Results),
                             download_command,
                         ])
                     }
                     _ => download_command,
                 }
-            },
+            }
             UiEvent::EditPressed(x) => self.edit.update(x).map(UiEvent::EditPressed),
             UiEvent::SettingsPressed(x) => self.settings.update(x).map(UiEvent::SettingsPressed),
             UiEvent::TrackListPressed(ref x) => {
-                let track_list_command = self.track_list.update(x.clone()).map(UiEvent::TrackListPressed);
+                let track_list_command = self
+                    .track_list
+                    .update(x.clone())
+                    .map(UiEvent::TrackListPressed);
                 match x {
-                    track_list::Event::PlayTrack(video_id) => {
-                        
-                        println!("{}", video_id);
+                    track_list::Event::PlayTrack(video_id, display_name, duration) => {
                         self.audio_playback_sender
                             .send(AudioEvent::Queue(video_id.clone().to_string(), true))
                             .expect("Failed to send play command");
 
                         Command::batch(vec![
-                            self.controls.update(components::control_bar::Event::UpdateNowPlaying(video_id.to_string())).map(UiEvent::ControlsPressed),
+                            self.controls
+                                .update(components::control_bar::Event::InitiatePlay(
+                                    display_name.to_string(),
+                                    *duration,
+                                ))
+                                .map(UiEvent::ControlsPressed),
                             track_list_command,
                         ])
                     }
-                    _ => track_list_command
-                    
+                    _ => track_list_command,
                 }
             }
 
@@ -147,51 +189,70 @@ impl Pages {
 
     pub fn view(&self) -> iced::Element<UiEvent> {
         match &self.current_page {
-            Page::Results => column![
-                row![
-                    self.sidebar.view().map(UiEvent::SidebarPressed),
-                    self.results.view().map(UiEvent::Results),
-                ],
-                self.controls.view().map(UiEvent::ControlsPressed),
-            ]
-            .into(),
+            Page::Results => {
+                let content = column![
+                    row![
+                        self.sidebar.view().map(UiEvent::SidebarPressed),
+                        self.results.view().map(UiEvent::Results),
+                    ],
+                    self.controls.view().map(UiEvent::ControlsPressed),
+                ];
 
-            Page::TrackList => column![
-                row![
-                    self.sidebar.view().map(UiEvent::SidebarPressed),
-                    self.track_list.view().map(UiEvent::TrackListPressed),
-                ],
-                self.controls.view().map(UiEvent::ControlsPressed),
-            ]
-            .into(),
+                toast::Manager::new(content, &self.toasts, UiEvent::CloseToast).into()
+            }
 
-            Page::Download => column![
-                row![
-                    self.sidebar.view().map(UiEvent::SidebarPressed),
-                    self.download.view().map(UiEvent::DownloadPressed),
-                ],
-                self.controls.view().map(UiEvent::ControlsPressed),
-            ]
-            .into(),
+            Page::TrackList => {
+                let content = column![
+                    row![
+                        self.sidebar.view().map(UiEvent::SidebarPressed),
+                        self.track_list.view().map(UiEvent::TrackListPressed),
+                    ],
+                    self.controls.view().map(UiEvent::ControlsPressed),
+                ];
 
-            Page::Edit => column![
-                row![
-                    self.sidebar.view().map(UiEvent::SidebarPressed),
-                    self.edit.view().map(UiEvent::EditPressed),
-                ],
-                self.controls.view().map(UiEvent::ControlsPressed),
-            ]
-            .into(),
+                toast::Manager::new(content, &self.toasts, UiEvent::CloseToast).into()
+            }
 
-            Page::Settings => column![
-                row![
-                    self.sidebar.view().map(UiEvent::SidebarPressed),
-                    self.settings.view().map(UiEvent::SettingsPressed),
-                ],
-                self.controls.view().map(UiEvent::ControlsPressed),
-            ]
-            .into(),
+            Page::Download => {
+                let content = column![
+                    row![
+                        self.sidebar.view().map(UiEvent::SidebarPressed),
+                        self.download.view().map(UiEvent::DownloadPressed),
+                    ],
+                    self.controls.view().map(UiEvent::ControlsPressed),
+                ];
+
+                toast::Manager::new(content, &self.toasts, UiEvent::CloseToast).into()
+            }
+
+            Page::Edit => {
+                let content = column![
+                    row![
+                        self.sidebar.view().map(UiEvent::SidebarPressed),
+                        self.edit.view().map(UiEvent::EditPressed),
+                    ],
+                    self.controls.view().map(UiEvent::ControlsPressed),
+                ];
+
+                toast::Manager::new(content, &self.toasts, UiEvent::CloseToast).into()
+            }
+
+            Page::Settings => {
+                let content = column![
+                    row![
+                        self.sidebar.view().map(UiEvent::SidebarPressed),
+                        self.settings.view().map(UiEvent::SettingsPressed),
+                    ],
+                    self.controls.view().map(UiEvent::ControlsPressed),
+                ];
+
+                toast::Manager::new(content, &self.toasts, UiEvent::CloseToast).into()
+            }
         }
+    }
+
+    pub fn subscription(&self) -> iced::Subscription<UiEvent> {
+        self.controls.subscription().map(UiEvent::ControlsPressed)
     }
 }
 

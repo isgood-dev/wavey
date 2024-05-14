@@ -1,4 +1,4 @@
-use iced::{window, Command, Element, Font, Settings};
+use iced::{window, Command, Element, Font, Settings, Subscription};
 use image::GenericImageView;
 
 mod core;
@@ -26,6 +26,7 @@ pub fn main() -> iced::Result {
 
     iced::program("wavey", Wavey::update, Wavey::view)
         .settings(settings)
+        .subscription(Wavey::subscription)
         .window_size((800.0, 600.0))
         .font(include_bytes!("../assets/icons.ttf").as_slice())
         .font(include_bytes!("../assets/Nunito-Bold.ttf").as_slice())
@@ -65,6 +66,11 @@ impl Wavey {
     fn view(&self) -> Element<Message> {
         self.pages.view().map(Message::Pages).into()
     }
+
+    fn subscription(&self) -> Subscription<Message> {
+        self.pages.subscription().map(Message::Pages)
+    }
+
 }
 
 impl Default for Wavey {

@@ -9,6 +9,11 @@ use rusty_ytdl::{
 
 use crate::sql;
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum YouTubeError {
+    NetworkError,
+}
+
 async fn ffmpeg_convert_codec(video_id: String) -> bool {
     let in_file = format!("./assets/audio/{}.webm", video_id);
     let out_file = format!("./assets/audio/{}.mp3", video_id);
@@ -29,10 +34,13 @@ async fn ffmpeg_convert_codec(video_id: String) -> bool {
     true
 }
 
-pub async fn get_search_results(query: String) -> Vec<HashMap<String, String>> {
+pub async fn get_search_results(query: String) -> Result<Vec<HashMap<String, String>>, YouTubeError> {
     let youtube = YouTube::new().unwrap();
 
-    let res = youtube.search(query, None).await.unwrap();
+    let res = match youtube.search(query, None).await {
+        Ok(res) => res,
+        Err(e) => return Err(YouTubeError::NetworkError),
+    };
 
     let mut results = Vec::new();
     let mut index = 0;
@@ -54,7 +62,7 @@ pub async fn get_search_results(query: String) -> Vec<HashMap<String, String>> {
         }
     }
 
-    results
+    Ok(results)
 }
 
 pub async fn download_from_url(url: String) -> bool {

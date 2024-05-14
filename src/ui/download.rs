@@ -5,7 +5,7 @@ use iced::{
     Alignment, Command, Length,
 };
 
-use crate::core::youtube::get_search_results;
+use crate::core::youtube::{get_search_results, YouTubeError};
 
 use super::super::core::youtube::download_from_url;
 
@@ -18,7 +18,7 @@ pub struct State {
 pub enum Event {
     YouTubeURLInput(String),
     SongNameInput(String),
-    DownloadQueryReceived(Vec<HashMap<String, String>>),
+    DownloadQueryReceived(Result<Vec<HashMap<String, String>>, YouTubeError>),
     Download,
     Search,
     DownloadResult(bool),
@@ -27,7 +27,8 @@ pub enum Event {
 impl State {
     pub fn update(&mut self, message: Event) -> Command<Event> {
         match message {
-            Event::DownloadQueryReceived(_data) => Command::none(),
+            Event::DownloadQueryReceived(Ok(_data)) => Command::none(),
+            Event::DownloadQueryReceived(Err(err)) => Command::none(),
             Event::Search => {
                 let query = self.title.clone();
 

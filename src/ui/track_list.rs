@@ -15,7 +15,7 @@ pub struct State {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Event {
-    PlayTrack(String),
+    PlayTrack(String, String, u64),
     EditTrack(String),
     Refresh,
 }
@@ -34,7 +34,7 @@ impl State {
 
                 Command::none()
             }
-            Event::PlayTrack(video_id) => {
+            Event::PlayTrack(video_id, _display_name, _duration) => {
                 let data = sql::get_music(video_id);
 
                 let info = data.get("display_name");
@@ -52,7 +52,13 @@ impl State {
     }
 
     pub fn view(&self) -> iced::Element<Event> {
-        let mut column = column![row![text("Your Music").size(18), button("Refresh").on_press(Event::Refresh)].align_items(Alignment::Center).spacing(20)].spacing(10);
+        let mut column = column![row![
+            text("Your Music").size(18),
+            button("Refresh").on_press(Event::Refresh)
+        ]
+        .align_items(Alignment::Center)
+        .spacing(20)]
+        .spacing(10);
 
         for audio_file in &self.track_list {
             let video_id = audio_file.get("video_id").unwrap();
@@ -64,16 +70,20 @@ impl State {
                 action(
                     play_icon(),
                     display_name,
-                    Some(Event::PlayTrack(video_id.clone())),
+                    Some(Event::PlayTrack(
+                        video_id.clone(),
+                        display_name.clone(),
+                        duration.parse::<u64>().unwrap()
+                    )),
                 ),
+                text(display_name.clone()),
+                horizontal_space(),
+                text(formatted_duration.clone()),
                 action(
                     edit_icon(),
                     "Edit",
                     Some(Event::EditTrack(video_id.clone()))
                 ),
-                text(display_name.clone()),
-                horizontal_space(),
-                text(formatted_duration.clone()),
             ]
             .spacing(10)
             .align_items(Alignment::Start);

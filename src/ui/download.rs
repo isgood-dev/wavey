@@ -28,7 +28,7 @@ impl State {
     pub fn update(&mut self, message: Event) -> Command<Event> {
         match message {
             Event::DownloadQueryReceived(Ok(_data)) => Command::none(),
-            Event::DownloadQueryReceived(Err(err)) => Command::none(),
+            Event::DownloadQueryReceived(Err(_)) => Command::none(),
             Event::Search => {
                 let query = self.title.clone();
 

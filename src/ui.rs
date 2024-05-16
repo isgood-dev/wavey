@@ -11,7 +11,7 @@ use super::ui::components::toast::{Status, Toast};
 
 use rodio::{OutputStream, Sink};
 
-use std::thread;
+use std::{thread, time::Duration};
 use std::{fs::File, sync::mpsc};
 
 mod components;
@@ -65,7 +65,9 @@ pub enum UiEvent {
 #[derive(Debug, Clone)]
 enum AudioEvent {
     Queue(String, bool),
+    SeekTo(u64),
     Pause,
+    Resume,
 }
 
 impl Pages {
@@ -182,7 +184,27 @@ impl Pages {
                 self.sidebar.update(x).map(UiEvent::SidebarPressed)
             }
 
-            UiEvent::ControlsPressed(x) => self.controls.update(x).map(UiEvent::ControlsPressed),
+            UiEvent::ControlsPressed(x) => {
+                match x {
+                    components::control_bar::Event::SliderChanged(value) => {
+                        self.audio_playback_sender
+                            .send(AudioEvent::SeekTo(value as u64))
+                            .expect("Failed to send seek command");
+                    },
+                    components::control_bar::Event::PauseAction => {
+                        self.audio_playback_sender
+                            .send(AudioEvent::Pause)
+                            .expect("Failed to send pause command");
+                    },
+                    components::control_bar::Event::PlayAction => {
+                        self.audio_playback_sender
+                            .send(AudioEvent::Resume)
+                            .expect("Failed to send play command");
+                    },
+                    _ => (),
+                }
+                self.controls.update(x).map(UiEvent::ControlsPressed)
+            },
             UiEvent::Results(x) => self.results.update(x).map(UiEvent::Results),
         }
     }
@@ -258,8 +280,22 @@ impl Pages {
 
 fn process_audio_command(command: AudioEvent, sink: &Sink) {
     match command {
+        AudioEvent::SeekTo(position) => {
+            let try_seek = sink.try_seek(Duration::from_secs(position));
+
+            match try_seek {
+                Ok(_) => (),
+                Err(_) => {
+                    println!("Failed to seek")
+                }
+            }
+        }
         AudioEvent::Pause => {
             sink.pause();
+        }
+
+        AudioEvent::Resume => {
+            sink.play();
         }
 
         AudioEvent::Queue(video_id, force) => {

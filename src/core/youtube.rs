@@ -14,6 +14,10 @@ pub enum YouTubeError {
     NetworkError,
 }
 
+// Simply calls ffmpeg to convert audio files from `webm` format to `mp3` format.
+// YouTube does not store files in `mp3` format, so after downloading from YouTube,
+// we need to use FFmpeg to convert to `mp3` codec.
+// Alternatives would be nice to avoid using FFmpeg since it's a large dependancy.
 async fn ffmpeg_convert_codec(video_id: String) -> bool {
     let in_file = format!("./assets/audio/{}.webm", video_id);
     let out_file = format!("./assets/audio/{}.mp3", video_id);

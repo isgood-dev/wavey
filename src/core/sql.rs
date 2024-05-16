@@ -35,10 +35,13 @@ struct Music {
 //     playlist_id: i32,
 // }
 
+
+// Pretty self-explanatory. Checks if the database file exists.
 pub fn check_database_exists() -> bool {
     Path::new("./assets/data.db").exists()
 }
 
+// Creates the database tables. Called on startup if the database doesn't already exist.
 pub fn create_database_tables() -> Result<(), DatabaseError> {
     let conn = Connection::open("./assets/data.db")?;
 
@@ -73,6 +76,8 @@ pub fn create_database_tables() -> Result<(), DatabaseError> {
     Ok(())
 }
 
+// Adds a track to the `music` table in the databsae. This is called when
+// downloading/importing new audio tracks.
 pub fn add_music(video_data: HashMap<String, String>) -> Result<(), DatabaseError> {
     let conn = Connection::open("./assets/data.db")?;
 
@@ -90,6 +95,9 @@ pub fn add_music(video_data: HashMap<String, String>) -> Result<(), DatabaseErro
     Ok(())
 }
 
+// Gets an audio track from the database. This is called when requesting to
+// play a song, as certain information is needed to be passed onto other widgets,
+// such as `duration` and `display_name` for the control bar.
 pub fn get_music(video_id: String) -> HashMap<String, String> {
     let conn = Connection::open("./assets/data.db").unwrap();
 
@@ -122,6 +130,11 @@ pub fn get_music(video_id: String) -> HashMap<String, String> {
     music_data
 }
 
+// Verifies the integrity of the audio tracks in the database by comparing all
+// tracks in the database to the audio files.
+// If the audio track is in the database but the corresponding audio track does NOT
+// exist, it will be deleted from the database.
+// This is called on app startup and is not checked again.
 pub fn verify_data_integrity() -> Result<(), DatabaseError> {
     let conn = Connection::open("./assets/data.db")?;
 
@@ -151,6 +164,8 @@ pub fn verify_data_integrity() -> Result<(), DatabaseError> {
     Ok(())
 }
 
+// Gets all audio tracks from the database. This is called to be displayed on
+// the `track_list` for displaying all songs.
 pub fn get_all_music() -> Vec<HashMap<String, String>> {
     let conn = Connection::open("./assets/data.db").unwrap();
 

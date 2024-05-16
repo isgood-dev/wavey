@@ -1,6 +1,6 @@
 use iced::{
     widget::{column, row},
-    Command,
+    Command, Theme,
 };
 
 use crate::core::youtube::YouTubeError;
@@ -111,12 +111,12 @@ impl Pages {
                 Command::none()
             }
 
-            UiEvent::DownloadPressed(x) => {
+            UiEvent::DownloadPressed(event) => {
                 let download_command = self
                     .download
-                    .update(x.clone())
+                    .update(event.clone())
                     .map(UiEvent::DownloadPressed);
-                match x {
+                match event {
                     download::Event::DownloadQueryReceived(data) => {
                         self.current_page = Page::Results;
 
@@ -127,6 +127,16 @@ impl Pages {
                                     YouTubeError::NetworkError => self.toasts.push(Toast {
                                         title: "Network Error".into(),
                                         body: "Failed to fetch search results".into(),
+                                        status: Status::Danger,
+                                    }),
+                                    YouTubeError::UnknownError => self.toasts.push(Toast {
+                                        title: "Unknown Error".into(),
+                                        body: "An unknown error occurred".into(),
+                                        status: Status::Danger,
+                                    }),
+                                    YouTubeError::VideoNotFound => self.toasts.push(Toast {
+                                        title: "Video Not Found".into(),
+                                        body: "The video you are looking for was not found".into(),
                                         status: Status::Danger,
                                     }),
                                 }
@@ -144,14 +154,14 @@ impl Pages {
                     _ => download_command,
                 }
             }
-            UiEvent::EditPressed(x) => self.edit.update(x).map(UiEvent::EditPressed),
-            UiEvent::SettingsPressed(x) => self.settings.update(x).map(UiEvent::SettingsPressed),
-            UiEvent::TrackListPressed(ref x) => {
+            UiEvent::EditPressed(event) => self.edit.update(event).map(UiEvent::EditPressed),
+            UiEvent::SettingsPressed(event) => self.settings.update(event).map(UiEvent::SettingsPressed),
+            UiEvent::TrackListPressed(ref event) => {
                 let track_list_command = self
                     .track_list
-                    .update(x.clone())
+                    .update(event.clone())
                     .map(UiEvent::TrackListPressed);
-                match x {
+                match event {
                     track_list::Event::PlayTrack(video_id, display_name, duration) => {
                         self.audio_playback_sender
                             .send(AudioEvent::Queue(video_id.clone().to_string(), true))
@@ -171,8 +181,8 @@ impl Pages {
                 }
             }
 
-            UiEvent::SidebarPressed(x) => {
-                match x {
+            UiEvent::SidebarPressed(event) => {
+                match event {
                     components::sidebar::Event::OpenDownload => self.current_page = Page::Download,
                     components::sidebar::Event::OpenEdit => self.current_page = Page::Edit,
                     components::sidebar::Event::OpenSettings => self.current_page = Page::Settings,
@@ -181,11 +191,11 @@ impl Pages {
                     }
                 }
 
-                self.sidebar.update(x).map(UiEvent::SidebarPressed)
+                self.sidebar.update(event).map(UiEvent::SidebarPressed)
             }
 
-            UiEvent::ControlsPressed(x) => {
-                match x {
+            UiEvent::ControlsPressed(event) => {
+                match event {
                     components::control_bar::Event::SliderChanged(value) => {
                         self.audio_playback_sender
                             .send(AudioEvent::SeekTo(value as u64))
@@ -203,9 +213,9 @@ impl Pages {
                     },
                     _ => (),
                 }
-                self.controls.update(x).map(UiEvent::ControlsPressed)
+                self.controls.update(event).map(UiEvent::ControlsPressed)
             },
-            UiEvent::Results(x) => self.results.update(x).map(UiEvent::Results),
+            UiEvent::Results(event) => self.results.update(event).map(UiEvent::Results),
         }
     }
 
@@ -275,6 +285,10 @@ impl Pages {
 
     pub fn subscription(&self) -> iced::Subscription<UiEvent> {
         self.controls.subscription().map(UiEvent::ControlsPressed)
+    }
+
+    pub fn theme(&self) -> iced::Theme {
+        Theme::KanagawaLotus
     }
 }
 

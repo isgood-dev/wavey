@@ -30,6 +30,7 @@ pub fn main() -> iced::Result {
         .window_size((800.0, 650.0))
         .font(include_bytes!("../assets/icons.ttf").as_slice())
         .font(include_bytes!("../assets/Nunito-Bold.ttf").as_slice())
+        .theme(Wavey::theme)
         .run()
 }
 
@@ -69,6 +70,10 @@ impl Wavey {
 
     fn subscription(&self) -> Subscription<Message> {
         self.pages.subscription().map(Message::Pages)
+    }
+
+    fn theme(&self) -> iced::Theme {
+        self.pages.theme()
     }
 
 }

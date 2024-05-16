@@ -1,12 +1,12 @@
 use iced::{
-    time, widget::{column, container, row, slider, text}, Alignment, Color, Command, Element, Length
+    time, widget::{column, container, row, slider, text}, Alignment, Command, Element, Length
 };
 
 use tokio::time::Duration;
 
 use crate::core::format::format_duration;
 
-use super::icons::{action, backward_icon, forward_icon, pause_icon, play_icon};
+use super::{icons::{action, backward_icon, forward_icon, pause_icon, play_icon}, style::dynamic_colour};
 
 pub struct State {
     formatted_current_duration: String,
@@ -126,11 +126,8 @@ impl State {
             .spacing(5)
 
         )
-        .style(|_theme| {
-            container::Style::default()
-                .with_background(Color::from_rgba(0.102, 0.102, 0.102, 1.0))
-                .with_border(Color::from_rgb(255.0, 0.0, 0.0), 0)
-        })
+        .style(dynamic_colour)
+        
         .width(Length::Fill)
         .height(100)
         .center_x()

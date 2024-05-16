@@ -1,8 +1,7 @@
-use super::icons::{action_with_text, download_icon, edit_icon, home_icon, settings_icon};
+use super::{icons::{action_with_text, download_icon, edit_icon, home_icon, settings_icon}, style::dynamic_colour};
 
 use iced::{
-    widget::{column, container},
-    Alignment, Color, Command, Length,
+    widget::{column, container}, Alignment, Command, Length
 };
 
 pub struct State {}
@@ -38,11 +37,7 @@ impl State {
             .width(200)
             .align_items(Alignment::Center),
         )
-        .style(|_theme| {
-            container::Style::default()
-                .with_background(Color::from_rgba(0.102, 0.102, 0.102, 1.0))
-                .with_border(Color::from_rgb(255.0, 0.0, 0.0), 0)
-        })
+        .style(dynamic_colour)
         .height(Length::Fill)
         .into()
     }

@@ -1,7 +1,9 @@
 use iced::{
     widget::{button, container, row, text, tooltip},
-    Alignment, Background, Color, Element, Font,
+    Alignment, Element, Font,
 };
+
+use super::style::button_theme;
 
 fn icon<'a, Message>(codepoint: char) -> Element<'a, Message> {
     const ICON_FONT: Font = Font::with_name("editor-icons");
@@ -39,11 +41,7 @@ pub fn action<'a, Message: Clone + 'a>(
     label: &'a str,
     on_press: Option<Message>,
 ) -> Element<'a, Message> {
-    let action = button(content).style(|_theme, _status| button::Style {
-        background: Some(Background::Color(Color::TRANSPARENT)),
-        text_color: Color::WHITE,
-        ..button::Style::default()
-    });
+    let action = button(content).style(button_theme);
 
     if let Some(on_press) = on_press {
         tooltip(

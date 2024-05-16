@@ -72,8 +72,7 @@ impl State {
                     text_input("Youtube URL...", &self.yt_url).on_input(Event::YouTubeURLInput),
                     button("Download").on_press(Event::Download),
                     text_input("Song Name...", &self.title).on_input(Event::SongNameInput),
-                    button("Search").on_press(Event::Search),
-                    
+                    button("Search").on_press(Event::Search),                    
                 ]
                 .spacing(40)
                 .align_items(Alignment::Start)

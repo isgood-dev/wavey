@@ -12,6 +12,8 @@ use crate::sql;
 #[derive(Debug, Clone, PartialEq)]
 pub enum YouTubeError {
     NetworkError,
+    VideoNotFound,
+    UnknownError,
 }
 
 // Simply calls ffmpeg to convert audio files from `webm` format to `mp3` format.
@@ -43,7 +45,17 @@ pub async fn get_search_results(query: String) -> Result<Vec<HashMap<String, Str
 
     let res = match youtube.search(query, None).await {
         Ok(res) => res,
-        Err(e) => return Err(YouTubeError::NetworkError),
+        Err(error) => match error {
+            rusty_ytdl::VideoError::Reqwest(_) => {
+                return Err(YouTubeError::NetworkError)
+            },
+            rusty_ytdl::VideoError::VideoNotFound => {
+                return Err(YouTubeError::VideoNotFound);
+            },
+            _ => {
+                return Err(YouTubeError::UnknownError);
+            },
+        },
     };
 
     let mut results = Vec::new();

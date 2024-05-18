@@ -1,21 +1,19 @@
 use std::collections::HashMap;
 
-use crate::core::{format::format_duration, sql};
-
 use super::components::icons::{action, edit_icon, play_icon};
+use crate::core::format::format_duration;
+use crate::core::sql;
 
 use iced::advanced::graphics::futures::event;
+use iced::event::Event as IcedEvent;
+use iced::keyboard;
 use iced::keyboard::key;
-use iced::Subscription;
-use iced::{
-    event::Event as IcedEvent,
-    keyboard,
-    widget::{
-        self, button, center, column, container, horizontal_space, mouse_area, opaque, row,
-        scrollable, stack, text, text_input,
-    },
-    Alignment, Color, Command, Element, Length,
+use iced::widget::{
+    self, button, center, column, container, horizontal_space, mouse_area, opaque, row, scrollable,
+    stack, text, text_input,
 };
+use iced::Subscription;
+use iced::{Alignment, Color, Command, Element, Length};
 
 pub struct State {
     track_list: Vec<HashMap<String, String>>,
@@ -51,8 +49,6 @@ impl State {
                 let data = sql::get_music(video_id);
 
                 let info = data.get("display_name");
-
-                println!("Playing: {}", info.unwrap());
 
                 Command::none()
             }
@@ -166,7 +162,8 @@ impl State {
                         text("New Track Name:"),
                         text_input("Enter here...", &self.new_display_name)
                             .on_input(Event::NewDisplayName),
-                    ].align_items(Alignment::Center)
+                    ]
+                    .align_items(Alignment::Center)
                     .padding(10),
                     button("Delete Track")
                         .style(button::danger)

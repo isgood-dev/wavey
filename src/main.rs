@@ -1,10 +1,10 @@
+use core::sql;
+
 use iced::{window, Command, Element, Font, Settings, Subscription};
 use image::GenericImageView;
 
 mod core;
 mod ui;
-
-use core::sql::{self, verify_data_integrity};
 
 pub fn main() -> iced::Result {
     // Setting the app icon.
@@ -51,7 +51,7 @@ impl Wavey {
         }
 
         // Verifies validity of the data in the database.
-        let _ = verify_data_integrity();
+        let _ = sql::verify_data_integrity();
 
         Self {
             pages: Default::default(),
@@ -75,7 +75,6 @@ impl Wavey {
     fn theme(&self) -> iced::Theme {
         self.pages.theme()
     }
-
 }
 
 impl Default for Wavey {

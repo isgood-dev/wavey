@@ -1,5 +1,6 @@
-use iced::{widget::{button::Status, container, button}, Background, Color, Theme};
-
+use iced::widget::button::{self, Status};
+use iced::widget::container;
+use iced::{Background, Color, Theme};
 
 pub fn dynamic_colour(theme: &Theme) -> container::Style {
     let palette = theme.extended_palette();

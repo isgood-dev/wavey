@@ -1,12 +1,11 @@
-use iced::{
-    time, widget::{column, container, row, slider, text}, Alignment, Command, Element, Length
-};
-
-use tokio::time::Duration;
-
+use super::icons::{action, backward_icon, forward_icon, pause_icon, play_icon};
+use super::style::dynamic_colour;
 use crate::core::format::format_duration;
 
-use super::{icons::{action, backward_icon, forward_icon, pause_icon, play_icon}, style::dynamic_colour};
+use iced::widget::{column, container, row, slider, text};
+use iced::{time, Alignment, Command, Element, Length};
+
+use tokio::time::Duration;
 
 pub struct State {
     formatted_current_duration: String,
@@ -70,7 +69,6 @@ impl State {
 
                 self.formatted_current_duration = format_duration(self.seconds_passed);
                 self.formatted_total_duration = format_duration(self.total_duration);
-                
 
                 Command::none()
             }
@@ -95,7 +93,6 @@ impl State {
             Event::PauseAction => {
                 self.is_paused = true;
                 Command::none()
-            
             }
         }
     }
@@ -120,20 +117,22 @@ impl State {
                 .spacing(10),
                 row![
                     text(&self.formatted_current_duration).size(14),
-                    slider(0.0..=self.total_duration as f32, self.slider_value, Event::SliderChanged)
-                        .step(1.0)
-                        .width(400),
+                    slider(
+                        0.0..=self.total_duration as f32,
+                        self.slider_value,
+                        Event::SliderChanged
+                    )
+                    .step(1.0)
+                    .width(400),
                     text(&self.formatted_total_duration).size(14),
                 ]
                 .align_items(Alignment::Center)
                 .spacing(10),
             ]
             .align_items(Alignment::Center)
-            .spacing(5)
-
+            .spacing(5),
         )
         .style(dynamic_colour)
-        
         .width(Length::Fill)
         .height(100)
         .center_x()

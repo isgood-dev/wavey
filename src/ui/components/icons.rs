@@ -1,9 +1,7 @@
-use iced::{
-    widget::{button, container, row, text, tooltip},
-    Alignment, Element, Font,
-};
-
 use super::style::button_theme;
+
+use iced::widget::{button, container, row, text, tooltip};
+use iced::{Alignment, Element, Font};
 
 fn icon<'a, Message>(codepoint: char) -> Element<'a, Message> {
     const ICON_FONT: Font = Font::with_name("editor-icons");

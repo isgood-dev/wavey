@@ -1,4 +1,5 @@
-use std::{collections::HashMap, path::Path};
+use std::collections::HashMap;
+use std::path::Path;
 
 use rusqlite::{Connection, Error as RusqliteError};
 
@@ -34,7 +35,6 @@ struct Music {
 //     music_id: i32,
 //     playlist_id: i32,
 // }
-
 
 // Pretty self-explanatory. Checks if the database file exists.
 pub fn check_database_exists() -> bool {

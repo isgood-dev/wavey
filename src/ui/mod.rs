@@ -1,17 +1,15 @@
-use iced::{
-    widget::{column, row}, Command, Subscription, Theme
-};
+use std::fs::File;
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
 
 use crate::core::youtube::YouTubeError;
+use components::toast::{self, Status, Toast};
 
-use self::components::toast;
-
-use super::ui::components::toast::{Status, Toast};
+use iced::widget::{column, row};
+use iced::{Command, Subscription, Theme};
 
 use rodio::{OutputStream, Sink};
-
-use std::{thread, time::Duration};
-use std::{fs::File, sync::mpsc};
 
 mod components;
 mod download;
@@ -154,7 +152,9 @@ impl Pages {
                 }
             }
             UiEvent::EditPressed(event) => self.edit.update(event).map(UiEvent::EditPressed),
-            UiEvent::SettingsPressed(event) => self.settings.update(event).map(UiEvent::SettingsPressed),
+            UiEvent::SettingsPressed(event) => {
+                self.settings.update(event).map(UiEvent::SettingsPressed)
+            }
             UiEvent::TrackListPressed(ref event) => {
                 let track_list_command = self
                     .track_list
@@ -199,21 +199,21 @@ impl Pages {
                         self.audio_playback_sender
                             .send(AudioEvent::SeekTo(value as u64))
                             .expect("Failed to send seek command");
-                    },
+                    }
                     components::control_bar::Event::PauseAction => {
                         self.audio_playback_sender
                             .send(AudioEvent::Pause)
                             .expect("Failed to send pause command");
-                    },
+                    }
                     components::control_bar::Event::PlayAction => {
                         self.audio_playback_sender
                             .send(AudioEvent::Resume)
                             .expect("Failed to send play command");
-                    },
+                    }
                     _ => (),
                 }
                 self.controls.update(event).map(UiEvent::ControlsPressed)
-            },
+            }
             UiEvent::Results(event) => self.results.update(event).map(UiEvent::Results),
         }
     }
@@ -284,8 +284,10 @@ impl Pages {
 
     pub fn subscription(&self) -> iced::Subscription<UiEvent> {
         Subscription::batch(vec![
-            self.track_list.subscription().map(UiEvent::TrackListPressed),
-            self.controls.subscription().map(UiEvent::ControlsPressed)
+            self.track_list
+                .subscription()
+                .map(UiEvent::TrackListPressed),
+            self.controls.subscription().map(UiEvent::ControlsPressed),
         ])
     }
 

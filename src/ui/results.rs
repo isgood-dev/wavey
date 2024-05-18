@@ -1,14 +1,12 @@
 use std::collections::HashMap;
 
+use super::components::icons::{action, download_icon};
 use crate::core::youtube::download_from_url;
 
-use super::components::icons::{action, download_icon};
-
 use iced::advanced::image::Bytes;
-use iced::{
-    widget::{column, container, image, row, scrollable, text, Container},
-    Alignment, Command, Length,
-};
+use iced::widget::{column, container, image, row, scrollable, text, Container};
+use iced::{Alignment, Command, Length};
+
 use reqwest::Client;
 
 pub struct State {
@@ -37,7 +35,9 @@ impl State {
     pub fn update(&mut self, message: Event) -> Command<Event> {
         match message {
             Event::DownloadComplete(_status) => Command::none(),
-            Event::DownloadPressed(url) => Command::perform(download_from_url(url), Event::DownloadComplete),
+            Event::DownloadPressed(url) => {
+                Command::perform(download_from_url(url), Event::DownloadComplete)
+            }
             Event::PopulateResults(data) => {
                 self.results = data.clone();
 

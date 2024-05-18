@@ -1,8 +1,8 @@
-use super::{icons::{action_with_text, download_icon, edit_icon, home_icon, settings_icon}, style::dynamic_colour};
+use super::icons::{action_with_text, download_icon, edit_icon, home_icon, settings_icon};
+use super::style::dynamic_colour;
 
-use iced::{
-    widget::{column, container}, Alignment, Command, Length
-};
+use iced::widget::{column, container};
+use iced::{Alignment, Command, Length};
 
 pub struct State {}
 

@@ -1,13 +1,11 @@
 use std::collections::HashMap;
 
+use crate::core::youtube::{download_from_url, get_search_results, YouTubeError};
+
 use iced::{
     widget::{button, column, container, scrollable, text, text_input},
     Alignment, Command, Length,
 };
-
-use crate::core::youtube::{get_search_results, YouTubeError};
-
-use super::super::core::youtube::download_from_url;
 
 pub struct State {
     yt_url: String,
@@ -72,7 +70,7 @@ impl State {
                     text_input("Youtube URL...", &self.yt_url).on_input(Event::YouTubeURLInput),
                     button("Download").on_press(Event::Download),
                     text_input("Song Name...", &self.title).on_input(Event::SongNameInput),
-                    button("Search").on_press(Event::Search),                    
+                    button("Search").on_press(Event::Search),
                 ]
                 .spacing(40)
                 .align_items(Alignment::Start)

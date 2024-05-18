@@ -1,7 +1,5 @@
-use iced::{
-    widget::{column, container, scrollable, text},
-    Alignment, Command, Length,
-};
+use iced::widget::{column, container, scrollable, text};
+use iced::{Alignment, Command, Length};
 
 pub struct State {}
 

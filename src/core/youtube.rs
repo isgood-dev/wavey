@@ -1,13 +1,13 @@
-use std::{collections::HashMap, path::Path};
+use std::collections::HashMap;
+use std::path::Path;
+
+use crate::sql;
+
 use tokio::fs;
 use tokio::process::Command;
 
-use rusty_ytdl::{
-    search::{SearchResult, YouTube},
-    Video, VideoOptions, VideoQuality, VideoSearchOptions,
-};
-
-use crate::sql;
+use rusty_ytdl::search::{SearchResult, YouTube};
+use rusty_ytdl::{Video, VideoOptions, VideoQuality, VideoSearchOptions};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum YouTubeError {
@@ -40,21 +40,21 @@ async fn ffmpeg_convert_codec(video_id: String) -> bool {
     true
 }
 
-pub async fn get_search_results(query: String) -> Result<Vec<HashMap<String, String>>, YouTubeError> {
+pub async fn get_search_results(
+    query: String,
+) -> Result<Vec<HashMap<String, String>>, YouTubeError> {
     let youtube = YouTube::new().unwrap();
 
     let res = match youtube.search(query, None).await {
         Ok(res) => res,
         Err(error) => match error {
-            rusty_ytdl::VideoError::Reqwest(_) => {
-                return Err(YouTubeError::NetworkError)
-            },
+            rusty_ytdl::VideoError::Reqwest(_) => return Err(YouTubeError::NetworkError),
             rusty_ytdl::VideoError::VideoNotFound => {
                 return Err(YouTubeError::VideoNotFound);
-            },
+            }
             _ => {
                 return Err(YouTubeError::UnknownError);
-            },
+            }
         },
     };
 

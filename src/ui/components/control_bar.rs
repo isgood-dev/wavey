@@ -66,10 +66,16 @@ impl State {
 
             Event::SliderChanged(value) => {
                 self.slider_value = value;
+                self.seconds_passed = value as u64;
+
+                self.formatted_current_duration = format_duration(self.seconds_passed);
+                self.formatted_total_duration = format_duration(self.total_duration);
+                
 
                 Command::none()
             }
             Event::InitiatePlay(text, total_duration) => {
+                self.is_paused = false;
                 self.slider_is_active = false; // ensure slider state is reset
                 self.slider_value = 0.0;
                 self.seconds_passed = 0;

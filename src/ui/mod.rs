@@ -1,6 +1,5 @@
 use iced::{
-    widget::{column, row},
-    Command, Theme,
+    widget::{column, row}, Command, Subscription, Theme
 };
 
 use crate::core::youtube::YouTubeError;
@@ -284,11 +283,14 @@ impl Pages {
     }
 
     pub fn subscription(&self) -> iced::Subscription<UiEvent> {
-        self.controls.subscription().map(UiEvent::ControlsPressed)
+        Subscription::batch(vec![
+            self.track_list.subscription().map(UiEvent::TrackListPressed),
+            self.controls.subscription().map(UiEvent::ControlsPressed)
+        ])
     }
 
     pub fn theme(&self) -> iced::Theme {
-        Theme::KanagawaLotus
+        Theme::Dark
     }
 }
 

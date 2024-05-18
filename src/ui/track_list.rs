@@ -164,7 +164,7 @@ impl State {
                             .on_input(Event::NewDisplayName),
                     ]
                     .align_items(Alignment::Center)
-                    .padding(10),
+                    .spacing(10),
                     button("Delete Track")
                         .style(button::danger)
                         .on_press(Event::DeleteTrack),

@@ -1,5 +1,5 @@
 use iced::widget::button::{self, Status};
-use iced::widget::container;
+use iced::widget::{container, text};
 use iced::{Background, Color, Theme};
 
 pub fn dynamic_colour(theme: &Theme) -> container::Style {
@@ -32,5 +32,20 @@ pub fn button_theme(theme: &Theme, _status: Status) -> button::Style {
             text_color: Color::BLACK,
             ..button::Style::default()
         }
+    }
+}
+
+pub fn sidebar_button(_theme: &Theme, _status: Status) -> button::Style {
+    button::Style {
+        background: Some(Background::Color(Color::TRANSPARENT)),
+        text_color: Color::from_rgb8(192, 192, 192),
+        ..button::Style::default()
+    }
+}
+
+pub fn sidebar_text(_theme: &Theme) -> text::Style {
+    text::Style {
+        color: Some(Color::from_rgb8(192, 192, 192)),
+        ..text::Style::default()
     }
 }

@@ -1,4 +1,4 @@
-use super::style::button_theme;
+use super::style::{button_theme, sidebar_button};
 
 use iced::widget::{button, container, row, text, tooltip};
 use iced::{Alignment, Element, Font};
@@ -19,7 +19,7 @@ pub fn action_with_text<'a, Message: Clone + 'a>(
             .width(130)
             .align_items(Alignment::Center)
             .spacing(20),
-    );
+    ).style(sidebar_button);
 
     if let Some(on_press) = on_press {
         tooltip(
@@ -88,4 +88,12 @@ pub fn forward_icon<'a, Message>() -> Element<'a, Message> {
 
 pub fn backward_icon<'a, Message>() -> Element<'a, Message> {
     icon('\u{0e808}')
+}
+
+pub fn delete_icon<'a, Message>() -> Element<'a, Message> {
+    icon('\u{0e80a}')
+}
+
+pub fn add_icon<'a, Message>() -> Element<'a, Message> {
+    icon('\u{0e809}')
 }

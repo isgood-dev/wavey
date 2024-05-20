@@ -35,12 +35,23 @@ pub fn button_theme(theme: &Theme, _status: Status) -> button::Style {
     }
 }
 
-pub fn sidebar_button(_theme: &Theme, _status: Status) -> button::Style {
-    button::Style {
-        background: Some(Background::Color(Color::TRANSPARENT)),
-        text_color: Color::from_rgb8(192, 192, 192),
-        ..button::Style::default()
+pub fn sidebar_button(theme: &Theme, _status: Status) -> button::Style {
+    let palette = theme.extended_palette();
+
+    if palette.is_dark {
+        button::Style {
+            background: Some(Background::Color(Color::TRANSPARENT)),
+            text_color: Color::from_rgb8(192, 192, 192),
+            ..button::Style::default()
+        }
+    } else {
+        button::Style {
+            background: Some(Background::Color(Color::TRANSPARENT)),
+            text_color: Color::from_rgb8(64, 64, 64),
+            ..button::Style::default()
+        }
     }
+    
 }
 
 pub fn sidebar_text(_theme: &Theme) -> text::Style {

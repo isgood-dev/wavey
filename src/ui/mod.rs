@@ -5,9 +5,10 @@ use std::time::Duration;
 
 use crate::core::youtube::YouTubeError;
 use components::toast::{self, Status, Toast};
+use components::theme::{match_theme, Themes};
 
 use iced::widget::{column, row};
-use iced::{Command, Subscription, Theme};
+use iced::{Command, Subscription};
 
 use rodio::{OutputStream, Sink};
 
@@ -153,6 +154,11 @@ impl Pages {
             }
             UiEvent::EditPressed(event) => self.edit.update(event).map(UiEvent::EditPressed),
             UiEvent::SettingsPressed(event) => {
+                match event {
+                    settings::Event::ThemeSelected(theme) => {
+                        self.theme(Some(theme));
+                    }
+                }
                 self.settings.update(event).map(UiEvent::SettingsPressed)
             }
             UiEvent::TrackListPressed(ref event) => {
@@ -291,8 +297,8 @@ impl Pages {
         ])
     }
 
-    pub fn theme(&self) -> iced::Theme {
-        Theme::Dark
+    pub fn theme(&self, new: Option<Themes>) -> iced::Theme {
+        match_theme(new)
     }
 }
 

@@ -1,3 +1,4 @@
+use core::json;
 use core::sql;
 
 use iced::{window, Command, Element, Font, Settings, Subscription};
@@ -53,6 +54,10 @@ impl Wavey {
         // Verifies validity of the data in the database.
         let _ = sql::verify_data_integrity();
 
+        if !json::check_exists() {
+            let _ = json::create_file(); 
+        }
+
         Self {
             pages: Default::default(),
         }
@@ -73,7 +78,7 @@ impl Wavey {
     }
 
     fn theme(&self) -> iced::Theme {
-        self.pages.theme()
+        self.pages.theme(None)
     }
 }
 

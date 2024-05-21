@@ -1,13 +1,16 @@
 use std::collections::HashMap;
 use std::io::{BufReader, Write};
 use std::path::Path;
-
 use std::fs::File;
+
+use log::info;
 
 fn read_file() -> Result<HashMap<String, String>, std::io::Error> {
     let file = File::open("./assets/settings.json")?;
     let reader = BufReader::new(file);
     let data: HashMap<String, String> = serde_json::from_reader(reader)?;
+
+    info!("Read settings file.");
 
     Ok(data)
 }
@@ -50,6 +53,8 @@ pub fn set_theme(theme: &str) -> Result<(), std::io::Error> {
 
     let mut file = File::create("./assets/settings.json")?;
     file.write_all(new_data.as_bytes())?;
+
+    
 
     Ok(())
 }

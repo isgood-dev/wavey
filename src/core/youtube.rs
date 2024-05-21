@@ -9,6 +9,8 @@ use tokio::process::Command;
 use rusty_ytdl::search::{SearchResult, YouTube};
 use rusty_ytdl::{Video, VideoOptions, VideoQuality, VideoSearchOptions};
 
+use super::request::request_thumbnail;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum YouTubeError {
     NetworkError,
@@ -113,7 +115,15 @@ pub async fn download_from_url(url: String) -> bool {
 
     let _ = sql::add_music(to_store);
 
-    ffmpeg_convert_codec(video_id).await;
+    ffmpeg_convert_codec(video_id.clone()).await;
+
+    let thumbnail = &video_info.video_details.thumbnails[0].url;
+
+    let downloaded = request_thumbnail(thumbnail.clone()).await.unwrap();
+
+    let thumbnail_path = format!("./assets/thumbnails/{}.jpg", video_id);
+    fs::write(thumbnail_path, downloaded).await.unwrap();
 
     true
 }
+

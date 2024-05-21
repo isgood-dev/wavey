@@ -1,0 +1,1 @@
+This is where thumbnails are stored.

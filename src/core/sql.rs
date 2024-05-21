@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::path::Path;
 
+use log::info;
 use rusqlite::{Connection, Error as RusqliteError};
 
 #[derive(Debug)]
@@ -43,6 +44,7 @@ pub fn check_database_exists() -> bool {
 
 // Creates the database tables. Called on startup if the database doesn't already exist.
 pub fn create_database_tables() -> Result<(), DatabaseError> {
+    info!("Creating database tables.");
     let conn = Connection::open("./assets/data.db")?;
 
     conn.execute(
@@ -79,6 +81,7 @@ pub fn create_database_tables() -> Result<(), DatabaseError> {
 // Adds a track to the `music` table in the databsae. This is called when
 // downloading/importing new audio tracks.
 pub fn add_music(video_data: HashMap<String, String>) -> Result<(), DatabaseError> {
+    info!("Adding music to database.");
     let conn = Connection::open("./assets/data.db")?;
 
     let video_id = video_data.get("video_id").unwrap();
@@ -95,47 +98,13 @@ pub fn add_music(video_data: HashMap<String, String>) -> Result<(), DatabaseErro
     Ok(())
 }
 
-// Gets an audio track from the database. This is called when requesting to
-// play a song, as certain information is needed to be passed onto other widgets,
-// such as `duration` and `display_name` for the control bar.
-pub fn get_music(video_id: String) -> HashMap<String, String> {
-    let conn = Connection::open("./assets/data.db").unwrap();
-
-    let mut statement = conn
-        .prepare("SELECT * FROM music WHERE video_id = ?1")
-        .unwrap();
-    let music_iter = statement
-        .query_map(&[&video_id], |row| {
-            Ok(Music {
-                music_id: row.get(0)?,
-                video_id: row.get(1)?,
-                extension: row.get(2)?,
-                duration: row.get(3)?,
-                display_name: row.get(4)?,
-            })
-        })
-        .unwrap();
-
-    let mut music_data = HashMap::new();
-
-    for music in music_iter {
-        let music = music.unwrap();
-        music_data.insert("music_id".to_string(), music.music_id.to_string());
-        music_data.insert("video_id".to_string(), music.video_id);
-        music_data.insert("extension".to_string(), music.extension);
-        music_data.insert("duration".to_string(), music.duration.to_string());
-        music_data.insert("display_name".to_string(), music.display_name);
-    }
-
-    music_data
-}
-
 // Verifies the integrity of the audio tracks in the database by comparing all
 // tracks in the database to the audio files.
 // If the audio track is in the database but the corresponding audio track does NOT
 // exist, it will be deleted from the database.
 // This is called on app startup and is not checked again.
 pub fn verify_data_integrity() -> Result<(), DatabaseError> {
+    info!("Verifying database integrity.");
     let conn = Connection::open("./assets/data.db")?;
 
     let mut statement = conn.prepare("SELECT * FROM music").unwrap();
@@ -157,9 +126,13 @@ pub fn verify_data_integrity() -> Result<(), DatabaseError> {
         let path = Path::new(&path_str);
 
         if !path.exists() {
+            info!("Found entry which doesn't exist. Deleting from database.");
+
             conn.execute("DELETE FROM music WHERE music_id = ?1", [music.music_id])?;
         }
     }
+
+    info!("Database integrity verified.");
 
     Ok(())
 }
@@ -167,6 +140,8 @@ pub fn verify_data_integrity() -> Result<(), DatabaseError> {
 // Gets all audio tracks from the database. This is called to be displayed on
 // the `track_list` for displaying all songs.
 pub fn get_all_music() -> Vec<HashMap<String, String>> {
+    info!("Requesting all music data.");
+
     let conn = Connection::open("./assets/data.db").unwrap();
 
     let mut statement = conn.prepare("SELECT * FROM music").unwrap();
@@ -195,5 +170,33 @@ pub fn get_all_music() -> Vec<HashMap<String, String>> {
         music_data.push(music_map);
     }
 
+    info!("Music data received.");
+
     music_data
+}
+
+pub fn delete_music(video_id: String) -> Result<(), DatabaseError> {
+    info!("Deleting track from database.");
+
+    let conn = Connection::open("./assets/data.db")?;
+
+    conn.execute("DELETE FROM music WHERE video_id = ?1", [&video_id])?;
+
+    let path_str = format!("./assets/audio/{}.{}", video_id, "mp3");
+    let path = Path::new(&path_str);
+    std::fs::remove_file(path).unwrap();
+
+    Ok(())
+}
+
+pub fn edit_display_name(video_id: String, new_display_name: String) -> Result<(), DatabaseError> {
+    info!("Editing display name for {} to: {}", video_id, new_display_name);
+    let conn = Connection::open("./assets/data.db")?;
+
+    conn.execute(
+        "UPDATE music SET display_name = ?1 WHERE video_id = ?2",
+        [&new_display_name, &video_id],
+    )?;
+
+    Ok(())
 }

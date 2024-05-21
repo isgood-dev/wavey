@@ -1,7 +1,5 @@
 use std::fmt;
 
-use crate::core::json::get_theme;
-
 use iced::Theme;
 
 pub fn match_theme(new: Option<Themes>) -> Theme {
@@ -32,36 +30,36 @@ pub fn match_theme(new: Option<Themes>) -> Theme {
                 Themes::Ferra => Theme::Ferra,
             }
         },
-        None => match get_theme() {
-            Ok(theme) => {
-                match theme.as_str() {
-                    "Dark" => Theme::Dark,
-                    "Light" => Theme::Light,
-                    "Dracula" => Theme::Dracula,
-                    "Nord" => Theme::Nord,
-                    "Solarized Light" => Theme::SolarizedLight,
-                    "Solarized Dark" => Theme::SolarizedDark,
-                    "Gruvbox Light" => Theme::GruvboxLight,
-                    "Gruvbox Dark" => Theme::GruvboxDark,
-                    "Catppuccin Latte" => Theme::CatppuccinLatte,
-                    "Catppuccin Frappe" => Theme::CatppuccinFrappe,
-                    "Catppuccin Macchiato" => Theme::CatppuccinMacchiato,
-                    "Catppuccin Mocha" => Theme::CatppuccinMocha,
-                    "Tokyo Night" => Theme::TokyoNight,
-                    "Tokyo Night Storm" => Theme::TokyoNightStorm,
-                    "Tokyo Night Light" => Theme::TokyoNightLight,
-                    "Kanagawa Wave" => Theme::KanagawaWave,
-                    "Kanagawa Dragon" => Theme::KanagawaDragon,
-                    "Kanagawa Lotus" => Theme::KanagawaLotus,
-                    "Moonfly" => Theme::Moonfly,
-                    "Nightfly" => Theme::Nightfly,
-                    "Oxocarbon" => Theme::Oxocarbon,
-                    "Ferra" => Theme::Ferra,
-                    _ => Theme::Dark,
-                }
-            },
-            Err(_) => Theme::Dark,
-        }
+        None => todo!(),
+        
+    }
+}
+
+pub fn get_theme_from_settings(name: String) -> Theme {
+    match name.as_str() {
+        "Dark" => Theme::Dark,
+        "Light" => Theme::Light,
+        "Dracula" => Theme::Dracula,
+        "Nord" => Theme::Nord,
+        "Solarized Light" => Theme::SolarizedLight,
+        "Solarized Dark" => Theme::SolarizedDark,
+        "Gruvbox Light" => Theme::GruvboxLight,
+        "Gruvbox Dark" => Theme::GruvboxDark,
+        "Catppuccin Latte" => Theme::CatppuccinLatte,
+        "Catppuccin Frappe" => Theme::CatppuccinFrappe,
+        "Catppuccin Macchiato" => Theme::CatppuccinMacchiato,
+        "Catppuccin Mocha" => Theme::CatppuccinMocha,
+        "Tokyo Night" => Theme::TokyoNight,
+        "Tokyo Night Storm" => Theme::TokyoNightStorm,
+        "Tokyo Night Light" => Theme::TokyoNightLight,
+        "Kanagawa Wave" => Theme::KanagawaWave,
+        "Kanagawa Dragon" => Theme::KanagawaDragon,
+        "Kanagawa Lotus" => Theme::KanagawaLotus,
+        "Moonfly" => Theme::Moonfly,
+        "Nightfly" => Theme::Nightfly,
+        "Oxocarbon" => Theme::Oxocarbon,
+        "Ferra" => Theme::Ferra,
+        _ => Theme::Dark,
     }
 }
 

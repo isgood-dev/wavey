@@ -1,13 +1,11 @@
 use std::collections::HashMap;
 
-use super::components::icons::{action, download_icon};
+use super::components::assets::{action, download_icon, thumbnail_from_bytes};
+use crate::core::request::request_all_thumbnails;
 use crate::core::youtube::download_from_url;
 
-use iced::advanced::image::Bytes;
-use iced::widget::{column, container, image, row, scrollable, text, Container};
+use iced::widget::{column, container, row, scrollable, text};
 use iced::{Alignment, Command, Length};
-
-use reqwest::Client;
 
 pub struct State {
     loading: bool,
@@ -76,7 +74,7 @@ impl State {
                             result.get("video_id").unwrap().to_string()
                         ))
                     ),
-                    thumbnail(self.thumbnails[index].clone())
+                    thumbnail_from_bytes(self.thumbnails[index].clone())
                         .width(150)
                         .max_width(150), // Clone the value here
                     text(heading).size(16),
@@ -108,33 +106,4 @@ impl Default for State {
     fn default() -> Self {
         Self::new()
     }
-}
-
-fn thumbnail<'a>(url: Vec<u8>) -> Container<'a, Event> {
-    let handle = image::Handle::from_bytes(Bytes::from(url));
-    container(image(handle).width(120).height(90)).center_x()
-}
-
-async fn request_thumbnail(url: String) -> Result<Bytes, reqwest::Error> {
-    let client = Client::new();
-
-    let response = client.get(&url).send().await?;
-
-    let bytes = response.bytes().await?;
-
-    Ok(bytes)
-}
-
-async fn request_all_thumbnails(results: Vec<HashMap<String, String>>) -> Vec<Vec<u8>> {
-    let mut thumbnails = Vec::new();
-
-    for result in results {
-        let url = result.get("thumbnail").unwrap().clone();
-
-        let bytes = request_thumbnail(url).await.unwrap();
-
-        thumbnails.push(bytes.to_vec());
-    }
-
-    thumbnails
 }

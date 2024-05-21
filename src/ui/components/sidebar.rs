@@ -1,4 +1,4 @@
-use super::icons::{action_with_text, download_icon, edit_icon, home_icon, settings_icon};
+use super::assets::{action_with_text, download_icon, edit_icon, home_icon, settings_icon};
 use super::style::{dynamic_colour, sidebar_text};
 
 use iced::widget::{column, container, text, Space};

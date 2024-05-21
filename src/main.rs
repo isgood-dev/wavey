@@ -2,7 +2,10 @@ use core::json;
 use core::sql;
 
 use iced::{window, Command, Element, Font, Settings, Subscription};
+
 use image::GenericImageView;
+use log::info;
+use log4rs;
 
 mod core;
 mod ui;
@@ -46,8 +49,12 @@ struct Wavey {
 
 impl Wavey {
     fn new() -> Self {
+        log4rs::init_file("logging_config.yaml", Default::default()).unwrap();
+
+        info!("Starting Wavey.");
         // Creates the database if it doesn't exist.
         if !sql::check_database_exists() {
+            info!("Creating database because it does not exist.");
             let _ = sql::create_database_tables();
         }
 
@@ -55,6 +62,7 @@ impl Wavey {
         let _ = sql::verify_data_integrity();
 
         if !json::check_exists() {
+            info!("Creating settings file because it does not exist.");
             let _ = json::create_file(); 
         }
 
@@ -78,7 +86,7 @@ impl Wavey {
     }
 
     fn theme(&self) -> iced::Theme {
-        self.pages.theme(None)
+        self.pages.theme()
     }
 }
 

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::components::icons::{action, edit_icon, play_icon};
+use super::components::assets::{action, edit_icon, play_icon, thumbnail_from_path};
 use crate::core::format::format_duration;
 use crate::core::sql;
 
@@ -10,27 +10,30 @@ use iced::keyboard;
 use iced::keyboard::key;
 use iced::widget::{
     self, button, center, column, container, horizontal_space, mouse_area, opaque, row, scrollable,
-    stack, text, text_input,
+    stack, text, text_input, Space,
 };
 use iced::Subscription;
 use iced::{Alignment, Color, Command, Element, Length};
+
+use log::info;
 
 pub struct State {
     track_list: Vec<HashMap<String, String>>,
     show_modal: bool,
     new_display_name: String,
+    active_video_id: Option<String>,
+    active_display_name: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Event {
-    PlayTrack(String, String, u64),
     Refresh,
-
-    ShowModal(String),
     HideModal,
-    NewDisplayName(String),
     Submit,
     DeleteTrack,
+    NewDisplayName(String),
+    ShowModal(String, String),
+    PlayTrack(String, String, u64),
     KeyboardEvent(IcedEvent),
 }
 
@@ -40,28 +43,32 @@ impl State {
             track_list: sql::get_all_music(),
             show_modal: false,
             new_display_name: String::new(),
+            active_video_id: None,
+            active_display_name: None,
         }
     }
 
     pub fn update(&mut self, message: Event) -> Command<Event> {
         match message {
-            Event::PlayTrack(video_id, _display_name, _duration) => {
-                let data = sql::get_music(video_id);
+            Event::PlayTrack(_video_id, _display_name, _duration) => Command::none(),
 
-                let info = data.get("display_name");
-
-                Command::none()
-            }
             Event::Refresh => {
+                info!("Querying tracks from database.");
                 self.track_list = sql::get_all_music();
 
                 Command::none()
             }
-            Event::ShowModal(video_id) => {
+            Event::ShowModal(video_id, display_name) => {
+                info!("Showing modal for track with video_id: {}", video_id);
+
                 self.show_modal = true;
+                self.active_video_id = Some(video_id);
+                self.active_display_name = Some(display_name.clone());
+                self.new_display_name = display_name;
                 widget::focus_next()
             }
             Event::HideModal => {
+                info!("Hiding modal.");
                 self.hide_modal();
 
                 Command::none()
@@ -72,13 +79,24 @@ impl State {
                 Command::none()
             }
             Event::Submit => {
-                if !self.new_display_name.is_empty() {
-                    self.hide_modal()
-                }
-                // TODO: Save functions
+                let active = self.active_video_id.clone().unwrap();
+                let new_display_name = self.new_display_name.clone();
+
+                self.hide_modal();
+
+                let _ = sql::edit_display_name(active, new_display_name);
+
                 Command::none()
             }
-            Event::DeleteTrack => Command::none(),
+            Event::DeleteTrack => {
+                let active = self.active_video_id.clone().unwrap();
+                sql::delete_music(active).unwrap();
+
+                self.hide_modal();
+
+                self.active_video_id = None;
+                Command::none()
+            }
             Event::KeyboardEvent(event) => match event {
                 IcedEvent::Keyboard(keyboard::Event::KeyPressed {
                     key: keyboard::Key::Named(key::Named::Tab),
@@ -95,6 +113,8 @@ impl State {
                     key: keyboard::Key::Named(key::Named::Escape),
                     ..
                 }) => {
+                    info!("Hiding modal via escape key.");
+
                     self.hide_modal();
                     Command::none()
                 }
@@ -107,10 +127,7 @@ impl State {
         let mut column = column![row![
             text("Your Music").size(18),
             button("Refresh").on_press(Event::Refresh)
-        ]
-        .align_items(Alignment::Center)
-        .spacing(20)]
-        .spacing(10);
+        ]];
 
         for audio_file in &self.track_list {
             let video_id = audio_file.get("video_id").unwrap();
@@ -128,29 +145,32 @@ impl State {
                         duration.parse::<u64>().unwrap()
                     )),
                 ),
+                thumbnail_from_path(video_id.clone()),
+                Space::with_width(10),
                 text(display_name.clone()),
                 horizontal_space(),
                 text(formatted_duration.clone()),
+                Space::with_width(10),
                 action(
                     edit_icon(),
                     "Edit",
-                    Some(Event::ShowModal(video_id.clone()))
+                    Some(Event::ShowModal(video_id.clone(), display_name.clone()))
                 ),
+                Space::with_width(30),
             ]
-            .spacing(10)
-            .align_items(Alignment::Start);
+            .align_items(Alignment::Center)
+            .spacing(10);
 
             column = column.push(row);
         }
 
         let content = container(
             scrollable(
-                column![column]
-                    .spacing(40)
-                    .align_items(Alignment::Start)
-                    .width(Length::Fill),
+                column
+                    .spacing(5)
             )
-            .height(Length::Fill),
+            .height(Length::Fill)
+            .width(Length::Fill),
         )
         .padding(10);
 
@@ -165,9 +185,16 @@ impl State {
                     ]
                     .align_items(Alignment::Center)
                     .spacing(10),
-                    button("Delete Track")
-                        .style(button::danger)
-                        .on_press(Event::DeleteTrack),
+                    row![
+                        button("Delete Track")
+                            .style(button::danger)
+                            .on_press(Event::DeleteTrack),
+                        button("Submit")
+                            .style(button::success)
+                            .on_press(Event::Submit),
+                    ]
+                    .spacing(10)
+                    .align_items(Alignment::Center),
                 ]
                 .align_items(Alignment::Center)
                 .spacing(20),

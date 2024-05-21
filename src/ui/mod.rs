@@ -3,14 +3,17 @@ use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
 
+use crate::core::json::get_theme;
 use crate::core::youtube::YouTubeError;
 use components::toast::{self, Status, Toast};
-use components::theme::{match_theme, Themes};
+use components::theme::match_theme;
 
 use iced::widget::{column, row};
-use iced::{Command, Subscription};
+use iced::{Command, Subscription, Theme};
 
 use rodio::{OutputStream, Sink};
+
+use self::components::theme::get_theme_from_settings;
 
 mod components;
 mod download;
@@ -34,6 +37,7 @@ pub struct Pages {
     audio_playback_sender: mpsc::Sender<AudioEvent>,
 
     toasts: Vec<Toast>,
+    theme: Theme,
 }
 
 #[derive(Default)]
@@ -85,6 +89,9 @@ impl Pages {
             }
         });
 
+        let theme_value = get_theme().expect("Dark");
+        let matched = get_theme_from_settings(theme_value);
+
         Self {
             current_page: Default::default(),
 
@@ -99,6 +106,7 @@ impl Pages {
 
             audio_playback_sender: sender,
             toasts: vec![],
+            theme: matched,
         }
     }
     pub fn update(&mut self, message: UiEvent) -> Command<UiEvent> {
@@ -156,7 +164,7 @@ impl Pages {
             UiEvent::SettingsPressed(event) => {
                 match event {
                     settings::Event::ThemeSelected(theme) => {
-                        self.theme(Some(theme));
+                        self.theme = match_theme(Some(theme));
                     }
                 }
                 self.settings.update(event).map(UiEvent::SettingsPressed)
@@ -297,8 +305,8 @@ impl Pages {
         ])
     }
 
-    pub fn theme(&self, new: Option<Themes>) -> iced::Theme {
-        match_theme(new)
+    pub fn theme(&self) -> iced::Theme {
+        self.theme.clone()
     }
 }
 

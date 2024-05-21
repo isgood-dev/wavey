@@ -1,4 +1,4 @@
-use super::icons::{action, backward_icon, forward_icon, pause_icon, play_icon};
+use super::assets::{action, backward_icon, forward_icon, pause_icon, play_icon};
 use super::style::dynamic_colour;
 use crate::core::format::format_duration;
 

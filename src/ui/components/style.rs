@@ -2,6 +2,13 @@ use iced::widget::button::{self, Status};
 use iced::widget::{container, text};
 use iced::{Background, Color, Theme};
 
+pub fn transparent_image(_theme: &Theme) -> container::Style {
+    container::Style {
+        background: Some(Background::Color(Color::TRANSPARENT)),
+        ..container::Style::default()
+    }
+}
+
 pub fn dynamic_colour(theme: &Theme) -> container::Style {
     let palette = theme.extended_palette();
     if palette.is_dark {
@@ -54,9 +61,19 @@ pub fn sidebar_button(theme: &Theme, _status: Status) -> button::Style {
     
 }
 
-pub fn sidebar_text(_theme: &Theme) -> text::Style {
-    text::Style {
-        color: Some(Color::from_rgb8(192, 192, 192)),
-        ..text::Style::default()
+pub fn sidebar_text(theme: &Theme) -> text::Style {
+    let palette = theme.extended_palette();
+
+    if palette.is_dark {
+        text::Style {
+            color: Some(Color::from_rgb8(192, 192, 192)),
+            ..text::Style::default()
+        }
+    } else {
+        text::Style {
+            color: Some(Color::from_rgb8(64, 64, 64)),
+            ..text::Style::default()
+        }
+    
     }
 }

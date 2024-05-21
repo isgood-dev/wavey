@@ -1,4 +1,4 @@
-pub mod icons;
+pub mod assets;
 pub mod control_bar;
 pub mod sidebar;
 pub mod toast;

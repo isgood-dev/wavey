@@ -1,5 +1,5 @@
-use crate::core::json::set_theme;
 use super::components::theme::Themes;
+use crate::core::json::set_theme;
 
 use iced::widget::{column, container, pick_list, row, scrollable, text};
 use iced::{Alignment, Command, Length};
@@ -35,7 +35,8 @@ impl State {
                         text("Theme:"),
                         pick_list(Themes::ALL, Some(self.themes), Event::ThemeSelected),
                         text("Themes beside Light and Dark are experimental.").size(14),
-                    ].align_items(Alignment::Center)
+                    ]
+                    .align_items(Alignment::Center)
                     .spacing(10),
                 ]
                 .spacing(40)

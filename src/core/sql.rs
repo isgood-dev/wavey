@@ -190,7 +190,10 @@ pub fn delete_music(video_id: String) -> Result<(), DatabaseError> {
 }
 
 pub fn edit_display_name(video_id: String, new_display_name: String) -> Result<(), DatabaseError> {
-    info!("Editing display name for {} to: {}", video_id, new_display_name);
+    info!(
+        "Editing display name for {} to: {}",
+        video_id, new_display_name
+    );
     let conn = Connection::open("./assets/data.db")?;
 
     conn.execute(

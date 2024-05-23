@@ -126,4 +126,3 @@ pub async fn download_from_url(url: String) -> bool {
 
     true
 }
-

@@ -63,7 +63,7 @@ impl Wavey {
 
         if !json::check_exists() {
             info!("Creating settings file because it does not exist.");
-            let _ = json::create_file(); 
+            let _ = json::create_file();
         }
 
         Self {

@@ -58,7 +58,6 @@ pub fn sidebar_button(theme: &Theme, _status: Status) -> button::Style {
             ..button::Style::default()
         }
     }
-    
 }
 
 pub fn sidebar_text(theme: &Theme) -> text::Style {
@@ -74,6 +73,5 @@ pub fn sidebar_text(theme: &Theme) -> text::Style {
             color: Some(Color::from_rgb8(64, 64, 64)),
             ..text::Style::default()
         }
-    
     }
 }

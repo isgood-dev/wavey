@@ -15,18 +15,9 @@ pub fn thumbnail_from_bytes<'a, Message>(url: Vec<u8>) -> Container<'a, Message>
     container(image_widget(handle).width(120).height(90)).center_x()
 }
 
-pub fn thumbnail_from_path<'a, Message>(url: String) -> Container<'a, Message> {
+pub fn thumbnail<'a, Message>(handle: image::Handle) -> Container<'a, Message> {
     // check if path exists
-    if !std::path::Path::new(&format!("./assets/thumbnails/{}.jpg", url)).exists() {
-        let handle = image::Handle::from_path("./assets/thumbnails/default.jpg");
-        return container(image_widget(handle).width(60).height(40))
-            .max_width(60)
-            .style(transparent_image);
-    }
-
-    let handle = image::Handle::from_path(format!("./assets/thumbnails/{}.jpg", url));
     container(image_widget(handle).width(60).height(40))
-        .width(60)
         .max_width(60)
         .style(transparent_image)
 }

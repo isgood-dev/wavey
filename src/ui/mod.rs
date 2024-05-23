@@ -5,8 +5,8 @@ use std::time::Duration;
 
 use crate::core::json::get_theme;
 use crate::core::youtube::YouTubeError;
-use components::toast::{self, Status, Toast};
 use components::theme::match_theme;
+use components::toast::{self, Status, Toast};
 
 use iced::widget::{column, row};
 use iced::{Command, Subscription, Theme};
@@ -38,6 +38,7 @@ pub struct Pages {
 
     toasts: Vec<Toast>,
     theme: Theme,
+    track_list_loaded: bool,
 }
 
 #[derive(Default)]
@@ -107,6 +108,7 @@ impl Pages {
             audio_playback_sender: sender,
             toasts: vec![],
             theme: matched,
+            track_list_loaded: false,
         }
     }
     pub fn update(&mut self, message: UiEvent) -> Command<UiEvent> {
@@ -170,10 +172,24 @@ impl Pages {
                 self.settings.update(event).map(UiEvent::SettingsPressed)
             }
             UiEvent::TrackListPressed(ref event) => {
-                let track_list_command = self
-                    .track_list
-                    .update(event.clone())
-                    .map(UiEvent::TrackListPressed);
+                let track_list_command: Command<UiEvent>;
+
+                if !self.track_list_loaded {
+                    track_list_command = Command::batch(vec![
+                        self.track_list
+                            .update(track_list::Event::GetThumbnailHandles)
+                            .map(UiEvent::TrackListPressed),
+                        self.track_list
+                            .update(event.clone())
+                            .map(UiEvent::TrackListPressed),
+                    ]);
+                    self.track_list_loaded = true;
+                } else {
+                    track_list_command = self
+                        .track_list
+                        .update(event.clone())
+                        .map(UiEvent::TrackListPressed);
+                }
                 match event {
                     track_list::Event::PlayTrack(video_id, display_name, duration) => {
                         self.audio_playback_sender

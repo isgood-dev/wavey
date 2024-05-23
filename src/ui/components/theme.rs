@@ -4,34 +4,31 @@ use iced::Theme;
 
 pub fn match_theme(new: Option<Themes>) -> Theme {
     match new {
-        Some(theme) => {
-            match theme {
-                Themes::Dark => Theme::Dark,
-                Themes::Light => Theme::Light,
-                Themes::Dracula => Theme::Dracula,
-                Themes::Nord => Theme::Nord,
-                Themes::SolarizedLight => Theme::SolarizedLight,
-                Themes::SolarizedDark => Theme::SolarizedDark,
-                Themes::GruvboxLight => Theme::GruvboxLight,
-                Themes::GruvboxDark => Theme::GruvboxDark,
-                Themes::CatppuccinLatte => Theme::CatppuccinLatte,
-                Themes::CatppuccinFrappe => Theme::CatppuccinFrappe,
-                Themes::CatppuccinMacchiato => Theme::CatppuccinMacchiato,
-                Themes::CatppuccinMocha => Theme::CatppuccinMocha,
-                Themes::TokyoNight => Theme::TokyoNight,
-                Themes::TokyoNightStorm => Theme::TokyoNightStorm,
-                Themes::TokyoNightLight => Theme::TokyoNightLight,
-                Themes::KanagawaWave => Theme::KanagawaWave,
-                Themes::KanagawaDragon => Theme::KanagawaDragon,
-                Themes::KanagawaLotus => Theme::KanagawaLotus,
-                Themes::Moonfly => Theme::Moonfly,
-                Themes::Nightfly => Theme::Nightfly,
-                Themes::Oxocarbon => Theme::Oxocarbon,
-                Themes::Ferra => Theme::Ferra,
-            }
+        Some(theme) => match theme {
+            Themes::Dark => Theme::Dark,
+            Themes::Light => Theme::Light,
+            Themes::Dracula => Theme::Dracula,
+            Themes::Nord => Theme::Nord,
+            Themes::SolarizedLight => Theme::SolarizedLight,
+            Themes::SolarizedDark => Theme::SolarizedDark,
+            Themes::GruvboxLight => Theme::GruvboxLight,
+            Themes::GruvboxDark => Theme::GruvboxDark,
+            Themes::CatppuccinLatte => Theme::CatppuccinLatte,
+            Themes::CatppuccinFrappe => Theme::CatppuccinFrappe,
+            Themes::CatppuccinMacchiato => Theme::CatppuccinMacchiato,
+            Themes::CatppuccinMocha => Theme::CatppuccinMocha,
+            Themes::TokyoNight => Theme::TokyoNight,
+            Themes::TokyoNightStorm => Theme::TokyoNightStorm,
+            Themes::TokyoNightLight => Theme::TokyoNightLight,
+            Themes::KanagawaWave => Theme::KanagawaWave,
+            Themes::KanagawaDragon => Theme::KanagawaDragon,
+            Themes::KanagawaLotus => Theme::KanagawaLotus,
+            Themes::Moonfly => Theme::Moonfly,
+            Themes::Nightfly => Theme::Nightfly,
+            Themes::Oxocarbon => Theme::Oxocarbon,
+            Themes::Ferra => Theme::Ferra,
         },
         None => todo!(),
-        
     }
 }
 
@@ -62,7 +59,6 @@ pub fn get_theme_from_settings(name: String) -> Theme {
         _ => Theme::Dark,
     }
 }
-
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Themes {

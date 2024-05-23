@@ -1,7 +1,7 @@
 use std::collections::HashMap;
+use std::fs::File;
 use std::io::{BufReader, Write};
 use std::path::Path;
-use std::fs::File;
 
 use log::info;
 
@@ -21,7 +21,7 @@ pub fn check_exists() -> bool {
 
 pub fn create_file() -> Result<(), std::io::Error> {
     let data = r#"{
-    "theme": "dark",
+    "theme": "Dark",
     "rpc_enabled": false
 }"#;
 
@@ -53,8 +53,6 @@ pub fn set_theme(theme: &str) -> Result<(), std::io::Error> {
 
     let mut file = File::create("./assets/settings.json")?;
     file.write_all(new_data.as_bytes())?;
-
-    
 
     Ok(())
 }

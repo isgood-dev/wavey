@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::path::Path;
 
+use super::request;
 use crate::sql;
-use super::request::request_thumbnail;
 
 use tokio::fs;
 use tokio::process::Command;
@@ -118,7 +118,7 @@ pub async fn download_from_url(url: String) -> bool {
 
     let thumbnail = &video_info.video_details.thumbnails[0].url;
 
-    let downloaded = request_thumbnail(thumbnail.clone()).await.unwrap();
+    let downloaded = request::request_thumbnail(thumbnail.clone()).await.unwrap();
 
     let thumbnail_path = format!("./assets/thumbnails/{}.jpg", video_id);
     fs::write(thumbnail_path, downloaded).await.unwrap();

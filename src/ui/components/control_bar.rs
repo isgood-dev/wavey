@@ -1,6 +1,6 @@
-use super::assets::{action, backward_icon, forward_icon, pause_icon, play_icon};
-use super::style::dynamic_colour;
-use crate::core::format::format_duration;
+use super::assets;
+use super::style;
+use crate::core::format;
 
 use iced::widget::{column, container, row, slider, text};
 use iced::{time, Alignment, Command, Element, Length};
@@ -49,8 +49,8 @@ impl State {
                     self.formatted_total_duration = "0:00".to_string();
                 }
 
-                self.formatted_current_duration = format_duration(self.seconds_passed);
-                self.formatted_total_duration = format_duration(self.total_duration);
+                self.formatted_current_duration = format::format_duration(self.seconds_passed);
+                self.formatted_total_duration = format::format_duration(self.total_duration);
 
                 Command::none()
             }
@@ -67,8 +67,8 @@ impl State {
                 self.slider_value = value;
                 self.seconds_passed = value as u64;
 
-                self.formatted_current_duration = format_duration(self.seconds_passed);
-                self.formatted_total_duration = format_duration(self.total_duration);
+                self.formatted_current_duration = format::format_duration(self.seconds_passed);
+                self.formatted_total_duration = format::format_duration(self.total_duration);
 
                 Command::none()
             }
@@ -101,18 +101,26 @@ impl State {
         let pause_or_play: Element<Event>;
 
         if self.is_paused {
-            pause_or_play = action(play_icon(), "Play", Some(Event::PlayAction));
+            pause_or_play = assets::action(assets::play_icon(), "Play", Some(Event::PlayAction));
         } else {
-            pause_or_play = action(pause_icon(), "Pause", Some(Event::PauseAction));
+            pause_or_play = assets::action(assets::pause_icon(), "Pause", Some(Event::PauseAction));
         }
 
         container(
             column![
                 text(&self.now_playing),
                 row![
-                    action(backward_icon(), "Back", Some(Event::BackwardPressed)),
+                    assets::action(
+                        assets::backward_icon(),
+                        "Back",
+                        Some(Event::BackwardPressed)
+                    ),
                     pause_or_play,
-                    action(forward_icon(), "Forward", Some(Event::ForwardPressed)),
+                    assets::action(
+                        assets::forward_icon(),
+                        "Forward",
+                        Some(Event::ForwardPressed)
+                    ),
                 ]
                 .spacing(10),
                 row![
@@ -132,7 +140,7 @@ impl State {
             .align_items(Alignment::Center)
             .spacing(5),
         )
-        .style(dynamic_colour)
+        .style(style::dynamic_colour)
         .width(Length::Fill)
         .height(100)
         .center_x()

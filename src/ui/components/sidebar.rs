@@ -1,7 +1,5 @@
-use super::assets::{
-    action_with_text, add_icon, download_icon, edit_icon, home_icon, settings_icon,
-};
-use super::style::{dynamic_colour, sidebar_text};
+use super::assets;
+use super::style;
 
 use iced::widget::{column, container, text, Space};
 use iced::{Alignment, Command, Length};
@@ -31,21 +29,37 @@ impl State {
     pub fn view(&self) -> iced::Element<Event> {
         container(
             column![
-                text("MY MUSIC").size(12).style(sidebar_text),
-                action_with_text(home_icon(), "Home Page", Some(Event::OpenTrackList)),
-                action_with_text(edit_icon(), "Edit Music", Some(Event::OpenEdit)),
-                action_with_text(download_icon(), "Add Music", Some(Event::OpenDownload)),
-                action_with_text(settings_icon(), "Settings", Some(Event::OpenSettings)),
+                text("MY MUSIC").size(12).style(style::sidebar_text),
+                assets::action_with_text(
+                    assets::home_icon(),
+                    "Home Page",
+                    Some(Event::OpenTrackList)
+                ),
+                assets::action_with_text(assets::edit_icon(), "Edit Music", Some(Event::OpenEdit)),
+                assets::action_with_text(
+                    assets::download_icon(),
+                    "Add Music",
+                    Some(Event::OpenDownload)
+                ),
+                assets::action_with_text(
+                    assets::settings_icon(),
+                    "Settings",
+                    Some(Event::OpenSettings)
+                ),
                 Space::with_height(10),
-                text("MY PLAYLISTS").size(12).style(sidebar_text),
-                action_with_text(add_icon(), "New Playlist", Some(Event::CreatePlaylist)),
+                text("MY PLAYLISTS").size(12).style(style::sidebar_text),
+                assets::action_with_text(
+                    assets::add_icon(),
+                    "New Playlist",
+                    Some(Event::CreatePlaylist)
+                ),
             ]
             .spacing(10)
             .padding(10)
             .width(180)
             .align_items(Alignment::Center),
         )
-        .style(dynamic_colour)
+        .style(style::dynamic_colour)
         .height(Length::Fill)
         .into()
     }

@@ -3,8 +3,8 @@ use std::path::PathBuf;
 use iced::widget::{button, column, container, progress_bar, row, text};
 use iced::{Alignment, Command, Subscription};
 
-use crate::core::file::{pick_file, FileError};
-use crate::core::json::set_ffmpeg_path;
+use crate::core::file;
+use crate::core::json;
 use crate::core::request;
 
 pub struct State {
@@ -28,7 +28,7 @@ pub enum Event {
     ManuallySpecify,
     Continue,
     DownloadProgressed((usize, request::Progress)),
-    PathSpecified(Result<PathBuf, FileError>),
+    PathSpecified(Result<PathBuf, file::FileError>),
 }
 
 impl State {
@@ -97,21 +97,21 @@ impl State {
                 self.start();
                 self.install_pressed = true;
 
-                let _ = set_ffmpeg_path("./assets/ffmpeg.exe");
+                let _ = json::set_ffmpeg_path("./assets/ffmpeg.exe");
 
                 Command::none()
             }
-            Event::ManuallySpecify => Command::perform(pick_file(), Event::PathSpecified),
+            Event::ManuallySpecify => Command::perform(file::pick_file(), Event::PathSpecified),
             Event::PathSpecified(Ok(path)) => {
                 let path_str = path.to_str().expect("Path is not valid Unicode");
 
-                let _ = set_ffmpeg_path(path_str);
+                let _ = json::set_ffmpeg_path(path_str);
 
                 Command::none()
             }
             Event::PathSpecified(Err(e)) => {
                 match e {
-                    FileError::DialogClosed => {
+                    file::FileError::DialogClosed => {
                         // Do nothing
                     }
                     _ => {

@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use super::components::assets::{action, download_icon, thumbnail_from_bytes};
-use crate::core::request::request_all_thumbnails;
-use crate::core::youtube::download_from_url;
+use super::components::assets;
+use crate::core::request;
+use crate::core::youtube;
 
 use iced::widget::{column, container, row, scrollable, text};
 use iced::{Alignment, Command, Length};
@@ -34,12 +34,15 @@ impl State {
         match message {
             Event::DownloadComplete(_status) => Command::none(),
             Event::DownloadPressed(url) => {
-                Command::perform(download_from_url(url), Event::DownloadComplete)
+                Command::perform(youtube::download_from_url(url), Event::DownloadComplete)
             }
             Event::PopulateResults(data) => {
                 self.results = data.clone();
 
-                Command::perform(request_all_thumbnails(data), Event::ThumbnailReceived)
+                Command::perform(
+                    request::request_all_thumbnails(data),
+                    Event::ThumbnailReceived,
+                )
             }
 
             Event::ThumbnailReceived(data) => {
@@ -67,14 +70,14 @@ impl State {
                     result.get("channel").unwrap()
                 );
                 let row = row![
-                    action(
-                        download_icon(),
+                    assets::action(
+                        assets::download_icon(),
                         "Download",
                         Some(Event::DownloadPressed(
                             result.get("video_id").unwrap().to_string()
                         ))
                     ),
-                    thumbnail_from_bytes(self.thumbnails[index].clone())
+                    assets::thumbnail_from_bytes(self.thumbnails[index].clone())
                         .width(150)
                         .max_width(150), // Clone the value here
                     text(heading).size(16),

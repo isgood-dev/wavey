@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use super::components::assets::{action, edit_icon, modal, play_icon, thumbnail};
-use crate::core::format::format_duration;
-use crate::core::request::request_thumbnails;
+use super::components::assets;
+use crate::core::format;
+use crate::core::request;
 use crate::core::sql;
 
 use iced::advanced::graphics::futures::event;
@@ -66,7 +66,10 @@ impl State {
                     .map(|track| track.get("video_id").unwrap().clone())
                     .collect();
 
-                Command::perform(request_thumbnails(video_ids), Event::ThumbnailsReceived)
+                Command::perform(
+                    request::request_thumbnails(video_ids),
+                    Event::ThumbnailsReceived,
+                )
             }
             Event::ThumbnailsReceived(thumbnails) => {
                 self.thumbnails = thumbnails;
@@ -153,7 +156,7 @@ impl State {
             let video_id = audio_file.get("video_id").unwrap();
             let display_name = audio_file.get("display_name").unwrap();
             let duration = audio_file.get("duration").unwrap();
-            let formatted_duration = format_duration(duration.parse::<u64>().unwrap());
+            let formatted_duration = format::format_duration(duration.parse::<u64>().unwrap());
 
             let row: Element<Event>;
 
@@ -167,8 +170,8 @@ impl State {
                     .unwrap();
 
                 row = row![
-                    action(
-                        play_icon(),
+                    assets::action(
+                        assets::play_icon(),
                         display_name,
                         Some(Event::PlayTrack(
                             video_id.clone(),
@@ -176,14 +179,14 @@ impl State {
                             duration.parse::<u64>().unwrap()
                         )),
                     ),
-                    thumbnail(thumbnail_handle.clone()),
+                    assets::thumbnail(thumbnail_handle.clone()),
                     Space::with_width(10),
                     text(display_name.clone()),
                     horizontal_space(),
                     text(formatted_duration.clone()),
                     Space::with_width(10),
-                    action(
-                        edit_icon(),
+                    assets::action(
+                        assets::edit_icon(),
                         "Edit",
                         Some(Event::ShowModal(video_id.clone(), display_name.clone()))
                     ),
@@ -194,8 +197,8 @@ impl State {
                 .into();
             } else {
                 row = row![
-                    action(
-                        play_icon(),
+                    assets::action(
+                        assets::play_icon(),
                         display_name,
                         Some(Event::PlayTrack(
                             video_id.clone(),
@@ -209,8 +212,8 @@ impl State {
                     horizontal_space(),
                     text(formatted_duration.clone()),
                     Space::with_width(10),
-                    action(
-                        edit_icon(),
+                    assets::action(
+                        assets::edit_icon(),
                         "Edit",
                         Some(Event::ShowModal(video_id.clone(), display_name.clone()))
                     ),
@@ -259,7 +262,7 @@ impl State {
             .style(container::rounded_box)
             .width(300);
 
-            modal(content, edit, Event::HideModal)
+            assets::modal(content, edit, Event::HideModal)
         } else {
             content.into()
         }

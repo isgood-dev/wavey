@@ -1,16 +1,16 @@
-use super::components::theme::Themes;
-use crate::core::json::set_theme;
+use super::components::theme;
+use crate::core::json;
 
 use iced::widget::{column, container, pick_list, row, scrollable, text};
 use iced::{Alignment, Command, Length};
 
 pub struct State {
-    themes: Themes,
+    themes: theme::Themes,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Event {
-    ThemeSelected(Themes),
+    ThemeSelected(theme::Themes),
 }
 
 impl State {
@@ -19,7 +19,7 @@ impl State {
             Event::ThemeSelected(theme) => {
                 self.themes = theme;
 
-                set_theme(theme.to_string().as_str()).unwrap();
+                json::set_theme(theme.to_string().as_str()).unwrap();
 
                 Command::none()
             }
@@ -33,7 +33,7 @@ impl State {
                     text("Settings").size(18),
                     row![
                         text("Theme:"),
-                        pick_list(Themes::ALL, Some(self.themes), Event::ThemeSelected),
+                        pick_list(theme::Themes::ALL, Some(self.themes), Event::ThemeSelected),
                         text("Themes beside Light and Dark are experimental.").size(14),
                     ]
                     .align_items(Alignment::Center)
@@ -54,7 +54,7 @@ impl State {
 impl Default for State {
     fn default() -> Self {
         Self {
-            themes: Themes::default(),
+            themes: theme::Themes::default(),
         }
     }
 }

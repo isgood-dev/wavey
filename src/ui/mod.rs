@@ -4,10 +4,10 @@ use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
 
-use crate::core::json::{get_ffmpeg_path, get_theme};
-use crate::core::youtube::YouTubeError;
-use components::theme::match_theme;
-use components::toast::{self, Status, Toast};
+use crate::core::json;
+use crate::core::youtube;
+use components::theme;
+use components::toast;
 
 use iced::widget::{column, row};
 use iced::{Command, Subscription, Theme};
@@ -39,7 +39,7 @@ pub struct Pages {
 
     audio_playback_sender: mpsc::Sender<AudioEvent>,
 
-    toasts: Vec<Toast>,
+    toasts: Vec<toast::Toast>,
     theme: Theme,
     track_list_loaded: bool,
 }
@@ -95,12 +95,12 @@ impl Pages {
             }
         });
 
-        let theme_value = get_theme().expect("Dark");
+        let theme_value = json::get_theme().expect("Dark");
         let matched = get_theme_from_settings(theme_value);
 
         let current_page: Page;
 
-        let ffmpeg_path = get_ffmpeg_path();
+        let ffmpeg_path = json::get_ffmpeg_path();
 
         if let Ok(path) = &ffmpeg_path {
             if path.is_empty() || !Path::new(path).exists() {
@@ -161,21 +161,28 @@ impl Pages {
                             Ok(data) => data,
                             Err(error) => {
                                 match error {
-                                    YouTubeError::NetworkError => self.toasts.push(Toast {
-                                        title: "Network Error".into(),
-                                        body: "Failed to fetch search results".into(),
-                                        status: Status::Danger,
-                                    }),
-                                    YouTubeError::UnknownError => self.toasts.push(Toast {
-                                        title: "Unknown Error".into(),
-                                        body: "An unknown error occurred".into(),
-                                        status: Status::Danger,
-                                    }),
-                                    YouTubeError::VideoNotFound => self.toasts.push(Toast {
-                                        title: "Video Not Found".into(),
-                                        body: "The video you are looking for was not found".into(),
-                                        status: Status::Danger,
-                                    }),
+                                    youtube::YouTubeError::NetworkError => {
+                                        self.toasts.push(toast::Toast {
+                                            title: "Network Error".into(),
+                                            body: "Failed to fetch search results".into(),
+                                            status: toast::Status::Danger,
+                                        })
+                                    }
+                                    youtube::YouTubeError::UnknownError => {
+                                        self.toasts.push(toast::Toast {
+                                            title: "Unknown Error".into(),
+                                            body: "An unknown error occurred".into(),
+                                            status: toast::Status::Danger,
+                                        })
+                                    }
+                                    youtube::YouTubeError::VideoNotFound => {
+                                        self.toasts.push(toast::Toast {
+                                            title: "Video Not Found".into(),
+                                            body: "The video you are looking for was not found"
+                                                .into(),
+                                            status: toast::Status::Danger,
+                                        })
+                                    }
                                 }
                                 return download_command;
                             }
@@ -195,7 +202,7 @@ impl Pages {
             UiEvent::SettingsAction(event) => {
                 match event {
                     settings::Event::ThemeSelected(theme) => {
-                        self.theme = match_theme(Some(theme));
+                        self.theme = theme::match_theme(Some(theme));
                     }
                 }
                 self.settings.update(event).map(UiEvent::SettingsAction)

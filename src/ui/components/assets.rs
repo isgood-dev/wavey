@@ -1,4 +1,4 @@
-use super::style::{button_theme, sidebar_button, transparent_image};
+use super::style;
 
 use iced::advanced::image;
 use iced::widget::{
@@ -22,7 +22,7 @@ pub fn thumbnail<'a, Message>(handle: image::Handle) -> Container<'a, Message> {
     // check if path exists
     container(image_widget(handle).width(60).height(40))
         .max_width(60)
-        .style(transparent_image)
+        .style(style::transparent_image)
 }
 
 pub fn modal<'a, Message>(
@@ -63,7 +63,7 @@ pub fn action_with_text<'a, Message: Clone + 'a>(
             .align_items(Alignment::Center)
             .spacing(20),
     )
-    .style(sidebar_button);
+    .style(style::sidebar_button);
 
     if let Some(on_press) = on_press {
         tooltip(
@@ -83,7 +83,7 @@ pub fn action<'a, Message: Clone + 'a>(
     label: &'a str,
     on_press: Option<Message>,
 ) -> Element<'a, Message> {
-    let action = button(content).style(button_theme);
+    let action = button(content).style(style::button_theme);
 
     if let Some(on_press) = on_press {
         tooltip(

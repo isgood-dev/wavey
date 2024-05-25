@@ -2,6 +2,7 @@
 **.json
 **.log
 **.db
+**.exe
 test.py
 **/__pycache__
 /target

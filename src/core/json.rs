@@ -22,7 +22,8 @@ pub fn check_exists() -> bool {
 pub fn create_file() -> Result<(), std::io::Error> {
     let data = r#"{
     "theme": "Dark",
-    "rpc_enabled": false
+    "rpc_enabled": false,
+    "ffmpeg_path": "",
 }"#;
 
     match File::create("./assets/settings.json") {
@@ -57,8 +58,27 @@ pub fn set_theme(theme: &str) -> Result<(), std::io::Error> {
     Ok(())
 }
 
-pub async fn get_rpc_enabled() -> Result<bool, std::io::Error> {
+pub fn get_rpc_enabled() -> Result<bool, std::io::Error> {
     let data = read_file()?;
     let rpc_enabled = data.get("rpc_enabled").unwrap().parse::<bool>().unwrap();
     Ok(rpc_enabled)
+}
+
+pub fn get_ffmpeg_path() -> Result<String, std::io::Error> {
+    let data = read_file()?;
+    let ffmpeg_path = data.get("ffmpeg_path").unwrap().to_string();
+    Ok(ffmpeg_path)
+}
+
+pub fn set_ffmpeg_path(path: &str) -> Result<(), std::io::Error> {
+    let data = read_file()?;
+    let mut new_data = data.clone();
+    new_data.insert("ffmpeg_path".to_string(), path.to_string());
+
+    let new_data = serde_json::to_string_pretty(&new_data).unwrap();
+
+    let mut file = File::create("./assets/settings.json")?;
+    file.write_all(new_data.as_bytes())?;
+
+    Ok(())
 }

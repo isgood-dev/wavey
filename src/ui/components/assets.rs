@@ -1,8 +1,11 @@
 use super::style::{button_theme, sidebar_button, transparent_image};
 
 use iced::advanced::image;
-use iced::widget::{button, container, image as image_widget, row, text, tooltip, Container};
-use iced::{Alignment, Element, Font};
+use iced::widget::{
+    button, center, container, image as image_widget, mouse_area, opaque, row, stack, text,
+    tooltip, Container,
+};
+use iced::{Alignment, Color, Element, Font};
 
 fn icon<'a, Message>(codepoint: char) -> Element<'a, Message> {
     const ICON_FONT: Font = Font::with_name("editor-icons");
@@ -20,6 +23,33 @@ pub fn thumbnail<'a, Message>(handle: image::Handle) -> Container<'a, Message> {
     container(image_widget(handle).width(60).height(40))
         .max_width(60)
         .style(transparent_image)
+}
+
+pub fn modal<'a, Message>(
+    base: impl Into<Element<'a, Message>>,
+    content: impl Into<Element<'a, Message>>,
+    on_blur: Message,
+) -> Element<'a, Message>
+where
+    Message: Clone + 'a,
+{
+    stack![
+        base.into(),
+        mouse_area(center(opaque(content)).style(|_theme| {
+            container::Style {
+                background: Some(
+                    Color {
+                        a: 0.8,
+                        ..Color::BLACK
+                    }
+                    .into(),
+                ),
+                ..container::Style::default()
+            }
+        }))
+        .on_press(on_blur)
+    ]
+    .into()
 }
 
 pub fn action_with_text<'a, Message: Clone + 'a>(

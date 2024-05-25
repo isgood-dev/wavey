@@ -1,4 +1,6 @@
-use super::assets::{action_with_text, download_icon, edit_icon, home_icon, settings_icon};
+use super::assets::{
+    action_with_text, add_icon, download_icon, edit_icon, home_icon, settings_icon,
+};
 use super::style::{dynamic_colour, sidebar_text};
 
 use iced::widget::{column, container, text, Space};
@@ -12,11 +14,13 @@ pub enum Event {
     OpenSettings,
     OpenEdit,
     OpenDownload,
+    CreatePlaylist,
 }
 
 impl State {
     pub fn update(&mut self, message: Event) -> Command<Event> {
         match message {
+            Event::CreatePlaylist => Command::none(),
             Event::OpenTrackList => Command::none(),
             Event::OpenSettings => Command::none(),
             Event::OpenEdit => Command::none(),
@@ -33,7 +37,8 @@ impl State {
                 action_with_text(download_icon(), "Add Music", Some(Event::OpenDownload)),
                 action_with_text(settings_icon(), "Settings", Some(Event::OpenSettings)),
                 Space::with_height(10),
-                text("MY PLAYLISTS").size(12).style(sidebar_text)
+                text("MY PLAYLISTS").size(12).style(sidebar_text),
+                action_with_text(add_icon(), "New Playlist", Some(Event::CreatePlaylist)),
             ]
             .spacing(10)
             .padding(10)

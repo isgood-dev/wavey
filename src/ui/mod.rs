@@ -1,9 +1,10 @@
 use std::fs::File;
+use std::path::Path;
 use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
 
-use crate::core::json::get_theme;
+use crate::core::json::{get_ffmpeg_path, get_theme};
 use crate::core::youtube::YouTubeError;
 use components::theme::match_theme;
 use components::toast::{self, Status, Toast};
@@ -18,6 +19,7 @@ use self::components::theme::get_theme_from_settings;
 mod components;
 mod download;
 mod edit;
+mod ffmpeg;
 mod results;
 mod settings;
 mod track_list;
@@ -33,6 +35,7 @@ pub struct Pages {
     settings: settings::State,
     download: download::State,
     results: results::State,
+    ffmpeg: ffmpeg::State,
 
     audio_playback_sender: mpsc::Sender<AudioEvent>,
 
@@ -49,18 +52,20 @@ pub enum Page {
     Settings,
     Download,
     Results,
+    FFmpeg,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum UiEvent {
-    SidebarPressed(components::sidebar::Event),
-    ControlsPressed(components::control_bar::Event),
+    SidebarAction(components::sidebar::Event),
+    ControlsAction(components::control_bar::Event),
 
-    TrackListPressed(track_list::Event),
-    EditPressed(edit::Event),
-    SettingsPressed(settings::Event),
-    DownloadPressed(download::Event),
-    Results(results::Event),
+    TrackListAction(track_list::Event),
+    EditAction(edit::Event),
+    SettingsAction(settings::Event),
+    DownloadAction(download::Event),
+    ResultsAction(results::Event),
+    FFmpegAction(ffmpeg::Event),
 
     CloseToast(usize),
 }
@@ -93,8 +98,22 @@ impl Pages {
         let theme_value = get_theme().expect("Dark");
         let matched = get_theme_from_settings(theme_value);
 
+        let current_page: Page;
+
+        let ffmpeg_path = get_ffmpeg_path();
+
+        if let Ok(path) = &ffmpeg_path {
+            if path.is_empty() || !Path::new(path).exists() {
+                current_page = Page::FFmpeg;
+            } else {
+                current_page = Page::TrackList;
+            }
+        } else {
+            current_page = Page::FFmpeg;
+        }
+
         Self {
-            current_page: Default::default(),
+            current_page,
 
             sidebar: Default::default(),
             controls: Default::default(),
@@ -104,6 +123,7 @@ impl Pages {
             edit: Default::default(),
             settings: Default::default(),
             results: Default::default(),
+            ffmpeg: Default::default(),
 
             audio_playback_sender: sender,
             toasts: vec![],
@@ -119,11 +139,20 @@ impl Pages {
                 Command::none()
             }
 
-            UiEvent::DownloadPressed(event) => {
+            UiEvent::FFmpegAction(event) => {
+                match event {
+                    ffmpeg::Event::Continue => self.current_page = Page::TrackList,
+                    _ => (),
+                };
+
+                self.ffmpeg.update(event).map(UiEvent::FFmpegAction)
+            }
+
+            UiEvent::DownloadAction(event) => {
                 let download_command = self
                     .download
                     .update(event.clone())
-                    .map(UiEvent::DownloadPressed);
+                    .map(UiEvent::DownloadAction);
                 match event {
                     download::Event::DownloadQueryReceived(data) => {
                         self.current_page = Page::Results;
@@ -155,40 +184,40 @@ impl Pages {
                         Command::batch(vec![
                             self.results
                                 .update(results::Event::PopulateResults(data))
-                                .map(UiEvent::Results),
+                                .map(UiEvent::ResultsAction),
                             download_command,
                         ])
                     }
                     _ => download_command,
                 }
             }
-            UiEvent::EditPressed(event) => self.edit.update(event).map(UiEvent::EditPressed),
-            UiEvent::SettingsPressed(event) => {
+            UiEvent::EditAction(event) => self.edit.update(event).map(UiEvent::EditAction),
+            UiEvent::SettingsAction(event) => {
                 match event {
                     settings::Event::ThemeSelected(theme) => {
                         self.theme = match_theme(Some(theme));
                     }
                 }
-                self.settings.update(event).map(UiEvent::SettingsPressed)
+                self.settings.update(event).map(UiEvent::SettingsAction)
             }
-            UiEvent::TrackListPressed(ref event) => {
+            UiEvent::TrackListAction(ref event) => {
                 let track_list_command: Command<UiEvent>;
 
                 if !self.track_list_loaded {
                     track_list_command = Command::batch(vec![
                         self.track_list
                             .update(track_list::Event::GetThumbnailHandles)
-                            .map(UiEvent::TrackListPressed),
+                            .map(UiEvent::TrackListAction),
                         self.track_list
                             .update(event.clone())
-                            .map(UiEvent::TrackListPressed),
+                            .map(UiEvent::TrackListAction),
                     ]);
                     self.track_list_loaded = true;
                 } else {
                     track_list_command = self
                         .track_list
                         .update(event.clone())
-                        .map(UiEvent::TrackListPressed);
+                        .map(UiEvent::TrackListAction);
                 }
                 match event {
                     track_list::Event::PlayTrack(video_id, display_name, duration) => {
@@ -202,7 +231,7 @@ impl Pages {
                                     display_name.to_string(),
                                     *duration,
                                 ))
-                                .map(UiEvent::ControlsPressed),
+                                .map(UiEvent::ControlsAction),
                             track_list_command,
                         ])
                     }
@@ -210,7 +239,7 @@ impl Pages {
                 }
             }
 
-            UiEvent::SidebarPressed(event) => {
+            UiEvent::SidebarAction(event) => {
                 match event {
                     components::sidebar::Event::OpenDownload => self.current_page = Page::Download,
                     components::sidebar::Event::OpenEdit => self.current_page = Page::Edit,
@@ -218,12 +247,13 @@ impl Pages {
                     components::sidebar::Event::OpenTrackList => {
                         self.current_page = Page::TrackList
                     }
+                    components::sidebar::Event::CreatePlaylist => (),
                 }
 
-                self.sidebar.update(event).map(UiEvent::SidebarPressed)
+                self.sidebar.update(event).map(UiEvent::SidebarAction)
             }
 
-            UiEvent::ControlsPressed(event) => {
+            UiEvent::ControlsAction(event) => {
                 match event {
                     components::control_bar::Event::SliderChanged(value) => {
                         self.audio_playback_sender
@@ -242,21 +272,26 @@ impl Pages {
                     }
                     _ => (),
                 }
-                self.controls.update(event).map(UiEvent::ControlsPressed)
+                self.controls.update(event).map(UiEvent::ControlsAction)
             }
-            UiEvent::Results(event) => self.results.update(event).map(UiEvent::Results),
+            UiEvent::ResultsAction(event) => self.results.update(event).map(UiEvent::ResultsAction),
         }
     }
 
     pub fn view(&self) -> iced::Element<UiEvent> {
         match &self.current_page {
+            Page::FFmpeg => {
+                let content = self.ffmpeg.view().map(UiEvent::FFmpegAction);
+
+                toast::Manager::new(content, &self.toasts, UiEvent::CloseToast).into()
+            }
             Page::Results => {
                 let content = column![
                     row![
-                        self.sidebar.view().map(UiEvent::SidebarPressed),
-                        self.results.view().map(UiEvent::Results),
+                        self.sidebar.view().map(UiEvent::SidebarAction),
+                        self.results.view().map(UiEvent::ResultsAction),
                     ],
-                    self.controls.view().map(UiEvent::ControlsPressed),
+                    self.controls.view().map(UiEvent::ControlsAction),
                 ];
 
                 toast::Manager::new(content, &self.toasts, UiEvent::CloseToast).into()
@@ -265,10 +300,10 @@ impl Pages {
             Page::TrackList => {
                 let content = column![
                     row![
-                        self.sidebar.view().map(UiEvent::SidebarPressed),
-                        self.track_list.view().map(UiEvent::TrackListPressed),
+                        self.sidebar.view().map(UiEvent::SidebarAction),
+                        self.track_list.view().map(UiEvent::TrackListAction),
                     ],
-                    self.controls.view().map(UiEvent::ControlsPressed),
+                    self.controls.view().map(UiEvent::ControlsAction),
                 ];
 
                 toast::Manager::new(content, &self.toasts, UiEvent::CloseToast).into()
@@ -277,10 +312,10 @@ impl Pages {
             Page::Download => {
                 let content = column![
                     row![
-                        self.sidebar.view().map(UiEvent::SidebarPressed),
-                        self.download.view().map(UiEvent::DownloadPressed),
+                        self.sidebar.view().map(UiEvent::SidebarAction),
+                        self.download.view().map(UiEvent::DownloadAction),
                     ],
-                    self.controls.view().map(UiEvent::ControlsPressed),
+                    self.controls.view().map(UiEvent::ControlsAction),
                 ];
 
                 toast::Manager::new(content, &self.toasts, UiEvent::CloseToast).into()
@@ -289,10 +324,10 @@ impl Pages {
             Page::Edit => {
                 let content = column![
                     row![
-                        self.sidebar.view().map(UiEvent::SidebarPressed),
-                        self.edit.view().map(UiEvent::EditPressed),
+                        self.sidebar.view().map(UiEvent::SidebarAction),
+                        self.edit.view().map(UiEvent::EditAction),
                     ],
-                    self.controls.view().map(UiEvent::ControlsPressed),
+                    self.controls.view().map(UiEvent::ControlsAction),
                 ];
 
                 toast::Manager::new(content, &self.toasts, UiEvent::CloseToast).into()
@@ -301,10 +336,10 @@ impl Pages {
             Page::Settings => {
                 let content = column![
                     row![
-                        self.sidebar.view().map(UiEvent::SidebarPressed),
-                        self.settings.view().map(UiEvent::SettingsPressed),
+                        self.sidebar.view().map(UiEvent::SidebarAction),
+                        self.settings.view().map(UiEvent::SettingsAction),
                     ],
-                    self.controls.view().map(UiEvent::ControlsPressed),
+                    self.controls.view().map(UiEvent::ControlsAction),
                 ];
 
                 toast::Manager::new(content, &self.toasts, UiEvent::CloseToast).into()
@@ -314,10 +349,9 @@ impl Pages {
 
     pub fn subscription(&self) -> iced::Subscription<UiEvent> {
         Subscription::batch(vec![
-            self.track_list
-                .subscription()
-                .map(UiEvent::TrackListPressed),
-            self.controls.subscription().map(UiEvent::ControlsPressed),
+            self.track_list.subscription().map(UiEvent::TrackListAction),
+            self.controls.subscription().map(UiEvent::ControlsAction),
+            self.ffmpeg.subscription().map(UiEvent::FFmpegAction),
         ])
     }
 

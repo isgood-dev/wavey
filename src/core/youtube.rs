@@ -2,14 +2,13 @@ use std::collections::HashMap;
 use std::path::Path;
 
 use crate::sql;
+use super::request::request_thumbnail;
 
 use tokio::fs;
 use tokio::process::Command;
 
 use rusty_ytdl::search::{SearchResult, YouTube};
 use rusty_ytdl::{Video, VideoOptions, VideoQuality, VideoSearchOptions};
-
-use super::request::request_thumbnail;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum YouTubeError {

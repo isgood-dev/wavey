@@ -25,7 +25,7 @@ async fn ffmpeg_convert_codec(video_id: String) -> bool {
     let in_file = format!("./assets/audio/{}.webm", video_id);
     let out_file = format!("./assets/audio/{}.mp3", video_id);
 
-    let output = Command::new("./bin/ffmpeg")
+    let output = Command::new("./assets/ffmpeg")
         .args(&[
             "-i", &in_file, "-vn", "-ar", "44100", "-ac", "2", "-b:a", "192k", &out_file,
         ])

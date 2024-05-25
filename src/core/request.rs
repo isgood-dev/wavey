@@ -120,7 +120,7 @@ async fn download_progress<I: Copy>(id: I, state: State) -> ((I, Progress), Stat
                 let file = OpenOptions::new()
                     .append(true)
                     .create(true)
-                    .open("./bin/ffmpeg.exe")
+                    .open("./assets/ffmpeg.exe")
                     .await;
 
                 match file {

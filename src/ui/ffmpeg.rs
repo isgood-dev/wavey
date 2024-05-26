@@ -134,11 +134,15 @@ impl State {
 
         if self.in_progress {
             if progress == 100.0 {
-                return container(column![
-                    text("Success!").size(20),
-                    text("You're ready to go."),
-                    button("Proceed to wavey").on_press(Event::Continue)
-                ])
+                return container(
+                    column![
+                        text("Success!").size(20),
+                        text("You're ready to go."),
+                        button("Proceed to wavey").on_press(Event::Continue)
+                    ]
+                    .align_items(Alignment::Center)
+                    .spacing(10),
+                )
                 .center_x()
                 .center_y()
                 .padding(10)

@@ -141,3 +141,11 @@ pub fn delete_icon<'a, Message>() -> Element<'a, Message> {
 pub fn add_icon<'a, Message>() -> Element<'a, Message> {
     icon('\u{0e809}')
 }
+
+pub fn volume_on<'a, Message>() -> Element<'a, Message> {
+    icon('\u{0e80b}')
+}
+
+pub fn volume_off<'a, Message>() -> Element<'a, Message> {
+    icon('\u{0e80c}')
+}

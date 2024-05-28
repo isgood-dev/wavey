@@ -20,6 +20,7 @@ mod components;
 mod download;
 mod edit;
 mod ffmpeg;
+mod playlist;
 mod results;
 mod settings;
 mod track_list;
@@ -36,6 +37,7 @@ pub struct Pages {
     download: download::State,
     results: results::State,
     ffmpeg: ffmpeg::State,
+    playlist: playlist::State,
 
     audio_playback_sender: mpsc::Sender<AudioEvent>,
 
@@ -53,6 +55,7 @@ pub enum Page {
     Download,
     Results,
     FFmpeg,
+    Playlist,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -66,6 +69,7 @@ pub enum UiEvent {
     DownloadAction(download::Event),
     ResultsAction(results::Event),
     FFmpegAction(ffmpeg::Event),
+    PlaylistAction(playlist::Event),
 
     CloseToast(usize),
 }
@@ -74,7 +78,10 @@ pub enum UiEvent {
 enum AudioEvent {
     Queue(String, bool),
     SeekTo(u64),
+    SetVolume(f32),
     Pause,
+    Mute,
+    Unmute,
     Resume,
 }
 
@@ -124,6 +131,7 @@ impl Pages {
             settings: Default::default(),
             results: Default::default(),
             ffmpeg: Default::default(),
+            playlist: Default::default(),
 
             audio_playback_sender: sender,
             toasts: vec![],
@@ -133,6 +141,9 @@ impl Pages {
     }
     pub fn update(&mut self, message: UiEvent) -> Command<UiEvent> {
         match message {
+            UiEvent::PlaylistAction(event) => {
+                self.playlist.update(event).map(UiEvent::PlaylistAction)
+            }
             UiEvent::CloseToast(index) => {
                 self.toasts.remove(index);
 
@@ -247,6 +258,11 @@ impl Pages {
             }
 
             UiEvent::SidebarAction(event) => {
+                let sidebar_command = self
+                    .sidebar
+                    .update(event.clone())
+                    .map(UiEvent::SidebarAction);
+
                 match event {
                     components::sidebar::Event::OpenDownload => self.current_page = Page::Download,
                     components::sidebar::Event::OpenEdit => self.current_page = Page::Edit,
@@ -254,15 +270,22 @@ impl Pages {
                     components::sidebar::Event::OpenTrackList => {
                         self.current_page = Page::TrackList
                     }
-                    components::sidebar::Event::CreatePlaylist => (),
+                    components::sidebar::Event::CreatePlaylist => {
+                        return {
+                            self.current_page = Page::Playlist;
+                            self.playlist
+                                .update(playlist::Event::OpenInCreateMode)
+                                .map(UiEvent::PlaylistAction)
+                        }
+                    }
                 }
 
-                self.sidebar.update(event).map(UiEvent::SidebarAction)
+                sidebar_command
             }
 
             UiEvent::ControlsAction(event) => {
                 match event {
-                    components::control_bar::Event::SliderChanged(value) => {
+                    components::control_bar::Event::ProgressChanged(value) => {
                         self.audio_playback_sender
                             .send(AudioEvent::SeekTo(value as u64))
                             .expect("Failed to send seek command");
@@ -277,6 +300,21 @@ impl Pages {
                             .send(AudioEvent::Resume)
                             .expect("Failed to send play command");
                     }
+                    components::control_bar::Event::VolumeChanged(value) => {
+                        self.audio_playback_sender
+                            .send(AudioEvent::SetVolume(value))
+                            .expect("Failed to send volume command");
+                    }
+                    components::control_bar::Event::Mute => {
+                        self.audio_playback_sender
+                            .send(AudioEvent::Mute)
+                            .expect("Failed to send mute command");
+                    }
+                    components::control_bar::Event::Unmute => {
+                        self.audio_playback_sender
+                            .send(AudioEvent::Unmute)
+                            .expect("Failed to send unmute command");
+                    }
                     _ => (),
                 }
                 self.controls.update(event).map(UiEvent::ControlsAction)
@@ -287,6 +325,18 @@ impl Pages {
 
     pub fn view(&self) -> iced::Element<UiEvent> {
         match &self.current_page {
+            Page::Playlist => {
+                let content = column![
+                    row![
+                        self.sidebar.view().map(UiEvent::SidebarAction),
+                        self.playlist.view().map(UiEvent::PlaylistAction),
+                    ],
+                    self.controls.view().map(UiEvent::ControlsAction),
+                ];
+
+                toast::Manager::new(content, &self.toasts, UiEvent::CloseToast).into()
+            }
+
             Page::FFmpeg => {
                 let content = self.ffmpeg.view().map(UiEvent::FFmpegAction);
 
@@ -369,6 +419,18 @@ impl Pages {
 
 fn process_audio_command(command: AudioEvent, sink: &Sink) {
     match command {
+        AudioEvent::SetVolume(volume) => {
+            sink.set_volume(volume);
+        }
+
+        AudioEvent::Mute => {
+            sink.set_volume(0.0);
+        }
+
+        AudioEvent::Unmute => {
+            sink.set_volume(0.5);
+        }
+
         AudioEvent::SeekTo(position) => {
             let try_seek = sink.try_seek(Duration::from_secs(position));
 

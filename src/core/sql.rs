@@ -98,6 +98,15 @@ pub fn add_music(video_data: HashMap<String, String>) -> Result<(), DatabaseErro
     Ok(())
 }
 
+pub fn add_playlist(name: String) -> Result<(), DatabaseError> {
+    info!("Adding playlist to database.");
+    let conn = Connection::open("./assets/data.db")?;
+
+    conn.execute("INSERT INTO playlists (name) VALUES (?1)", [name])?;
+
+    Ok(())
+}
+
 // Verifies the integrity of the audio tracks in the database by comparing all
 // tracks in the database to the audio files.
 // If the audio track is in the database but the corresponding audio track does NOT

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::path::Path;
 
 use super::request;
-use crate::sql;
+use crate::db;
 
 use tokio::fs;
 use tokio::process::Command;
@@ -112,7 +112,7 @@ pub async fn download_from_url(url: String) -> bool {
         video_info.video_details.length_seconds.to_string(),
     );
 
-    let _ = sql::add_music(to_store);
+    let _ = db::add_music(to_store);
 
     ffmpeg_convert_codec(video_id.clone()).await;
 

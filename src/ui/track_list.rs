@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
 use super::components::assets;
+use crate::core::db;
 use crate::core::format;
 use crate::core::request;
-use crate::core::sql;
 
 use iced::advanced::graphics::futures::event;
 use iced::event::Event as IcedEvent;
@@ -19,7 +19,8 @@ use log::info;
 
 pub struct State {
     track_list: Vec<HashMap<String, String>>,
-    show_modal: bool,
+    show_edit_modal: bool,
+    show_add_modal: bool,
     new_display_name: String,
     active_video_id: Option<String>,
     active_display_name: Option<String>,
@@ -29,13 +30,16 @@ pub struct State {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Event {
-    HideModal,
+    HideEditModal,
+    HidePlaylistModal,
     Submit,
     DeleteTrack,
     GetThumbnailHandles,
+    AddToPlaylist(String, i32),
     ThumbnailsReceived(Vec<HashMap<String, iced::advanced::image::Handle>>),
     NewDisplayName(String),
-    ShowModal(String, String),
+    ShowEditModal(String, String),
+    ShowAddModal(String),
     PlayTrack(String, String, u64),
     KeyboardEvent(IcedEvent),
 }
@@ -43,8 +47,9 @@ pub enum Event {
 impl State {
     fn new() -> Self {
         Self {
-            track_list: sql::get_all_music(),
-            show_modal: false,
+            track_list: db::get_all_music(),
+            show_edit_modal: false,
+            show_add_modal: false,
             new_display_name: String::new(),
             active_video_id: None,
             active_display_name: None,
@@ -55,10 +60,28 @@ impl State {
 
     pub fn update(&mut self, message: Event) -> Command<Event> {
         match message {
+            Event::ShowAddModal(video_id) => {
+                self.show_add_modal = true;
+                self.active_video_id = Some(video_id);
+
+                Command::none()
+            }
+            Event::HidePlaylistModal => {
+                self.show_add_modal = false;
+                self.active_video_id = None;
+
+                Command::none()
+            }
+            Event::AddToPlaylist(video_id, playlist_id) => {
+                let _ = db::add_music_playlist(video_id, playlist_id);
+
+                Command::none()
+            }
+
             Event::GetThumbnailHandles => {
                 self.thumbnails_received = false;
 
-                self.track_list = sql::get_all_music();
+                self.track_list = db::get_all_music();
 
                 let video_ids: Vec<String> = self
                     .track_list
@@ -81,18 +104,18 @@ impl State {
 
             Event::PlayTrack(_video_id, _display_name, _duration) => Command::none(),
 
-            Event::ShowModal(video_id, display_name) => {
+            Event::ShowEditModal(video_id, display_name) => {
                 info!("Showing modal for track with video_id: {}", video_id);
 
-                self.show_modal = true;
+                self.show_edit_modal = true;
                 self.active_video_id = Some(video_id);
                 self.active_display_name = Some(display_name.clone());
                 self.new_display_name = display_name;
                 widget::focus_next()
             }
-            Event::HideModal => {
+            Event::HideEditModal => {
                 info!("Hiding modal.");
-                self.hide_modal();
+                self.hide_edit_modal();
 
                 Command::none()
             }
@@ -105,17 +128,17 @@ impl State {
                 let active = self.active_video_id.clone().unwrap();
                 let new_display_name = self.new_display_name.clone();
 
-                self.hide_modal();
+                self.hide_edit_modal();
 
-                let _ = sql::edit_display_name(active, new_display_name);
+                let _ = db::edit_display_name(active, new_display_name);
 
                 Command::none()
             }
             Event::DeleteTrack => {
                 let active = self.active_video_id.clone().unwrap();
-                sql::delete_music(active).unwrap();
+                db::delete_music(active).unwrap();
 
-                self.hide_modal();
+                self.hide_edit_modal();
 
                 self.active_video_id = None;
                 Command::none()
@@ -138,7 +161,7 @@ impl State {
                 }) => {
                     info!("Hiding modal via escape key.");
 
-                    self.hide_modal();
+                    self.hide_edit_modal();
                     Command::none()
                 }
                 _ => Command::none(),
@@ -150,7 +173,9 @@ impl State {
         let mut column = column![row![
             text("Your Music").size(18),
             button("Refresh").on_press(Event::GetThumbnailHandles)
-        ]];
+        ]
+        .align_items(Alignment::Center)
+        .spacing(10)];
 
         for audio_file in &self.track_list {
             let video_id = audio_file.get("video_id").unwrap();
@@ -188,7 +213,12 @@ impl State {
                     assets::action(
                         assets::edit_icon(),
                         "Edit",
-                        Some(Event::ShowModal(video_id.clone(), display_name.clone()))
+                        Some(Event::ShowEditModal(video_id.clone(), display_name.clone()))
+                    ),
+                    assets::action(
+                        assets::add_icon(),
+                        "Add to playlist",
+                        Some(Event::ShowAddModal(video_id.clone()))
                     ),
                     Space::with_width(30),
                 ]
@@ -215,7 +245,7 @@ impl State {
                     assets::action(
                         assets::edit_icon(),
                         "Edit",
-                        Some(Event::ShowModal(video_id.clone(), display_name.clone()))
+                        Some(Event::ShowEditModal(video_id.clone(), display_name.clone()))
                     ),
                     Space::with_width(30),
                 ]
@@ -234,7 +264,7 @@ impl State {
         )
         .padding(10);
 
-        if self.show_modal {
+        if self.show_edit_modal {
             let edit = container(
                 column![
                     text("Edit Track").size(24),
@@ -262,7 +292,36 @@ impl State {
             .style(container::rounded_box)
             .width(300);
 
-            assets::modal(content, edit, Event::HideModal)
+            assets::modal(content, edit, Event::HideEditModal)
+        } else if self.show_add_modal {
+            let playlists = db::get_all_playlists();
+
+            let mut col = column![].spacing(10);
+
+            for playlist in playlists {
+                let id = playlist.get("id").unwrap().parse::<i32>().unwrap().clone();
+                let name = playlist.get("name").unwrap().clone();
+
+                col = col.push(button(text(name)).on_press(Event::AddToPlaylist(
+                    self.active_video_id.clone().unwrap(),
+                    id,
+                )));
+            }
+
+            let add = container(
+                column![
+                    text("Add to Playlist").size(24),
+                    column![text("Select a playlist:"), col]
+                        .align_items(Alignment::Center)
+                        .spacing(10),
+                ]
+                .align_items(Alignment::Center)
+                .spacing(20),
+            )
+            .style(container::rounded_box)
+            .width(300);
+
+            assets::modal(content, add, Event::HidePlaylistModal)
         } else {
             content.into()
         }
@@ -272,8 +331,8 @@ impl State {
         event::listen().map(Event::KeyboardEvent)
     }
 
-    fn hide_modal(&mut self) {
-        self.show_modal = false;
+    fn hide_edit_modal(&mut self) {
+        self.show_edit_modal = false;
         self.new_display_name.clear();
     }
 }

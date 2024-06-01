@@ -5,7 +5,7 @@ use iced::widget::{
     button, center, container, image as image_widget, mouse_area, opaque, row, stack, text,
     tooltip, Container,
 };
-use iced::{Alignment, Color, Element, Font};
+use iced::{Alignment, Color, Element, Font, Length};
 
 fn icon<'a, Message>(codepoint: char) -> Element<'a, Message> {
     const ICON_FONT: Font = Font::with_name("editor-icons");
@@ -15,7 +15,7 @@ fn icon<'a, Message>(codepoint: char) -> Element<'a, Message> {
 
 pub fn thumbnail_from_bytes<'a, Message>(url: Vec<u8>) -> Container<'a, Message> {
     let handle = image::Handle::from_bytes(url);
-    container(image_widget(handle).width(120).height(90)).center_x()
+    container(image_widget(handle).width(120).height(90)).center_x(Length::Fill)
 }
 
 pub fn thumbnail<'a, Message>(handle: image::Handle) -> Container<'a, Message> {
@@ -140,6 +140,10 @@ pub fn delete_icon<'a, Message>() -> Element<'a, Message> {
 
 pub fn add_icon<'a, Message>() -> Element<'a, Message> {
     icon('\u{0e809}')
+}
+
+pub fn list_icon<'a, Message>() -> Element<'a, Message> {
+    icon('\u{0e80d}')
 }
 
 pub fn volume_on<'a, Message>() -> Element<'a, Message> {

@@ -1,32 +1,61 @@
+use std::collections::HashMap;
+
+use crate::core::db;
+
 use super::assets;
 use super::style;
 
-use iced::widget::{column, container, text, Space};
+use iced::widget::{button, column, container, scrollable, text, Space};
 use iced::{Alignment, Command, Length};
 
-pub struct State {}
+pub struct State {
+    playlists: Vec<HashMap<String, String>>,
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Event {
     OpenTrackList,
     OpenSettings,
-    OpenEdit,
+    OpenPlaylists,
     OpenDownload,
     CreatePlaylist,
+    UpdatePlaylists,
+    OpenPlaylist(i32),
 }
 
 impl State {
     pub fn update(&mut self, message: Event) -> Command<Event> {
         match message {
+            Event::OpenPlaylist(_value) => Command::none(),
+
+            Event::UpdatePlaylists => {
+                self.playlists = db::get_all_playlists();
+
+                Command::none()
+            }
             Event::CreatePlaylist => Command::none(),
             Event::OpenTrackList => Command::none(),
             Event::OpenSettings => Command::none(),
-            Event::OpenEdit => Command::none(),
+            Event::OpenPlaylists => Command::none(),
             Event::OpenDownload => Command::none(),
         }
     }
 
     pub fn view(&self) -> iced::Element<Event> {
+        let mut col = column![];
+
+        let mut i = 0;
+
+        for playlist in &self.playlists {
+            col = col.push(
+                button(text(playlist.get("name").unwrap()))
+                    .style(style::sidebar_button)
+                    .on_press(Event::OpenPlaylist(i)),
+            );
+
+            i += 1;
+        }
+
         container(
             column![
                 text("MY MUSIC").size(12).style(style::sidebar_text),
@@ -35,7 +64,11 @@ impl State {
                     "Home Page",
                     Some(Event::OpenTrackList)
                 ),
-                assets::action_with_text(assets::edit_icon(), "Edit Music", Some(Event::OpenEdit)),
+                assets::action_with_text(
+                    assets::list_icon(),
+                    "Playlists",
+                    Some(Event::OpenPlaylists)
+                ),
                 assets::action_with_text(
                     assets::download_icon(),
                     "Add Music",
@@ -53,6 +86,7 @@ impl State {
                     "New Playlist",
                     Some(Event::CreatePlaylist)
                 ),
+                scrollable(col.spacing(5)).width(Length::Fill),
             ]
             .spacing(10)
             .padding(10)
@@ -67,6 +101,8 @@ impl State {
 
 impl Default for State {
     fn default() -> Self {
-        Self {}
+        Self {
+            playlists: db::get_all_playlists(),
+        }
     }
 }

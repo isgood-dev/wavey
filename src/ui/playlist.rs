@@ -1,26 +1,60 @@
-use iced::widget::{button, column, container, row, text, text_input};
+use std::collections::HashMap;
+
+use iced::widget::{button, column, container, row, scrollable, text, text_input};
 use iced::{Alignment, Command, Length};
 
-use crate::core::sql;
+use crate::core::db;
+
+use super::components::style;
 pub struct State {
     create_playlist_mode: bool,
+    playlist_view: bool,
     playlist_name_input: String,
+    playlists: Vec<HashMap<String, String>>,
+    tracks: Vec<HashMap<String, String>>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Event {
+    OpenInListMode,
     OpenInCreateMode,
     CreatePlaylist,
+    OpenPlaylist(i32),
     PlaylistNameInput(String),
 }
 
 impl State {
     pub fn update(&mut self, message: Event) -> Command<Event> {
         match message {
-            Event::CreatePlaylist => {
+            Event::OpenPlaylist(index) => {
+                self.playlist_view = true;
+
+                self.tracks = db::get_playlist_tracks(
+                    self.playlists[index as usize]
+                        .get("id")
+                        .unwrap()
+                        .parse::<i32>()
+                        .unwrap(),
+                );
+
+                println!("{:?}", self.tracks);
+
+                Command::none()
+            }
+            Event::OpenInListMode => {
+                self.playlist_view = false;
                 self.create_playlist_mode = false;
 
-                let _ = sql::add_playlist(self.playlist_name_input.clone());
+                Command::none()
+            }
+
+            Event::CreatePlaylist => {
+                self.playlist_view = false;
+                self.create_playlist_mode = false;
+
+                let _ = db::add_playlist(self.playlist_name_input.clone());
+
+                self.playlists = db::get_all_playlists();
 
                 Command::none()
             }
@@ -39,6 +73,39 @@ impl State {
     }
 
     pub fn view(&self) -> iced::Element<Event> {
+        if self.playlist_view {
+            let mut col = column![];
+
+            for (index, track) in self.tracks.iter().enumerate() {
+                match db::get_music_from_id(track.get("music_id").unwrap().parse::<i32>().unwrap())
+                {
+                    Ok(music) => {
+                        col = col.push(
+                            button(text(music.get("display_name").unwrap().clone()))
+                                .on_press(Event::OpenPlaylist(index as i32))
+                                .style(style::sidebar_button),
+                        );
+                    }
+                    Err(_) => {
+                        col = col.push(
+                            button(text("[error getting this track]"))
+                                .on_press(Event::OpenPlaylist(index as i32))
+                                .style(style::sidebar_button),
+                        );
+                    }
+                }
+            }
+
+            let content = container(scrollable(
+                col.spacing(40)
+                    .align_items(Alignment::Start)
+                    .width(Length::Fill),
+            ))
+            .padding(10);
+
+            return content.into();
+        }
+
         if self.create_playlist_mode {
             return container(
                 column![
@@ -56,17 +123,27 @@ impl State {
                 .spacing(15)
                 .align_items(Alignment::Center),
             )
-            .center_x()
-            .center_y()
+            .center_x(Length::Fill)
+            .center_y(Length::Fill)
             .into();
         }
 
-        let content = container(
-            column![text("").size(20)]
-                .spacing(40)
+        let mut col = column![];
+
+        // amend for loop to get an index
+        for (index, playlist) in self.playlists.iter().enumerate() {
+            col = col.push(
+                button(text(playlist.get("name").unwrap()))
+                    .on_press(Event::OpenPlaylist(index as i32))
+                    .style(style::sidebar_button),
+            );
+        }
+
+        let content = container(scrollable(
+            col.spacing(40)
                 .align_items(Alignment::Start)
                 .width(Length::Fill),
-        )
+        ))
         .padding(10);
 
         content.into()
@@ -77,7 +154,10 @@ impl Default for State {
     fn default() -> Self {
         Self {
             create_playlist_mode: false,
+            playlist_view: false,
             playlist_name_input: String::new(),
+            playlists: db::get_all_playlists(),
+            tracks: Vec::new(),
         }
     }
 }

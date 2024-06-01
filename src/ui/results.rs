@@ -57,8 +57,8 @@ impl State {
     pub fn view(&self) -> iced::Element<Event> {
         if self.loading {
             container(text("Loading...").size(18))
-                .center_x()
-                .center_y()
+                .center_x(Length::Fill)
+                .center_y(Length::Fill)
                 .into()
         } else {
             let mut column = column![];

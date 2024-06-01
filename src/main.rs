@@ -1,5 +1,5 @@
+use core::db;
 use core::json;
-use core::sql;
 
 use iced::{window, Command, Element, Font, Settings, Subscription};
 
@@ -53,13 +53,13 @@ impl Wavey {
 
         info!("Starting Wavey.");
         // Creates the database if it doesn't exist.
-        if !sql::check_database_exists() {
+        if !db::check_database_exists() {
             info!("Creating database because it does not exist.");
-            let _ = sql::create_database_tables();
+            let _ = db::create_database_tables();
         }
 
         // Verifies validity of the data in the database.
-        let _ = sql::verify_data_integrity();
+        let _ = db::verify_data_integrity();
 
         if !json::check_exists() {
             info!("Creating settings file because it does not exist.");

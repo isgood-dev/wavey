@@ -188,7 +188,7 @@ impl State {
         )
         .width(Length::Fill)
         .style(style::dynamic_colour)
-        .center_x()
+        .center_x(Length::Fill)
         .height(100)
         .padding(10)
         .into()

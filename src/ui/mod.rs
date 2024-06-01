@@ -6,6 +6,7 @@ use std::time::Duration;
 
 use crate::core::json;
 use crate::core::youtube;
+use components::sidebar;
 use components::theme;
 use components::toast;
 
@@ -18,7 +19,6 @@ use self::components::theme::get_theme_from_settings;
 
 mod components;
 mod download;
-mod edit;
 mod ffmpeg;
 mod playlist;
 mod results;
@@ -32,7 +32,6 @@ pub struct Pages {
     controls: components::control_bar::State,
 
     track_list: track_list::State,
-    edit: edit::State,
     settings: settings::State,
     download: download::State,
     results: results::State,
@@ -50,7 +49,6 @@ pub struct Pages {
 pub enum Page {
     #[default]
     TrackList,
-    Edit,
     Settings,
     Download,
     Results,
@@ -64,7 +62,6 @@ pub enum UiEvent {
     ControlsAction(components::control_bar::Event),
 
     TrackListAction(track_list::Event),
-    EditAction(edit::Event),
     SettingsAction(settings::Event),
     DownloadAction(download::Event),
     ResultsAction(results::Event),
@@ -127,7 +124,6 @@ impl Pages {
 
             track_list: Default::default(),
             download: Default::default(),
-            edit: Default::default(),
             settings: Default::default(),
             results: Default::default(),
             ffmpeg: Default::default(),
@@ -142,7 +138,24 @@ impl Pages {
     pub fn update(&mut self, message: UiEvent) -> Command<UiEvent> {
         match message {
             UiEvent::PlaylistAction(event) => {
-                self.playlist.update(event).map(UiEvent::PlaylistAction)
+                let playlist_command = self
+                    .playlist
+                    .update(event.clone())
+                    .map(UiEvent::PlaylistAction);
+
+                match event {
+                    playlist::Event::CreatePlaylist => {
+                        return Command::batch(vec![
+                            playlist_command,
+                            self.sidebar
+                                .update(sidebar::Event::UpdatePlaylists)
+                                .map(UiEvent::SidebarAction),
+                        ])
+                    }
+                    _ => (),
+                }
+
+                playlist_command
             }
             UiEvent::CloseToast(index) => {
                 self.toasts.remove(index);
@@ -209,7 +222,6 @@ impl Pages {
                     _ => download_command,
                 }
             }
-            UiEvent::EditAction(event) => self.edit.update(event).map(UiEvent::EditAction),
             UiEvent::SettingsAction(event) => {
                 match event {
                     settings::Event::ThemeSelected(theme) => {
@@ -265,7 +277,14 @@ impl Pages {
 
                 match event {
                     components::sidebar::Event::OpenDownload => self.current_page = Page::Download,
-                    components::sidebar::Event::OpenEdit => self.current_page = Page::Edit,
+                    components::sidebar::Event::OpenPlaylists => {
+                        return {
+                            self.current_page = Page::Playlist;
+                            self.playlist
+                                .update(playlist::Event::OpenInListMode)
+                                .map(UiEvent::PlaylistAction)
+                        }
+                    }
                     components::sidebar::Event::OpenSettings => self.current_page = Page::Settings,
                     components::sidebar::Event::OpenTrackList => {
                         self.current_page = Page::TrackList
@@ -278,6 +297,15 @@ impl Pages {
                                 .map(UiEvent::PlaylistAction)
                         }
                     }
+                    components::sidebar::Event::OpenPlaylist(index) => {
+                        return {
+                            self.current_page = Page::Playlist;
+                            self.playlist
+                                .update(playlist::Event::OpenPlaylist(index))
+                                .map(UiEvent::PlaylistAction)
+                        }
+                    }
+                    _ => (),
                 }
 
                 sidebar_command
@@ -371,18 +399,6 @@ impl Pages {
                     row![
                         self.sidebar.view().map(UiEvent::SidebarAction),
                         self.download.view().map(UiEvent::DownloadAction),
-                    ],
-                    self.controls.view().map(UiEvent::ControlsAction),
-                ];
-
-                toast::Manager::new(content, &self.toasts, UiEvent::CloseToast).into()
-            }
-
-            Page::Edit => {
-                let content = column![
-                    row![
-                        self.sidebar.view().map(UiEvent::SidebarAction),
-                        self.edit.view().map(UiEvent::EditAction),
                     ],
                     self.controls.view().map(UiEvent::ControlsAction),
                 ];

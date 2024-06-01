@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use iced::widget::{button, column, container, progress_bar, row, text};
-use iced::{Alignment, Command, Subscription};
+use iced::{Alignment, Command, Length, Subscription};
 
 use crate::core::file;
 use crate::core::json;
@@ -143,8 +143,8 @@ impl State {
                     .align_items(Alignment::Center)
                     .spacing(10),
                 )
-                .center_x()
-                .center_y()
+                .center_x(Length::Fill)
+                .center_y(Length::Fill)
                 .padding(10)
                 .into();
             }
@@ -160,8 +160,8 @@ impl State {
                 .spacing(10)
                 .align_items(Alignment::Center),
             )
-            .center_x()
-            .center_y()
+            .center_x(Length::Fill)
+            .center_y(Length::Fill)
             .padding(10);
 
             return content.into();
@@ -179,8 +179,8 @@ impl State {
                 .spacing(10)
                 .align_items(Alignment::Center)
             )
-            .center_x()
-            .center_y()
+            .center_x(Length::Fill)
+            .center_y(Length::Fill)
             .padding(10);
 
             content.into()

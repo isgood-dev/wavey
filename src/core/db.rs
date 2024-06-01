@@ -24,18 +24,18 @@ struct Music {
     display_name: String,
 }
 
-// #[derive(Debug)]
-// struct Playlist {
-//     playlist_id: i32,
-//     name: String,
-// }
+#[derive(Debug)]
+struct Playlist {
+    playlist_id: i32,
+    name: String,
+}
 
-// #[derive(Debug)]
-// struct MusicPlaylist {
-//     music_playlist_id: i32,
-//     music_id: i32,
-//     playlist_id: i32,
-// }
+#[derive(Debug)]
+struct MusicPlaylist {
+    music_playlist_id: i32,
+    music_id: i32,
+    playlist_id: i32,
+}
 
 // Pretty self-explanatory. Checks if the database file exists.
 pub fn check_database_exists() -> bool {
@@ -98,6 +98,38 @@ pub fn add_music(video_data: HashMap<String, String>) -> Result<(), DatabaseErro
     Ok(())
 }
 
+pub fn get_music_from_id(id: i32) -> Result<HashMap<String, String>, DatabaseError> {
+    info!("Requesting music data from ID.");
+
+    let conn = Connection::open("./assets/data.db")?;
+
+    let mut statement = conn
+        .prepare("SELECT * FROM music WHERE music_id = ?1")
+        .unwrap();
+    let music = statement
+        .query_row([id], |row| {
+            Ok(Music {
+                music_id: row.get(0)?,
+                video_id: row.get(1)?,
+                extension: row.get(2)?,
+                duration: row.get(3)?,
+                display_name: row.get(4)?,
+            })
+        })
+        .unwrap();
+
+    let mut music_map = HashMap::new();
+    music_map.insert("music_id".to_string(), music.music_id.to_string());
+    music_map.insert("video_id".to_string(), music.video_id);
+    music_map.insert("extension".to_string(), music.extension);
+    music_map.insert("duration".to_string(), music.duration.to_string());
+    music_map.insert("display_name".to_string(), music.display_name);
+
+    info!("Music data received.");
+
+    Ok(music_map)
+}
+
 pub fn add_playlist(name: String) -> Result<(), DatabaseError> {
     info!("Adding playlist to database.");
     let conn = Connection::open("./assets/data.db")?;
@@ -105,6 +137,37 @@ pub fn add_playlist(name: String) -> Result<(), DatabaseError> {
     conn.execute("INSERT INTO playlists (name) VALUES (?1)", [name])?;
 
     Ok(())
+}
+
+pub fn get_all_playlists() -> Vec<HashMap<String, String>> {
+    info!("Requesting all playlists.");
+
+    let conn = Connection::open("./assets/data.db").unwrap();
+
+    let mut statement = conn.prepare("SELECT * FROM playlists").unwrap();
+
+    let playlist_iter = statement
+        .query_map([], |row| {
+            Ok(Playlist {
+                playlist_id: row.get(0)?,
+                name: row.get(1)?,
+            })
+        })
+        .unwrap();
+
+    let mut playlist_data = Vec::new();
+
+    for playlist_item in playlist_iter {
+        let playlist_item = playlist_item.unwrap();
+        let mut playlist_map = HashMap::new();
+        playlist_map.insert("id".to_string(), playlist_item.playlist_id.to_string());
+        playlist_map.insert("name".to_string(), playlist_item.name);
+        playlist_data.push(playlist_map);
+    }
+
+    info!("Playlists received.");
+
+    playlist_data
 }
 
 // Verifies the integrity of the audio tracks in the database by comparing all
@@ -208,6 +271,67 @@ pub fn edit_display_name(video_id: String, new_display_name: String) -> Result<(
     conn.execute(
         "UPDATE music SET display_name = ?1 WHERE video_id = ?2",
         [&new_display_name, &video_id],
+    )?;
+
+    Ok(())
+}
+
+pub fn get_playlist_tracks(playlist_id: i32) -> Vec<HashMap<String, String>> {
+    info!("Requesting playlist tracks.");
+
+    let conn = Connection::open("./assets/data.db").unwrap();
+
+    let mut statement = conn
+        .prepare("SELECT * FROM music_playlists WHERE playlist_id = ?1")
+        .unwrap();
+    let music_playlist_iter = statement
+        .query_map([playlist_id], |row| {
+            Ok(MusicPlaylist {
+                music_playlist_id: row.get(0)?,
+                music_id: row.get(1)?,
+                playlist_id: row.get(2)?,
+            })
+        })
+        .unwrap();
+
+    let mut music_data = Vec::new();
+
+    for music_playlist_item in music_playlist_iter {
+        let music_playlist_item = music_playlist_item.unwrap();
+        let mut music_map = HashMap::new();
+        music_map.insert(
+            "music_playlist_id".to_string(),
+            music_playlist_item.music_playlist_id.to_string(),
+        );
+        music_map.insert(
+            "music_id".to_string(),
+            music_playlist_item.music_id.to_string(),
+        );
+        music_map.insert(
+            "playlist_id".to_string(),
+            music_playlist_item.playlist_id.to_string(),
+        );
+        music_data.push(music_map);
+    }
+
+    info!("Playlist tracks received.");
+
+    music_data
+}
+
+pub fn add_music_playlist(video_id: String, playlist_id: i32) -> Result<(), DatabaseError> {
+    info!("Adding track to playlist.");
+
+    let conn = Connection::open("./assets/data.db")?;
+
+    let mut statement = conn
+        .prepare("SELECT music_id FROM music WHERE video_id = ?1")
+        .unwrap();
+    let music_id = statement.query_row([video_id], |row| row.get(0)).unwrap();
+
+    conn.execute(
+        "INSERT INTO music_playlists (music_id, playlist_id) VALUES (?1, ?2)",
+        [music_id, playlist_id],
     )?;
 
     Ok(())

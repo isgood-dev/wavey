@@ -24,8 +24,16 @@ pub enum YouTubeError {
 async fn ffmpeg_convert_codec(video_id: String) -> bool {
     let in_file = format!("./assets/audio/{}.webm", video_id);
     let out_file = format!("./assets/audio/{}.mp3", video_id);
+    
+    let mut cmd_dest = String::new();
 
-    let output = Command::new("./assets/ffmpeg")
+    if cfg!(unix) {
+        cmd_dest = String::from("ffmpeg"); 
+    } else {
+        cmd_dest = String::from("./assets/ffmpeg")
+    }
+
+    let output = Command::new(cmd_dest)
         .args(&[
             "-i", &in_file, "-vn", "-ar", "44100", "-ac", "2", "-b:a", "192k", &out_file,
         ])

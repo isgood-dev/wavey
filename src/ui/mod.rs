@@ -108,7 +108,11 @@ impl Pages {
 
         if let Ok(path) = &ffmpeg_path {
             if path.is_empty() || !Path::new(path).exists() {
-                current_page = Page::FFmpeg;
+                if cfg!(unix) {
+                    current_page = Page::TrackList;
+                } else {
+                    current_page = Page::FFmpeg;
+                }
             } else {
                 current_page = Page::TrackList;
             }

@@ -1,11 +1,13 @@
 use std::collections::HashMap;
 
+use super::components::style;
+use crate::core::format;
+
 use iced::widget::{button, column, container, row, scrollable, text, text_input};
 use iced::{Alignment, Command, Length};
 
 use crate::core::db;
 
-use super::components::style;
 pub struct State {
     create_playlist_mode: bool,
     playlist_view: bool,
@@ -36,8 +38,6 @@ impl State {
                         .parse::<i32>()
                         .unwrap(),
                 );
-
-                println!("{:?}", self.tracks);
 
                 Command::none()
             }
@@ -81,9 +81,11 @@ impl State {
                 {
                     Ok(music) => {
                         col = col.push(
-                            button(text(music.get("display_name").unwrap().clone()))
-                                .on_press(Event::OpenPlaylist(index as i32))
-                                .style(style::sidebar_button),
+                            button(text(format::trunc_name(
+                                music.get("display_name").unwrap().clone().as_str(),
+                            )))
+                            .on_press(Event::OpenPlaylist(index as i32))
+                            .style(style::sidebar_button),
                         );
                     }
                     Err(_) => {

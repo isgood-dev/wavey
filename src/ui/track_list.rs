@@ -207,7 +207,7 @@ impl State {
                     ),
                     assets::thumbnail(thumbnail_handle.clone()),
                     Space::with_width(10),
-                    text(display_name.clone()),
+                    text(format::trunc_name(display_name.clone().as_str())),
                     horizontal_space(),
                     text(formatted_duration.clone()),
                     Space::with_width(10),

@@ -254,7 +254,7 @@ impl Pages {
                         .map(UiEvent::TrackListAction);
                 }
                 match event {
-                    track_list::Event::PlayTrack(video_id, display_name, duration) => {
+                    track_list::Event::PlayTrack(video_id, display_name, duration, handle) => {
                         self.audio_playback_sender
                             .send(AudioEvent::Queue(video_id.clone().to_string(), true))
                             .expect("Failed to send play command");
@@ -264,6 +264,7 @@ impl Pages {
                                 .update(components::control_bar::Event::InitiatePlay(
                                     display_name.to_string(),
                                     *duration,
+                                    handle.clone(),
                                 ))
                                 .map(UiEvent::ControlsAction),
                             track_list_command,

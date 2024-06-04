@@ -40,7 +40,7 @@ pub enum Event {
     NewDisplayName(String),
     ShowEditModal(String, String),
     ShowAddModal(String),
-    PlayTrack(String, String, u64),
+    PlayTrack(String, String, u64, Option<iced::advanced::image::Handle>),
     KeyboardEvent(IcedEvent),
 }
 
@@ -102,7 +102,7 @@ impl State {
                 Command::none()
             }
 
-            Event::PlayTrack(_video_id, _display_name, _duration) => Command::none(),
+            Event::PlayTrack(_video_id, _display_name, _duration, _handle) => Command::none(),
 
             Event::ShowEditModal(video_id, display_name) => {
                 info!("Showing modal for track with video_id: {}", video_id);
@@ -201,7 +201,8 @@ impl State {
                         Some(Event::PlayTrack(
                             video_id.clone(),
                             display_name.clone(),
-                            duration.parse::<u64>().unwrap()
+                            duration.parse::<u64>().unwrap(),
+                            Some(thumbnail_handle.clone()),
                         )),
                     ),
                     assets::thumbnail(thumbnail_handle.clone()),
@@ -233,7 +234,8 @@ impl State {
                         Some(Event::PlayTrack(
                             video_id.clone(),
                             display_name.clone(),
-                            duration.parse::<u64>().unwrap()
+                            duration.parse::<u64>().unwrap(),
+                            None,
                         )),
                     ),
                     text("..."),

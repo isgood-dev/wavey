@@ -2,7 +2,7 @@ use super::assets;
 use super::style;
 use crate::core::format;
 
-use iced::widget::{column, container, row, slider, text};
+use iced::widget::{column, container, image, row, slider, text};
 use iced::{time, Alignment, Command, Element, Length};
 
 use tokio::time::Duration;
@@ -17,6 +17,7 @@ pub struct State {
     now_playing: String,
     is_paused: bool,
     volume: f32,
+    active_thumbnail_handle: Option<iced::advanced::image::Handle>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -30,7 +31,7 @@ pub enum Event {
     Unmute,
     ProgressChanged(f32),
     VolumeChanged(f32),
-    InitiatePlay(String, u64),
+    InitiatePlay(String, u64, Option<iced::advanced::image::Handle>),
 }
 
 impl State {
@@ -94,13 +95,14 @@ impl State {
 
                 Command::none()
             }
-            Event::InitiatePlay(text, total_duration) => {
+            Event::InitiatePlay(text, total_duration, handle) => {
                 self.is_paused = false;
                 self.slider_is_active = false; // ensure slider state is reset
                 self.slider_value = 0.0;
                 self.seconds_passed = 0;
 
                 self.now_playing = text;
+                self.active_thumbnail_handle = handle;
                 self.slider_is_active = true;
                 self.total_duration = total_duration;
 
@@ -122,6 +124,7 @@ impl State {
     pub fn view(&self) -> iced::Element<Event> {
         let pause_or_play: Element<Event>;
         let volume_icon: Element<Event>;
+        let thumbnail: Element<Event>;
 
         if self.is_paused {
             pause_or_play = assets::action(assets::play_icon(), "Play", Some(Event::PlayAction));
@@ -130,14 +133,20 @@ impl State {
         }
 
         if self.volume == 0.0 {
-            volume_icon = assets::action(assets::volume_off(), "Mute", Some(Event::Mute));
+            volume_icon = assets::action(assets::volume_off(), "Unmute", Some(Event::Mute));
         } else {
-            volume_icon = assets::action(assets::volume_on(), "Unmute", Some(Event::Unmute));
+            volume_icon = assets::action(assets::volume_on(), "Mute", Some(Event::Unmute));
+        }
+
+        if self.active_thumbnail_handle.is_none() {
+            thumbnail = container(text("")).into();
+        } else {
+            thumbnail = container(image(self.active_thumbnail_handle.clone().unwrap())).into();
         }
 
         container(
             row![
-                column![text("Test1"), text("Test2"),].width(Length::FillPortion(3)),
+                container(thumbnail).width(Length::FillPortion(3)),
                 column![
                     text(&self.now_playing).size(14),
                     row![
@@ -206,6 +215,7 @@ impl State {
 impl Default for State {
     fn default() -> Self {
         Self {
+            active_thumbnail_handle: None,
             formatted_current_duration: String::from("0:00"),
             formatted_total_duration: String::from("0:00"),
             slider_value: 0.0,

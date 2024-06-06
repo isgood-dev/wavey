@@ -28,6 +28,7 @@ mod track_list;
 pub struct Pages {
     pub current_page: Page,
 
+    nav: components::nav::State,
     sidebar: components::sidebar::State,
     controls: components::control_bar::State,
 
@@ -58,6 +59,7 @@ pub enum Page {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum UiEvent {
+    NavAction(components::nav::Event),
     SidebarAction(components::sidebar::Event),
     ControlsAction(components::control_bar::Event),
 
@@ -123,6 +125,7 @@ impl Pages {
         Self {
             current_page,
 
+            nav: Default::default(),
             sidebar: Default::default(),
             controls: Default::default(),
 
@@ -141,6 +144,22 @@ impl Pages {
     }
     pub fn update(&mut self, message: UiEvent) -> Command<UiEvent> {
         match message {
+            UiEvent::NavAction(event) => {
+                match event {
+                    components::nav::Event::CollapseSidebar => {
+                        return Command::batch(vec![
+                            self.sidebar
+                                .update(sidebar::Event::CollapseToggle)
+                                .map(UiEvent::SidebarAction),
+                            self.nav.update(event.clone()).map(UiEvent::NavAction),
+                        ]);
+                    }
+                    _ => (),
+                }
+
+                self.nav.update(event.clone()).map(UiEvent::NavAction)
+            }
+
             UiEvent::PlaylistAction(event) => {
                 let playlist_command = self
                     .playlist
@@ -360,6 +379,7 @@ impl Pages {
         match &self.current_page {
             Page::Playlist => {
                 let content = column![
+                    self.nav.view().map(UiEvent::NavAction),
                     row![
                         self.sidebar.view().map(UiEvent::SidebarAction),
                         self.playlist.view().map(UiEvent::PlaylistAction),
@@ -377,6 +397,7 @@ impl Pages {
             }
             Page::Results => {
                 let content = column![
+                    self.nav.view().map(UiEvent::NavAction),
                     row![
                         self.sidebar.view().map(UiEvent::SidebarAction),
                         self.results.view().map(UiEvent::ResultsAction),
@@ -389,6 +410,7 @@ impl Pages {
 
             Page::TrackList => {
                 let content = column![
+                    self.nav.view().map(UiEvent::NavAction),
                     row![
                         self.sidebar.view().map(UiEvent::SidebarAction),
                         self.track_list.view().map(UiEvent::TrackListAction),
@@ -401,6 +423,7 @@ impl Pages {
 
             Page::Download => {
                 let content = column![
+                    self.nav.view().map(UiEvent::NavAction),
                     row![
                         self.sidebar.view().map(UiEvent::SidebarAction),
                         self.download.view().map(UiEvent::DownloadAction),
@@ -413,6 +436,7 @@ impl Pages {
 
             Page::Settings => {
                 let content = column![
+                    self.nav.view().map(UiEvent::NavAction),
                     row![
                         self.sidebar.view().map(UiEvent::SidebarAction),
                         self.settings.view().map(UiEvent::SettingsAction),

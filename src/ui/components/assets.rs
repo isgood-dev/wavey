@@ -5,17 +5,12 @@ use iced::widget::{
     button, center, container, image as image_widget, mouse_area, opaque, row, stack, text,
     tooltip, Container,
 };
-use iced::{Alignment, Color, Element, Font, Length};
+use iced::{Alignment, Color, Element, Font};
 
 fn icon<'a, Message>(codepoint: char) -> Element<'a, Message> {
     const ICON_FONT: Font = Font::with_name("icons");
 
     text(codepoint).font(ICON_FONT).into()
-}
-
-pub fn thumbnail_from_bytes<'a, Message>(url: Vec<u8>) -> Container<'a, Message> {
-    let handle = image::Handle::from_bytes(url);
-    container(image_widget(handle).width(120).height(90)).center_x(Length::Fill)
 }
 
 pub fn thumbnail<'a, Message>(handle: image::Handle) -> Container<'a, Message> {

@@ -114,9 +114,6 @@ impl State {
                     file::FileError::DialogClosed => {
                         // Do nothing
                     }
-                    _ => {
-                        eprintln!("Error: {:?}", e);
-                    }
                 };
 
                 Command::none()

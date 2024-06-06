@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::core::youtube;
+use crate::core::youtube::{self, StatusError};
 
 use iced::{
     widget::{button, column, container, scrollable, text, text_input},
@@ -16,10 +16,10 @@ pub struct State {
 pub enum Event {
     YouTubeURLInput(String),
     SongNameInput(String),
-    DownloadQueryReceived(Result<Vec<HashMap<String, String>>, youtube::YouTubeError>),
+    DownloadQueryReceived(Result<Vec<HashMap<String, String>>, youtube::StatusError>),
     Download,
     Search,
-    DownloadResult(bool),
+    DownloadResult(Result<(), StatusError>),
 }
 
 impl State {
@@ -53,15 +53,7 @@ impl State {
                 Command::perform(youtube::download_from_url(yt_url), Event::DownloadResult)
             }
 
-            Event::DownloadResult(status) => {
-                if status {
-                    print!("Success");
-                } else {
-                    print!("Not successful");
-                }
-
-                Command::none()
-            }
+            Event::DownloadResult(_status) => Command::none(),
         }
     }
 

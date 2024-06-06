@@ -4,21 +4,21 @@ use super::components::assets;
 use crate::core::request;
 use crate::core::youtube;
 
-use iced::widget::{column, container, row, scrollable, text};
+use iced::widget::{column, container, image, row, scrollable, text};
 use iced::{Alignment, Command, Length};
 
 pub struct State {
     loading: bool,
     results: Vec<HashMap<String, String>>,
-    thumbnails: Vec<Vec<u8>>,
+    thumbnails: Vec<iced::advanced::image::Handle>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Event {
     PopulateResults(Vec<HashMap<String, String>>),
-    ThumbnailReceived(Vec<Vec<u8>>),
+    ThumbnailReceived(Result<Vec<Vec<u8>>, request::RequestError>),
     DownloadPressed(String),
-    DownloadComplete(bool),
+    DownloadComplete(Result<(), youtube::StatusError>),
 }
 
 impl State {
@@ -45,8 +45,17 @@ impl State {
                 )
             }
 
-            Event::ThumbnailReceived(data) => {
-                self.thumbnails = data;
+            Event::ThumbnailReceived(response) => {
+                match response {
+                    Ok(data) => {
+                        for thumbnail in data {
+                            let handle = iced::advanced::image::Handle::from_bytes(thumbnail);
+                            self.thumbnails.push(handle);
+                        }
+                    }
+                    Err(_) => {}
+                };
+
                 self.loading = false;
 
                 Command::none()
@@ -77,9 +86,7 @@ impl State {
                             result.get("video_id").unwrap().to_string()
                         ))
                     ),
-                    assets::thumbnail_from_bytes(self.thumbnails[index].clone())
-                        .width(150)
-                        .max_width(150), // Clone the value here
+                    image(self.thumbnails[index].clone()).width(130).height(100),
                     text(heading).size(16),
                 ]
                 .align_items(Alignment::Center)

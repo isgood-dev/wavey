@@ -11,27 +11,32 @@ use rusty_ytdl::search::{SearchResult, YouTube};
 use rusty_ytdl::{Video, VideoOptions, VideoQuality, VideoSearchOptions};
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum YouTubeError {
+pub enum StatusError {
     NetworkError,
     VideoNotFound,
     UnknownError,
+    FFmpegConversionError,
+    VideoOptionError,
+    VideoInfoError,
+    DownloadError,
+    CodecError,
+    ThumbnailError,
+    WriteError,
 }
 
 // Simply calls ffmpeg to convert audio files from `webm` format to `mp3` format.
 // YouTube does not store files in `mp3` format, so after downloading from YouTube,
 // we need to use FFmpeg to convert to `mp3` codec.
 // Alternatives would be nice to avoid using FFmpeg since it's a large dependancy.
-async fn ffmpeg_convert_codec(video_id: String) -> bool {
+async fn ffmpeg_convert_codec(video_id: String) -> Result<bool, StatusError> {
     let in_file = format!("./assets/audio/{}.webm", video_id);
     let out_file = format!("./assets/audio/{}.mp3", video_id);
 
-    let mut cmd_dest = String::new();
-
-    if cfg!(unix) {
-        cmd_dest = String::from("ffmpeg");
+    let cmd_dest = if cfg!(unix) {
+        String::from("ffmpeg")
     } else {
-        cmd_dest = String::from("./assets/ffmpeg")
-    }
+        String::from("./assets/ffmpeg")
+    };
 
     let output = Command::new(cmd_dest)
         .args(&[
@@ -40,29 +45,28 @@ async fn ffmpeg_convert_codec(video_id: String) -> bool {
         .output()
         .await;
 
-    if output.is_err() {
-        return false;
-    }
-
     fs::remove_file(in_file).await.unwrap();
 
-    true
+    match output {
+        Ok(output) => Ok(output.status.success()),
+        Err(_) => Err(StatusError::FFmpegConversionError),
+    }
 }
 
 pub async fn get_search_results(
     query: String,
-) -> Result<Vec<HashMap<String, String>>, YouTubeError> {
+) -> Result<Vec<HashMap<String, String>>, StatusError> {
     let youtube = YouTube::new().unwrap();
 
     let res = match youtube.search(query, None).await {
         Ok(res) => res,
         Err(error) => match error {
-            rusty_ytdl::VideoError::Reqwest(_) => return Err(YouTubeError::NetworkError),
+            rusty_ytdl::VideoError::Reqwest(_) => return Err(StatusError::NetworkError),
             rusty_ytdl::VideoError::VideoNotFound => {
-                return Err(YouTubeError::VideoNotFound);
+                return Err(StatusError::VideoNotFound);
             }
             _ => {
-                return Err(YouTubeError::UnknownError);
+                return Err(StatusError::UnknownError);
             }
         },
     };
@@ -90,16 +94,20 @@ pub async fn get_search_results(
     Ok(results)
 }
 
-pub async fn download_from_url(url: String) -> bool {
+pub async fn download_from_url(url: String) -> Result<(), StatusError> {
     let video_options = VideoOptions {
         quality: VideoQuality::HighestAudio,
         filter: VideoSearchOptions::Audio,
         ..Default::default()
     };
 
-    let video = Video::new_with_options(url, video_options).unwrap();
+    let video =
+        Video::new_with_options(url, video_options).map_err(|_| StatusError::VideoOptionError)?;
 
-    let video_info = video.get_info().await.unwrap();
+    let video_info = video
+        .get_info()
+        .await
+        .map_err(|_| StatusError::VideoInfoError)?;
 
     let path_str = format!(
         "./assets/audio/{}.webm",
@@ -107,7 +115,10 @@ pub async fn download_from_url(url: String) -> bool {
     );
     let path = Path::new(&path_str);
 
-    video.download(path).await.unwrap();
+    video
+        .download(path)
+        .await
+        .map_err(|_| StatusError::DownloadError)?;
 
     let video_id = video_info.video_details.video_id;
 
@@ -122,14 +133,20 @@ pub async fn download_from_url(url: String) -> bool {
 
     let _ = db::add_music(to_store);
 
-    ffmpeg_convert_codec(video_id.clone()).await;
+    ffmpeg_convert_codec(video_id.clone())
+        .await
+        .map_err(|_| StatusError::CodecError)?;
 
     let thumbnail = &video_info.video_details.thumbnails[0].url;
 
-    let downloaded = request::request_thumbnail(thumbnail.clone()).await.unwrap();
+    let downloaded = request::request_thumbnail(thumbnail.clone())
+        .await
+        .map_err(|_| StatusError::ThumbnailError)?;
 
     let thumbnail_path = format!("./assets/thumbnails/{}.jpg", video_id);
-    fs::write(thumbnail_path, downloaded).await.unwrap();
+    fs::write(thumbnail_path, downloaded)
+        .await
+        .map_err(|_| StatusError::WriteError)?;
 
-    true
+    Ok(())
 }

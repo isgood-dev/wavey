@@ -208,25 +208,74 @@ impl Pages {
                             Ok(data) => data,
                             Err(error) => {
                                 match error {
-                                    youtube::YouTubeError::NetworkError => {
+                                    youtube::StatusError::NetworkError => {
                                         self.toasts.push(toast::Toast {
                                             title: "Network Error".into(),
                                             body: "Failed to fetch search results".into(),
                                             status: toast::Status::Danger,
                                         })
                                     }
-                                    youtube::YouTubeError::UnknownError => {
+                                    youtube::StatusError::UnknownError => {
                                         self.toasts.push(toast::Toast {
                                             title: "Unknown Error".into(),
                                             body: "An unknown error occurred".into(),
                                             status: toast::Status::Danger,
                                         })
                                     }
-                                    youtube::YouTubeError::VideoNotFound => {
+                                    youtube::StatusError::VideoNotFound => {
                                         self.toasts.push(toast::Toast {
                                             title: "Video Not Found".into(),
                                             body: "The video you are looking for was not found"
                                                 .into(),
+                                            status: toast::Status::Danger,
+                                        })
+                                    }
+                                    youtube::StatusError::FFmpegConversionError => {
+                                        self.toasts.push(toast::Toast {
+                                            title: "FFmpeg Error".into(),
+                                            body: "Failed to convert video".into(),
+                                            status: toast::Status::Danger,
+                                        })
+                                    }
+                                    youtube::StatusError::CodecError => {
+                                        self.toasts.push(toast::Toast {
+                                            title: "Codec Error".into(),
+                                            body: "Failed to decode video".into(),
+                                            status: toast::Status::Danger,
+                                        })
+                                    }
+                                    youtube::StatusError::VideoOptionError => {
+                                        self.toasts.push(toast::Toast {
+                                            title: "Video Option Error".into(),
+                                            body: "Failed to set video options".into(),
+                                            status: toast::Status::Danger,
+                                        })
+                                    }
+                                    youtube::StatusError::DownloadError => {
+                                        self.toasts.push(toast::Toast {
+                                            title: "Download Error".into(),
+                                            body: "Failed to download video".into(),
+                                            status: toast::Status::Danger,
+                                        })
+                                    }
+                                    youtube::StatusError::ThumbnailError => {
+                                        self.toasts.push(toast::Toast {
+                                            title: "Thumbnail Error".into(),
+                                            body: "Failed to fetch thumbnail".into(),
+                                            status: toast::Status::Danger,
+                                        })
+                                    }
+                                    youtube::StatusError::VideoInfoError => {
+                                        self.toasts.push(toast::Toast {
+                                            title: "Video Info Error".into(),
+                                            body: "Failed to fetch video info".into(),
+                                            status: toast::Status::Danger,
+                                        })
+                                    }
+                                    youtube::StatusError::WriteError => {
+                                        self.toasts.push(toast::Toast {
+                                            title: "Write Error".into(),
+                                            body: "Failed to write video".into(),
                                             status: toast::Status::Danger,
                                         })
                                     }
@@ -371,7 +420,35 @@ impl Pages {
                 }
                 self.controls.update(event).map(UiEvent::ControlsAction)
             }
-            UiEvent::ResultsAction(event) => self.results.update(event).map(UiEvent::ResultsAction),
+            UiEvent::ResultsAction(event) => {
+                match event.clone() {
+                    results::Event::DownloadPressed(_url) => {
+                        self.toasts.push(toast::Toast {
+                            title: "Download".into(),
+                            body: "Your download has started.".into(),
+                            status: toast::Status::Secondary,
+                        });
+                    }
+                    results::Event::DownloadComplete(status) => match status {
+                        Ok(_) => {
+                            self.toasts.push(toast::Toast {
+                                title: "Download".into(),
+                                body: "Your download has completed.".into(),
+                                status: toast::Status::Success,
+                            });
+                        }
+                        Err(_) => {
+                            self.toasts.push(toast::Toast {
+                                title: "Download".into(),
+                                body: "Your download has failed.".into(),
+                                status: toast::Status::Danger,
+                            });
+                        }
+                    },
+                    _ => (),
+                }
+                self.results.update(event).map(UiEvent::ResultsAction)
+            }
         }
     }
 

@@ -10,6 +10,11 @@ use reqwest::Client;
 use tokio::fs::OpenOptions;
 use tokio::io::AsyncWriteExt;
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum RequestError {
+    RequestError,
+}
+
 pub async fn request_thumbnail(url: String) -> Result<Bytes, reqwest::Error> {
     info!("Requesting thumbnail from {}", url);
 
@@ -22,20 +27,24 @@ pub async fn request_thumbnail(url: String) -> Result<Bytes, reqwest::Error> {
     Ok(bytes)
 }
 
-pub async fn request_all_thumbnails(results: Vec<HashMap<String, String>>) -> Vec<Vec<u8>> {
+pub async fn request_all_thumbnails(
+    results: Vec<HashMap<String, String>>,
+) -> Result<Vec<Vec<u8>>, RequestError> {
     let mut thumbnails = Vec::new();
 
     for result in results {
         let url = result.get("thumbnail").unwrap().clone();
 
-        let bytes = request_thumbnail(url).await.unwrap();
+        let bytes = request_thumbnail(url)
+            .await
+            .map_err(|_| RequestError::RequestError)?;
 
         thumbnails.push(bytes.to_vec());
     }
 
     info!("Thumbnails received.");
 
-    thumbnails
+    Ok(thumbnails)
 }
 
 pub async fn request_thumbnails(

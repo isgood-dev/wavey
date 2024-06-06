@@ -1,10 +1,8 @@
-use std::io;
 use std::path::PathBuf;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum FileError {
     DialogClosed,
-    IOFailed(io::ErrorKind),
 }
 
 pub async fn pick_file() -> Result<PathBuf, FileError> {

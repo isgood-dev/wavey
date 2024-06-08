@@ -6,7 +6,7 @@ use std::path::Path;
 use log::info;
 
 fn read_file() -> Result<HashMap<String, String>, std::io::Error> {
-    let file = File::open("./assets/settings.json")?;
+    let file = File::open("./data/settings.json")?;
     let reader = BufReader::new(file);
     let data: HashMap<String, String> = serde_json::from_reader(reader)?;
 
@@ -16,17 +16,17 @@ fn read_file() -> Result<HashMap<String, String>, std::io::Error> {
 }
 
 pub fn check_exists() -> bool {
-    Path::new("./assets/settings.json").exists()
+    Path::new("./data/settings.json").exists()
 }
 
 pub fn create_file() -> Result<(), std::io::Error> {
     let data = r#"{
     "theme": "Dark",
-    "rpc_enabled": false,
-    "ffmpeg_path": "",
+    "rpc_enabled": "false",
+    "ffmpeg_path": ""
 }"#;
 
-    match File::create("./assets/settings.json") {
+    match File::create("./data/settings.json") {
         Ok(f) => {
             let mut file = f;
             file.write_all(data.as_bytes())?;
@@ -52,7 +52,7 @@ pub fn set_theme(theme: &str) -> Result<(), std::io::Error> {
 
     let new_data = serde_json::to_string_pretty(&new_data).unwrap();
 
-    let mut file = File::create("./assets/settings.json")?;
+    let mut file = File::create("./data/settings.json")?;
     file.write_all(new_data.as_bytes())?;
 
     Ok(())
@@ -77,7 +77,7 @@ pub fn set_ffmpeg_path(path: &str) -> Result<(), std::io::Error> {
 
     let new_data = serde_json::to_string_pretty(&new_data).unwrap();
 
-    let mut file = File::create("./assets/settings.json")?;
+    let mut file = File::create("./data/settings.json")?;
     file.write_all(new_data.as_bytes())?;
 
     Ok(())

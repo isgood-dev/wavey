@@ -97,7 +97,7 @@ impl State {
                 self.start();
                 self.install_pressed = true;
 
-                let _ = json::set_ffmpeg_path("./assets/ffmpeg.exe");
+                let _ = json::set_ffmpeg_path("./data/ffmpeg.exe");
 
                 Command::none()
             }

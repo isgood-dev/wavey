@@ -8,8 +8,9 @@ pub fn format_duration(seconds: u64) -> String {
 
 // Truncates a track name and adds an ellipsis if name exceeds 30 characters.
 pub fn trunc_name(name: &str) -> String {
-    if name.len() > 30 {
-        format!("{}...", &name[..30])
+    if name.chars().count() > 40 {
+        let truncated: String = name.chars().take(40).collect();
+        format!("{}...", truncated)
     } else {
         name.to_string()
     }

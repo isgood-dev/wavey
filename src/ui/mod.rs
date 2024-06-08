@@ -576,7 +576,7 @@ fn process_audio_command(command: AudioEvent, sink: &Sink) {
                 sink.stop();
             }
 
-            let file = File::open(format!("./assets/audio/{}.mp3", video_id)).unwrap();
+            let file = File::open(format!("./data/audio/{}.mp3", video_id)).unwrap();
 
             sink.append(rodio::Decoder::new(file).unwrap());
 

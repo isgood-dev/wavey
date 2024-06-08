@@ -33,7 +33,7 @@ pub fn main() -> iced::Result {
         .subscription(Wavey::subscription)
         .window_size((860.0, 680.0))
         .font(include_bytes!("../assets/icons.ttf").as_slice())
-        .font(include_bytes!("../assets/Nunito-Bold.ttf").as_slice())
+        .font(include_bytes!("../assets/font.ttf").as_slice())
         .theme(Wavey::theme)
         .run()
 }

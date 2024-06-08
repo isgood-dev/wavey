@@ -53,7 +53,7 @@ pub async fn request_thumbnails(
     let mut handles = Vec::new();
 
     for video_id in video_ids {
-        let mut dir = tokio::fs::read_dir("./assets/thumbnails")
+        let mut dir = tokio::fs::read_dir("./data/thumbnails")
             .await
             .expect("Failed to read");
 
@@ -70,7 +70,7 @@ pub async fn request_thumbnails(
 
                 handles.push(map);
             } else {
-                let bytes = tokio::fs::read(PathBuf::from("./assets/thumbnails/default.jpg"))
+                let bytes = tokio::fs::read(PathBuf::from("./data/thumbnails/default.jpg"))
                     .await
                     .expect("Failed to read file");
                 let handle = iced::advanced::image::Handle::from_bytes(bytes);
@@ -129,7 +129,7 @@ async fn download_progress<I: Copy>(id: I, state: State) -> ((I, Progress), Stat
                 let file = OpenOptions::new()
                     .append(true)
                     .create(true)
-                    .open("./assets/ffmpeg.exe")
+                    .open("./data/ffmpeg.exe")
                     .await;
 
                 match file {

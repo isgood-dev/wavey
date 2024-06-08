@@ -1,7 +1,7 @@
 appenders:
   file_log:
     kind: file
-    path: "./assets/logs.log"
+    path: "./data/logs.log"
     encoder:
       pattern: "{d(%Y-%m-%d %H:%M:%S)(utc)} - {h({l})}: {m}{n}"
 root:

@@ -39,13 +39,13 @@ struct MusicPlaylist {
 
 // Pretty self-explanatory. Checks if the database file exists.
 pub fn check_database_exists() -> bool {
-    Path::new("./assets/data.db").exists()
+    Path::new("./data/data.db").exists()
 }
 
 // Creates the database tables. Called on startup if the database doesn't already exist.
 pub fn create_database_tables() -> Result<(), DatabaseError> {
     info!("Creating database tables.");
-    let conn = Connection::open("./assets/data.db")?;
+    let conn = Connection::open("./data/data.db")?;
 
     conn.execute(
         "CREATE TABLE music (
@@ -82,7 +82,7 @@ pub fn create_database_tables() -> Result<(), DatabaseError> {
 // downloading/importing new audio tracks.
 pub fn add_music(video_data: HashMap<String, String>) -> Result<(), DatabaseError> {
     info!("Adding music to database.");
-    let conn = Connection::open("./assets/data.db")?;
+    let conn = Connection::open("./data/data.db")?;
 
     let video_id = video_data.get("video_id").unwrap();
     let extension = video_data.get("format_type").unwrap();
@@ -101,7 +101,7 @@ pub fn add_music(video_data: HashMap<String, String>) -> Result<(), DatabaseErro
 pub fn get_music_from_id(id: i32) -> Result<HashMap<String, String>, DatabaseError> {
     info!("Requesting music data from ID.");
 
-    let conn = Connection::open("./assets/data.db")?;
+    let conn = Connection::open("./data/data.db")?;
 
     let mut statement = conn
         .prepare("SELECT * FROM music WHERE music_id = ?1")
@@ -132,7 +132,7 @@ pub fn get_music_from_id(id: i32) -> Result<HashMap<String, String>, DatabaseErr
 
 pub fn add_playlist(name: String) -> Result<(), DatabaseError> {
     info!("Adding playlist to database.");
-    let conn = Connection::open("./assets/data.db")?;
+    let conn = Connection::open("./data/data.db")?;
 
     conn.execute("INSERT INTO playlists (name) VALUES (?1)", [name])?;
 
@@ -142,7 +142,7 @@ pub fn add_playlist(name: String) -> Result<(), DatabaseError> {
 pub fn get_all_playlists() -> Vec<HashMap<String, String>> {
     info!("Requesting all playlists.");
 
-    let conn = Connection::open("./assets/data.db").unwrap();
+    let conn = Connection::open("./data/data.db").unwrap();
 
     let mut statement = conn.prepare("SELECT * FROM playlists").unwrap();
 
@@ -177,7 +177,7 @@ pub fn get_all_playlists() -> Vec<HashMap<String, String>> {
 // This is called on app startup and is not checked again.
 pub fn verify_data_integrity() -> Result<(), DatabaseError> {
     info!("Verifying database integrity.");
-    let conn = Connection::open("./assets/data.db")?;
+    let conn = Connection::open("./data/data.db")?;
 
     let mut statement = conn.prepare("SELECT * FROM music").unwrap();
     let music_iter = statement
@@ -194,7 +194,7 @@ pub fn verify_data_integrity() -> Result<(), DatabaseError> {
 
     for music in music_iter {
         let music = music.unwrap();
-        let path_str = format!("./assets/audio/{}.{}", music.video_id, music.extension);
+        let path_str = format!("./data/audio/{}.{}", music.video_id, music.extension);
         let path = Path::new(&path_str);
 
         if !path.exists() {
@@ -214,7 +214,7 @@ pub fn verify_data_integrity() -> Result<(), DatabaseError> {
 pub fn get_all_music() -> Vec<HashMap<String, String>> {
     info!("Requesting all music data.");
 
-    let conn = Connection::open("./assets/data.db").unwrap();
+    let conn = Connection::open("./data/data.db").unwrap();
 
     let mut statement = conn.prepare("SELECT * FROM music").unwrap();
     let music_iter = statement
@@ -250,11 +250,11 @@ pub fn get_all_music() -> Vec<HashMap<String, String>> {
 pub fn delete_music(video_id: String) -> Result<(), DatabaseError> {
     info!("Deleting track from database.");
 
-    let conn = Connection::open("./assets/data.db")?;
+    let conn = Connection::open("./data/data.db")?;
 
     conn.execute("DELETE FROM music WHERE video_id = ?1", [&video_id])?;
 
-    let path_str = format!("./assets/audio/{}.{}", video_id, "mp3");
+    let path_str = format!("./data/audio/{}.{}", video_id, "mp3");
     let path = Path::new(&path_str);
     std::fs::remove_file(path).unwrap();
 
@@ -266,7 +266,7 @@ pub fn edit_display_name(video_id: String, new_display_name: String) -> Result<(
         "Editing display name for {} to: {}",
         video_id, new_display_name
     );
-    let conn = Connection::open("./assets/data.db")?;
+    let conn = Connection::open("./data/data.db")?;
 
     conn.execute(
         "UPDATE music SET display_name = ?1 WHERE video_id = ?2",
@@ -279,7 +279,7 @@ pub fn edit_display_name(video_id: String, new_display_name: String) -> Result<(
 pub fn get_playlist_tracks(playlist_id: i32) -> Vec<HashMap<String, String>> {
     info!("Requesting playlist tracks.");
 
-    let conn = Connection::open("./assets/data.db").unwrap();
+    let conn = Connection::open("./data/data.db").unwrap();
 
     let mut statement = conn
         .prepare("SELECT * FROM music_playlists WHERE playlist_id = ?1")
@@ -322,7 +322,7 @@ pub fn get_playlist_tracks(playlist_id: i32) -> Vec<HashMap<String, String>> {
 pub fn add_music_playlist(video_id: String, playlist_id: i32) -> Result<(), DatabaseError> {
     info!("Adding track to playlist.");
 
-    let conn = Connection::open("./assets/data.db")?;
+    let conn = Connection::open("./data/data.db")?;
 
     let mut statement = conn
         .prepare("SELECT music_id FROM music WHERE video_id = ?1")

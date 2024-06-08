@@ -29,13 +29,13 @@ pub enum StatusError {
 // we need to use FFmpeg to convert to `mp3` codec.
 // Alternatives would be nice to avoid using FFmpeg since it's a large dependancy.
 async fn ffmpeg_convert_codec(video_id: String) -> Result<bool, StatusError> {
-    let in_file = format!("./assets/audio/{}.webm", video_id);
-    let out_file = format!("./assets/audio/{}.mp3", video_id);
+    let in_file = format!("./data/audio/{}.webm", video_id);
+    let out_file = format!("./data/audio/{}.mp3", video_id);
 
     let cmd_dest = if cfg!(unix) {
         String::from("ffmpeg")
     } else {
-        String::from("./assets/ffmpeg")
+        String::from("./data/ffmpeg")
     };
 
     let output = Command::new(cmd_dest)
@@ -110,7 +110,7 @@ pub async fn download_from_url(url: String) -> Result<(), StatusError> {
         .map_err(|_| StatusError::VideoInfoError)?;
 
     let path_str = format!(
-        "./assets/audio/{}.webm",
+        "./data/audio/{}.webm",
         video_info.video_details.video_id.as_str()
     );
     let path = Path::new(&path_str);
@@ -143,7 +143,7 @@ pub async fn download_from_url(url: String) -> Result<(), StatusError> {
         .await
         .map_err(|_| StatusError::ThumbnailError)?;
 
-    let thumbnail_path = format!("./assets/thumbnails/{}.jpg", video_id);
+    let thumbnail_path = format!("./data/thumbnails/{}.jpg", video_id);
     fs::write(thumbnail_path, downloaded)
         .await
         .map_err(|_| StatusError::WriteError)?;

@@ -141,12 +141,12 @@ impl State {
             );
         }
 
-        let content = container(scrollable(
-            col.spacing(40)
-                .align_items(Alignment::Start)
-                .width(Length::Fill),
-        ))
-        .padding(10);
+        let content = container(column![
+            text("Your Playlists").size(22),
+            scrollable(col.spacing(25).align_items(Alignment::Center))
+        ].align_items(Alignment::Center).spacing(10))
+        .padding(10)
+        .center_x(Length::Fill);
 
         content.into()
     }

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use super::components::assets;
+use super::components::style;
 use crate::core::db;
 use crate::core::format;
 use crate::core::request;
@@ -298,22 +299,21 @@ impl State {
         } else if self.show_add_modal {
             let playlists = db::get_all_playlists();
 
-            let mut col = column![].spacing(10);
+            let mut col = column![].spacing(10).align_items(Alignment::Center);
 
             for playlist in playlists {
                 let id = playlist.get("id").unwrap().parse::<i32>().unwrap().clone();
                 let name = playlist.get("name").unwrap().clone();
 
-                col = col.push(button(text(name)).on_press(Event::AddToPlaylist(
-                    self.active_video_id.clone().unwrap(),
-                    id,
-                )));
+                col = col.push(button(text(name)).style(style::sidebar_button).on_press(
+                    Event::AddToPlaylist(self.active_video_id.clone().unwrap(), id),
+                ));
             }
 
             let add = container(
                 column![
                     text("Add to Playlist").size(24),
-                    column![text("Select a playlist:"), col]
+                    column![text("Select a playlist:"), scrollable(col)]
                         .align_items(Alignment::Center)
                         .spacing(10),
                 ]
@@ -321,6 +321,7 @@ impl State {
                 .spacing(20),
             )
             .style(container::rounded_box)
+            .center_x(Length::Fill)
             .width(300);
 
             assets::modal(content, add, Event::HidePlaylistModal)

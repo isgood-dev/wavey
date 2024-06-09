@@ -5,8 +5,8 @@ Thank you for considering to contribute to this repository!
 In the spirit of open-source coding, we encourage contributions. Any help in making wavey better is appreciated.
 
 ## How to contribute
-* Create a [pull request](https://github.com/isgood-development/wavey/pulls)
-* Create an [issue](https://github.com/isgood-development/wavey/issues/new)
+* Create a [pull request](https://github.com/isgood-dev/wavey/pulls)
+* Create an [issue](https://github.com/isgood-dev/wavey/issues/new)
 
 ## Guidelines to contribute
 To ensure a level of consistency, please do the following when making contributions where applicable:

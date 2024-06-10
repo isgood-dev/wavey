@@ -8,7 +8,7 @@
 </div>
 
 ## About
-Wavey is a music player that lets you play music (or any audio) onto your device. It has many features that make your experience better! Some of the noteable features we have are:
+Wavey is a music player that lets you play music (or any audio) onto your device. It has many features to make your experience better! Some noteable feature are:
 
 * Easy-to-use user interface
 * Music playback
@@ -21,8 +21,6 @@ Wavey is a music player that lets you play music (or any audio) onto your device
 * Track name editing
 * Many themes (there's a lot!)
 * User-friendly window adjustment
-
-![](https://i.imgur.com/CeK3wEi)
 
 ## Install
 This section is being worked on to make sure that wavey is as easy to install as possible. That said, the only way to install it currently is to build it from source.
@@ -43,7 +41,7 @@ Don't forget the `--release`! This tells the compiler to optimize the build and 
 
 
 ## Roadmap
-Wavey is far from completed. It is constantly evolving and is actively maintained. As such, we have a progress board for you to see what we would like add to wavey.
+Wavey is far from complete. It is constantly evolving and actively maintained. As such, we have a progress board for you to see what we would like add to wavey.
 
 Link: https://github.com/orgs/isgood-dev/projects/3
 

@@ -1,4 +1,4 @@
-use super::assets;
+use super::helpers;
 use super::style;
 use crate::core::format;
 
@@ -127,15 +127,15 @@ impl State {
         let thumbnail: Element<Event>;
 
         if self.is_paused {
-            pause_or_play = assets::action(assets::play_icon(), "Play", Some(Event::PlayAction));
+            pause_or_play = helpers::action(helpers::play_icon(), "Play", Some(Event::PlayAction));
         } else {
-            pause_or_play = assets::action(assets::pause_icon(), "Pause", Some(Event::PauseAction));
+            pause_or_play = helpers::action(helpers::pause_icon(), "Pause", Some(Event::PauseAction));
         }
 
         if self.volume == 0.0 {
-            volume_icon = assets::action(assets::volume_off(), "Unmute", Some(Event::Mute));
+            volume_icon = helpers::action(helpers::volume_off(), "Unmute", Some(Event::Mute));
         } else {
-            volume_icon = assets::action(assets::volume_on(), "Mute", Some(Event::Unmute));
+            volume_icon = helpers::action(helpers::volume_on(), "Mute", Some(Event::Unmute));
         }
 
         if self.active_thumbnail_handle.is_none() {
@@ -150,14 +150,14 @@ impl State {
                 column![
                     text(&self.now_playing).size(14),
                     row![
-                        assets::action(
-                            assets::backward_icon(),
+                        helpers::action(
+                            helpers::backward_icon(),
                             "Back",
                             Some(Event::BackwardPressed)
                         ),
                         pause_or_play,
-                        assets::action(
-                            assets::forward_icon(),
+                        helpers::action(
+                            helpers::forward_icon(),
                             "Forward",
                             Some(Event::ForwardPressed)
                         ),

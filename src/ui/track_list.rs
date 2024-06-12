@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::components::assets;
+use super::components::helpers;
 use super::components::style;
 use crate::core::db;
 use crate::core::format;
@@ -196,8 +196,8 @@ impl State {
                     .unwrap();
 
                 row = row![
-                    assets::action(
-                        assets::play_icon(),
+                    helpers::action(
+                        helpers::play_icon(),
                         display_name,
                         Some(Event::PlayTrack(
                             video_id.clone(),
@@ -206,19 +206,19 @@ impl State {
                             Some(thumbnail_handle.clone()),
                         )),
                     ),
-                    assets::thumbnail(thumbnail_handle.clone()),
+                    helpers::thumbnail(thumbnail_handle.clone()),
                     Space::with_width(10),
                     text(format::trunc_name(display_name.clone().as_str())),
                     horizontal_space(),
                     text(formatted_duration.clone()),
                     Space::with_width(10),
-                    assets::action(
-                        assets::edit_icon(),
+                    helpers::action(
+                        helpers::edit_icon(),
                         "Edit",
                         Some(Event::ShowEditModal(video_id.clone(), display_name.clone()))
                     ),
-                    assets::action(
-                        assets::add_icon(),
+                    helpers::action(
+                        helpers::add_icon(),
                         "Add to playlist",
                         Some(Event::ShowAddModal(video_id.clone()))
                     ),
@@ -229,8 +229,8 @@ impl State {
                 .into();
             } else {
                 row = row![
-                    assets::action(
-                        assets::play_icon(),
+                    helpers::action(
+                        helpers::play_icon(),
                         display_name,
                         Some(Event::PlayTrack(
                             video_id.clone(),
@@ -245,8 +245,8 @@ impl State {
                     horizontal_space(),
                     text(formatted_duration.clone()),
                     Space::with_width(10),
-                    assets::action(
-                        assets::edit_icon(),
+                    helpers::action(
+                        helpers::edit_icon(),
                         "Edit",
                         Some(Event::ShowEditModal(video_id.clone(), display_name.clone()))
                     ),
@@ -295,7 +295,7 @@ impl State {
             .style(container::rounded_box)
             .width(300);
 
-            assets::modal(content, edit, Event::HideEditModal)
+            helpers::modal(content, edit, Event::HideEditModal)
         } else if self.show_add_modal {
             let playlists = db::get_all_playlists();
 
@@ -324,7 +324,7 @@ impl State {
             .center_x(Length::Fill)
             .width(300);
 
-            assets::modal(content, add, Event::HidePlaylistModal)
+            helpers::modal(content, add, Event::HidePlaylistModal)
         } else {
             content.into()
         }

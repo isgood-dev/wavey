@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::components::assets;
+use super::components::helpers;
 use crate::core::request;
 use crate::core::youtube;
 
@@ -79,8 +79,8 @@ impl State {
                     result.get("channel").unwrap()
                 );
                 let row = row![
-                    assets::action(
-                        assets::download_icon(),
+                    helpers::action(
+                        helpers::download_icon(),
                         "Download",
                         Some(Event::DownloadPressed(
                             result.get("video_id").unwrap().to_string()

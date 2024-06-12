@@ -17,3 +17,8 @@ serde_json = "1.0.117"
 log = "0.4"
 log4rs = "1"
 rfd = "0.12"
+
+[workspace]
+members = [
+    "updater"
+]

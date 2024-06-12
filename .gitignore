@@ -3,6 +3,7 @@
 **.log
 **.db
 **.exe
+**.7z
 test.py
 **/__pycache__
 /target

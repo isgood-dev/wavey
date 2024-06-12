@@ -3,7 +3,7 @@ use iced::{
     Command,
 };
 
-use super::{assets, style};
+use super::{helpers, style};
 
 pub struct State {}
 
@@ -11,6 +11,7 @@ pub struct State {}
 pub enum Event {
     CollapseSidebar,
     CheckUpdates,
+    UpdaterStarted(()),
 }
 
 impl State {
@@ -21,20 +22,21 @@ impl State {
     pub fn update(&mut self, message: Event) -> Command<Event> {
         match message {
             Event::CollapseSidebar => Command::none(),
-            Event::CheckUpdates => Command::none(),
+            Event::CheckUpdates => Command::perform(start_updater(), Event::UpdaterStarted),
+            Event::UpdaterStarted(_) => Command::none(),
         }
     }
 
     pub fn view(&self) -> iced::Element<Event> {
         let content = container(row![
-            assets::action(
-                assets::menu_icon(),
+            helpers::action(
+                helpers::menu_icon(),
                 "Collapse",
                 Some(Event::CollapseSidebar)
             ),
             horizontal_space(),
-            assets::action(
-                assets::update_icon(),
+            helpers::action(
+                helpers::update_icon(),
                 "Check for updates",
                 Some(Event::CheckUpdates)
             ),
@@ -49,5 +51,22 @@ impl State {
 impl Default for State {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+async fn start_updater() {
+    let output = tokio::process::Command::new("updater").output().await;
+
+    match output {
+        Ok(output) => {
+            if output.status.success() {
+                println!("Update successful");
+            } else {
+                println!("Update failed");
+            }
+        }
+        Err(_) => {
+            println!("Update failed");
+        }
     }
 }

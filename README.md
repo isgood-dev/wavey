@@ -8,7 +8,7 @@
 </div>
 
 ## About
-Wavey is a music player that lets you play music (or any audio) onto your device. It has many features to make your experience better! Some noteable feature are:
+Wavey is a music player that lets you play music (or any audio) onto your device. It has many features to make your experience better! Some noteable features are:
 
 * Easy-to-use user interface
 * Music playback

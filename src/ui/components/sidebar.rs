@@ -66,8 +66,16 @@ impl State {
         if self.collapsed {
             container(
                 column![
-                    helpers::action(helpers::home_icon(), "Home Page", Some(Event::OpenTrackList)),
-                    helpers::action(helpers::list_icon(), "Playlists", Some(Event::OpenPlaylists)),
+                    helpers::action(
+                        helpers::home_icon(),
+                        "Home Page",
+                        Some(Event::OpenTrackList)
+                    ),
+                    helpers::action(
+                        helpers::list_icon(),
+                        "Playlists",
+                        Some(Event::OpenPlaylists)
+                    ),
                     helpers::action(
                         helpers::download_icon(),
                         "Add Music",

@@ -129,7 +129,8 @@ impl State {
         if self.is_paused {
             pause_or_play = helpers::action(helpers::play_icon(), "Play", Some(Event::PlayAction));
         } else {
-            pause_or_play = helpers::action(helpers::pause_icon(), "Pause", Some(Event::PauseAction));
+            pause_or_play =
+                helpers::action(helpers::pause_icon(), "Pause", Some(Event::PauseAction));
         }
 
         if self.volume == 0.0 {

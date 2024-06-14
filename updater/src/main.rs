@@ -13,6 +13,9 @@ fn main() -> iced::Result {
 
 struct Updater {
     complete: bool,
+    versions_match: bool,
+    error: bool,
+    error_type: Option<UpdateError>,
 }
 
 #[derive(Debug, Clone)]
@@ -28,17 +31,30 @@ impl Updater {
             Message::Finished(status) => {
                 match status {
                     Ok(UpdateState::VersionMatch) => {
-                        println!("Version match, no update needed.");
+                        self.versions_match = true;
                     }
                     Ok(UpdateState::Completed) => {
-                        println!("Update completed.");
+                        self.complete = true;
                     }
-                    Err(e) => {
-                        println!("Update failed: {:?}", e);
+                    Err(error) => {
+                        self.error = true;
+
+                        match error {
+                            UpdateError::ReqwestError => {
+                                self.error_type = Some(UpdateError::ReqwestError);
+                            }
+                            UpdateError::IoError => {
+                                self.error_type = Some(UpdateError::IoError);
+                            }
+                            UpdateError::WriteBytesFailed => {
+                                self.error_type = Some(UpdateError::WriteBytesFailed);
+                            }
+                            UpdateError::ExtractFailed => {
+                                self.error_type = Some(UpdateError::ExtractFailed);
+                            }
+                        }
                     }
                 }
-
-                self.complete = true;
 
                 Command::none()
             }
@@ -46,6 +62,41 @@ impl Updater {
     }
 
     pub fn view(&self) -> iced::Element<Message> {
+        if self.versions_match {
+            return container(
+                column![
+                    text("No updates available").size(24),
+                    text("Your version of wavey is the latest."),
+                ]
+                .align_items(Alignment::Center)
+                .spacing(20),
+            )
+            .center_x(Length::Fill)
+            .center_y(Length::Fill)
+            .into();
+        }
+
+        if self.error {
+            return container(
+                column![
+                    text("Update failed").size(24),
+                    text("An error occurred while updating the app."),
+                    text(match self.error_type {
+                        Some(UpdateError::ReqwestError) => "An error occured trying to retriveing the update package. Are you connected to the internet?",
+                        Some(UpdateError::IoError) => "An IO error occurred.",
+                        Some(UpdateError::WriteBytesFailed) => "Failed to write bytes to disk.",
+                        Some(UpdateError::ExtractFailed) => "Failed to extract archive.",
+                        None => "Unknown error",
+                    }),
+                ]
+                .align_items(Alignment::Center)
+                .spacing(20),
+            )
+            .center_x(Length::Fill)
+            .center_y(Length::Fill)
+            .into();
+        }
+
         if self.complete {
             return container(
                 column![
@@ -77,22 +128,29 @@ impl Updater {
 
 impl Default for Updater {
     fn default() -> Self {
-        Self { complete: false }
+        Self {
+            complete: false,
+            versions_match: false,
+            error: false,
+            error_type: None,
+        }
     }
 }
 
 async fn start_update() -> Result<UpdateState, UpdateError> {
     println!("Starting update");
 
-    // let local_version = get_local_version().await;
-    // let remote_version = get_remote_version().await.unwrap();
+    let local_version = get_local_version().await;
+    let remote_version = get_remote_version().await.unwrap();
 
-    // let url = format!(
-    //     "https://github.com/isgood-dev/wavey/releases/download/{}/update-package.7z",
-    //     remote_version
-    // );
+    let url = format!(
+        "https://github.com/isgood-dev/wavey/releases/download/{}/update-package.7z",
+        remote_version
+    );
 
-    let url = "https://github.com/isgood-dev/wavey/releases/download/v4.0.0/update-package.7z";
+    if local_version == remote_version {
+        return Ok(UpdateState::VersionMatch);
+    }
 
     let response = reqwest::get(url)
         .await
@@ -137,38 +195,6 @@ async fn write_temp_bytes(bytes: Vec<u8>) -> Result<(), std::io::Error> {
     Ok(())
 }
 
-async fn clear_root() -> Result<(), UpdateError> {
-    let mut dir_entries = fs::read_dir("./")
-        .await
-        .map_err(|_| UpdateError::ReadRootError)?;
-
-    println!("{:?}", dir_entries);
-
-    while let Some(entry) = dir_entries
-        .next_entry()
-        .await
-        .map_err(|_| UpdateError::ReadRootError)?
-    {
-        if entry.file_name() != "data" && entry.file_name() != "temp" {
-            println!("Removing {:?}", entry.path());
-            let metadata = fs::metadata(&entry.path())
-                .await
-                .map_err(|_| UpdateError::IoError)?;
-            if metadata.is_dir() {
-                fs::remove_dir_all(entry.path())
-                    .await
-                    .map_err(|_| UpdateError::IoError)?;
-            } else {
-                fs::remove_file(entry.path())
-                    .await
-                    .map_err(|_| UpdateError::IoError)?;
-            }
-        }
-    }
-
-    Ok(())
-}
-
 async fn extract_archive() -> Result<(), UpdateError> {
     let output = tokio::process::Command::new("7z")
         .arg("x")
@@ -195,7 +221,7 @@ async fn get_local_version() -> String {
     tokio::fs::read("../VERSION")
         .await
         .map(|v| String::from_utf8_lossy(&v).to_string())
-        .unwrap_or_else(|_| "0.0.0".to_string())
+        .unwrap_or_else(|_| "v0.0.0".to_string())
 }
 
 async fn get_remote_version() -> Result<String, reqwest::Error> {
@@ -220,5 +246,4 @@ enum UpdateError {
     IoError,
     WriteBytesFailed,
     ExtractFailed,
-    ReadRootError,
 }

@@ -55,7 +55,20 @@ impl Default for State {
 }
 
 async fn start_updater() {
-    let output = tokio::process::Command::new("updater").output().await;
+    // either get executable from release folder or in root
+    let release_path = "./target/release/updater";
+    let root_path = "./updater";
+
+    let executable = if std::path::Path::new(release_path).exists() {
+        release_path
+    } else if std::path::Path::new(root_path).exists() {
+        root_path
+    } else {
+        println!("No updater executable found");
+        return;
+    };
+
+    let output = tokio::process::Command::new(executable).output().await;
 
     match output {
         Ok(output) => {

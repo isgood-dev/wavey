@@ -1,1 +1,1 @@
-This directory is where all audio files will be stored. Once you've cloned the GitHub repo, you may delete this file.
+This is where audio files are stored and read.

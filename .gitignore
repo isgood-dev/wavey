@@ -1,8 +1,9 @@
-**.mp3
 **.part
-**.exe
 **.json
 **.log
+**.db
+**.exe
+**.7z
 test.py
 **/__pycache__
 /target

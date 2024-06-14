@@ -1,7 +1,0 @@
-moviepy
-youtube-search-python
-mutagen
-pyglet
-pytube
-youtube-dl
-requests

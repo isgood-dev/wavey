@@ -4,7 +4,7 @@ use crate::core::youtube::{self, StatusError};
 
 use iced::{
     widget::{button, column, container, scrollable, text, text_input},
-    Alignment, Command, Length,
+    Alignment, Task, Length,
 };
 
 pub struct State {
@@ -23,14 +23,14 @@ pub enum Event {
 }
 
 impl State {
-    pub fn update(&mut self, message: Event) -> Command<Event> {
+    pub fn update(&mut self, message: Event) -> Task<Event> {
         match message {
-            Event::DownloadQueryReceived(Ok(_data)) => Command::none(),
-            Event::DownloadQueryReceived(Err(_)) => Command::none(),
+            Event::DownloadQueryReceived(Ok(_data)) => Task::none(),
+            Event::DownloadQueryReceived(Err(_)) => Task::none(),
             Event::Search => {
                 let query = self.title.clone();
 
-                Command::perform(
+                Task::perform(
                     youtube::get_search_results(query),
                     Event::DownloadQueryReceived,
                 )
@@ -38,22 +38,22 @@ impl State {
             Event::SongNameInput(value) => {
                 self.title = value;
 
-                Command::none()
+                Task::none()
             }
 
             Event::YouTubeURLInput(value) => {
                 self.yt_url = value;
 
-                Command::none()
+                Task::none()
             }
 
             Event::Download => {
                 let yt_url = self.yt_url.clone();
 
-                Command::perform(youtube::download_from_url(yt_url), Event::DownloadResult)
+                Task::perform(youtube::download_from_url(yt_url), Event::DownloadResult)
             }
 
-            Event::DownloadResult(_status) => Command::none(),
+            Event::DownloadResult(_status) => Task::none(),
         }
     }
 

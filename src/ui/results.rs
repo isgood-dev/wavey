@@ -5,7 +5,7 @@ use crate::core::request;
 use crate::core::youtube;
 
 use iced::widget::{column, container, image, row, scrollable, text};
-use iced::{Alignment, Command, Length};
+use iced::{Alignment, Task, Length};
 
 pub struct State {
     loading: bool,
@@ -30,16 +30,16 @@ impl State {
         }
     }
 
-    pub fn update(&mut self, message: Event) -> Command<Event> {
+    pub fn update(&mut self, message: Event) -> Task<Event> {
         match message {
-            Event::DownloadComplete(_status) => Command::none(),
+            Event::DownloadComplete(_status) => Task::none(),
             Event::DownloadPressed(url) => {
-                Command::perform(youtube::download_from_url(url), Event::DownloadComplete)
+                Task::perform(youtube::download_from_url(url), Event::DownloadComplete)
             }
             Event::PopulateResults(data) => {
                 self.results = data.clone();
 
-                Command::perform(
+                Task::perform(
                     request::request_all_thumbnails(data),
                     Event::ThumbnailReceived,
                 )
@@ -58,7 +58,7 @@ impl State {
 
                 self.loading = false;
 
-                Command::none()
+                Task::none()
             }
         }
     }

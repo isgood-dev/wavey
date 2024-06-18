@@ -1,6 +1,6 @@
 use iced::{
     widget::{button, column, container, text},
-    Alignment, Command, Length,
+    Alignment, Task, Length,
 };
 
 use tokio::fs;
@@ -25,9 +25,9 @@ enum Message {
 }
 
 impl Updater {
-    pub fn update(&mut self, message: Message) -> Command<Message> {
+    pub fn update(&mut self, message: Message) -> Task<Message> {
         match message {
-            Message::BeginPressed => Command::perform(start_update(), Message::Finished),
+            Message::BeginPressed => Task::perform(start_update(), Message::Finished),
             Message::Finished(status) => {
                 match status {
                     Ok(UpdateState::VersionMatch) => {
@@ -56,7 +56,7 @@ impl Updater {
                     }
                 }
 
-                Command::none()
+                Task::none()
             }
         }
     }

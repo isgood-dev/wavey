@@ -2,7 +2,7 @@ use super::components::theme;
 use crate::core::json;
 
 use iced::widget::{column, container, pick_list, row, scrollable, text};
-use iced::{Alignment, Command, Length};
+use iced::{Alignment, Task, Length};
 
 pub struct State {
     themes: theme::Themes,
@@ -14,14 +14,14 @@ pub enum Event {
 }
 
 impl State {
-    pub fn update(&mut self, message: Event) -> Command<Event> {
+    pub fn update(&mut self, message: Event) -> Task<Event> {
         match message {
             Event::ThemeSelected(theme) => {
                 self.themes = theme;
 
                 json::set_theme(theme.to_string().as_str()).unwrap();
 
-                Command::none()
+                Task::none()
             }
         }
     }

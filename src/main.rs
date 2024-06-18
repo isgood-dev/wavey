@@ -1,7 +1,7 @@
 use core::db;
 use core::json;
 
-use iced::{window, Command, Element, Font, Settings, Subscription};
+use iced::{window, Task, Element, Font, Settings, Subscription};
 
 use image::GenericImageView;
 use log::info;
@@ -71,7 +71,7 @@ impl Wavey {
         }
     }
 
-    fn update(&mut self, message: Message) -> Command<Message> {
+    fn update(&mut self, message: Message) -> Task<Message> {
         match message {
             Message::Pages(x) => self.pages.update(x).map(Message::Pages),
         }

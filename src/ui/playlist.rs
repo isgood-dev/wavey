@@ -4,7 +4,7 @@ use super::components::style;
 use crate::core::format;
 
 use iced::widget::{button, column, container, row, scrollable, text, text_input};
-use iced::{Alignment, Command, Length};
+use iced::{Alignment, Task, Length};
 
 use crate::core::db;
 
@@ -26,7 +26,7 @@ pub enum Event {
 }
 
 impl State {
-    pub fn update(&mut self, message: Event) -> Command<Event> {
+    pub fn update(&mut self, message: Event) -> Task<Event> {
         match message {
             Event::OpenPlaylist(index) => {
                 self.playlist_view = true;
@@ -39,13 +39,13 @@ impl State {
                         .unwrap(),
                 );
 
-                Command::none()
+                Task::none()
             }
             Event::OpenInListMode => {
                 self.playlist_view = false;
                 self.create_playlist_mode = false;
 
-                Command::none()
+                Task::none()
             }
 
             Event::CreatePlaylist => {
@@ -56,18 +56,18 @@ impl State {
 
                 self.playlists = db::get_all_playlists();
 
-                Command::none()
+                Task::none()
             }
             Event::OpenInCreateMode => {
                 self.create_playlist_mode = true;
 
-                Command::none()
+                Task::none()
             }
 
             Event::PlaylistNameInput(value) => {
                 self.playlist_name_input = value;
 
-                Command::none()
+                Task::none()
             }
         }
     }

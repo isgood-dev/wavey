@@ -8,10 +8,10 @@ use iced::advanced::renderer;
 use iced::advanced::widget::{self, Operation, Tree};
 use iced::advanced::{Clipboard, Shell, Widget};
 use iced::event::{self, Event};
+use iced::mouse;
 use iced::theme;
 use iced::widget::{button, column, container, horizontal_rule, horizontal_space, row, text};
 use iced::window;
-use iced::{mouse, Background, Color};
 use iced::{Alignment, Element, Length, Point, Rectangle, Renderer, Size, Theme, Vector};
 
 pub const DEFAULT_TIMEOUT: u64 = 5;
@@ -73,14 +73,7 @@ where
                         row![
                             text(toast.title.as_str()),
                             horizontal_space(),
-                            button("X")
-                                .on_press((on_close)(index))
-                                .style(|_theme, _status| button::Style {
-                                    background: Some(Background::Color(Color::TRANSPARENT)),
-                                    text_color: Color::WHITE,
-                                    ..button::Style::default()
-                                })
-                                .padding(3),
+                            button("X").on_press((on_close)(index)).padding(3),
                         ]
                         .align_items(Alignment::Center)
                     )
@@ -180,7 +173,7 @@ impl<'a, Message> Widget<Message, Theme, Renderer> for Manager<'a, Message> {
         state: &mut Tree,
         layout: Layout<'_>,
         renderer: &Renderer,
-        operation: &mut dyn Operation<Message>,
+        operation: &mut dyn Operation<()>,
     ) {
         operation.container(None, layout.bounds(), &mut |operation| {
             self.content
@@ -409,7 +402,7 @@ impl<'a, 'b, Message> overlay::Overlay<Message, Theme, Renderer> for Overlay<'a,
         &mut self,
         layout: Layout<'_>,
         renderer: &Renderer,
-        operation: &mut dyn widget::Operation<Message>,
+        operation: &mut dyn widget::Operation<()>,
     ) {
         operation.container(None, layout.bounds(), &mut |operation| {
             self.toasts

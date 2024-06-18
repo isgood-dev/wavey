@@ -11,7 +11,7 @@ use components::theme;
 use components::toast;
 
 use iced::widget::{column, row};
-use iced::{Command, Subscription, Theme};
+use iced::{Task, Subscription, Theme};
 
 use rodio::{OutputStream, Sink};
 
@@ -142,12 +142,12 @@ impl Pages {
             track_list_loaded: false,
         }
     }
-    pub fn update(&mut self, message: UiEvent) -> Command<UiEvent> {
+    pub fn update(&mut self, message: UiEvent) -> Task<UiEvent> {
         match message {
             UiEvent::NavAction(event) => {
                 match event {
                     components::nav::Event::CollapseSidebar => {
-                        return Command::batch(vec![
+                        return Task::batch(vec![
                             self.sidebar
                                 .update(sidebar::Event::CollapseToggle)
                                 .map(UiEvent::SidebarAction),
@@ -168,7 +168,7 @@ impl Pages {
 
                 match event {
                     playlist::Event::CreatePlaylist => {
-                        return Command::batch(vec![
+                        return Task::batch(vec![
                             playlist_command,
                             self.sidebar
                                 .update(sidebar::Event::UpdatePlaylists)
@@ -183,7 +183,7 @@ impl Pages {
             UiEvent::CloseToast(index) => {
                 self.toasts.remove(index);
 
-                Command::none()
+                Task::none()
             }
 
             UiEvent::FFmpegAction(event) => {
@@ -284,7 +284,7 @@ impl Pages {
                             }
                         };
 
-                        Command::batch(vec![
+                        Task::batch(vec![
                             self.results
                                 .update(results::Event::PopulateResults(data))
                                 .map(UiEvent::ResultsAction),
@@ -303,10 +303,10 @@ impl Pages {
                 self.settings.update(event).map(UiEvent::SettingsAction)
             }
             UiEvent::TrackListAction(ref event) => {
-                let track_list_command: Command<UiEvent>;
+                let track_list_command: Task<UiEvent>;
 
                 if !self.track_list_loaded {
-                    track_list_command = Command::batch(vec![
+                    track_list_command = Task::batch(vec![
                         self.track_list
                             .update(track_list::Event::GetThumbnailHandles)
                             .map(UiEvent::TrackListAction),
@@ -327,7 +327,7 @@ impl Pages {
                             .send(AudioEvent::Queue(video_id.clone().to_string(), true))
                             .expect("Failed to send play command");
 
-                        Command::batch(vec![
+                        Task::batch(vec![
                             self.controls
                                 .update(components::control_bar::Event::InitiatePlay(
                                     display_name.to_string(),

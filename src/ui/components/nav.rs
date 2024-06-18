@@ -1,6 +1,6 @@
 use iced::{
     widget::{container, horizontal_space, row, Space},
-    Command,
+    Task,
 };
 
 use super::{helpers, style};
@@ -19,11 +19,11 @@ impl State {
         Self {}
     }
 
-    pub fn update(&mut self, message: Event) -> Command<Event> {
+    pub fn update(&mut self, message: Event) -> Task<Event> {
         match message {
-            Event::CollapseSidebar => Command::none(),
-            Event::CheckUpdates => Command::perform(start_updater(), Event::UpdaterStarted),
-            Event::UpdaterStarted(_) => Command::none(),
+            Event::CollapseSidebar => Task::none(),
+            Event::CheckUpdates => Task::perform(start_updater(), Event::UpdaterStarted),
+            Event::UpdaterStarted(_) => Task::none(),
         }
     }
 

@@ -14,7 +14,7 @@ use iced::widget::{
     self, button, column, container, horizontal_space, row, scrollable, text, text_input, Space,
 };
 use iced::Subscription;
-use iced::{Alignment, Command, Element, Length};
+use iced::{Alignment, Task, Element, Length};
 
 use log::info;
 
@@ -59,24 +59,24 @@ impl State {
         }
     }
 
-    pub fn update(&mut self, message: Event) -> Command<Event> {
+    pub fn update(&mut self, message: Event) -> Task<Event> {
         match message {
             Event::ShowAddModal(video_id) => {
                 self.show_add_modal = true;
                 self.active_video_id = Some(video_id);
 
-                Command::none()
+                Task::none()
             }
             Event::HidePlaylistModal => {
                 self.show_add_modal = false;
                 self.active_video_id = None;
 
-                Command::none()
+                Task::none()
             }
             Event::AddToPlaylist(video_id, playlist_id) => {
                 let _ = db::add_music_playlist(video_id, playlist_id);
 
-                Command::none()
+                Task::none()
             }
 
             Event::GetThumbnailHandles => {
@@ -90,7 +90,7 @@ impl State {
                     .map(|track| track.get("video_id").unwrap().clone())
                     .collect();
 
-                Command::perform(
+                Task::perform(
                     request::request_thumbnails(video_ids),
                     Event::ThumbnailsReceived,
                 )
@@ -100,10 +100,10 @@ impl State {
 
                 self.thumbnails_received = true;
 
-                Command::none()
+                Task::none()
             }
 
-            Event::PlayTrack(_video_id, _display_name, _duration, _handle) => Command::none(),
+            Event::PlayTrack(_video_id, _display_name, _duration, _handle) => Task::none(),
 
             Event::ShowEditModal(video_id, display_name) => {
                 info!("Showing modal for track with video_id: {}", video_id);
@@ -118,12 +118,12 @@ impl State {
                 info!("Hiding modal.");
                 self.hide_edit_modal();
 
-                Command::none()
+                Task::none()
             }
             Event::NewDisplayName(value) => {
                 self.new_display_name = value;
 
-                Command::none()
+                Task::none()
             }
             Event::Submit => {
                 let active = self.active_video_id.clone().unwrap();
@@ -133,7 +133,7 @@ impl State {
 
                 let _ = db::edit_display_name(active, new_display_name);
 
-                Command::none()
+                Task::none()
             }
             Event::DeleteTrack => {
                 let active = self.active_video_id.clone().unwrap();
@@ -142,7 +142,7 @@ impl State {
                 self.hide_edit_modal();
 
                 self.active_video_id = None;
-                Command::none()
+                Task::none()
             }
             Event::KeyboardEvent(event) => match event {
                 IcedEvent::Keyboard(keyboard::Event::KeyPressed {
@@ -163,9 +163,9 @@ impl State {
                     info!("Hiding modal via escape key.");
 
                     self.hide_edit_modal();
-                    Command::none()
+                    Task::none()
                 }
-                _ => Command::none(),
+                _ => Task::none(),
             },
         }
     }

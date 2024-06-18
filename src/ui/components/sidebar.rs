@@ -6,7 +6,7 @@ use super::helpers;
 use super::style;
 
 use iced::widget::{button, column, container, scrollable, text, Space};
-use iced::{Alignment, Command, Length};
+use iced::{Alignment, Task, Length};
 
 pub struct State {
     playlists: Vec<HashMap<String, String>>,
@@ -26,25 +26,25 @@ pub enum Event {
 }
 
 impl State {
-    pub fn update(&mut self, message: Event) -> Command<Event> {
+    pub fn update(&mut self, message: Event) -> Task<Event> {
         match message {
             Event::CollapseToggle => {
                 self.collapsed = !self.collapsed;
 
-                Command::none()
+                Task::none()
             }
-            Event::OpenPlaylist(_value) => Command::none(),
+            Event::OpenPlaylist(_value) => Task::none(),
 
             Event::UpdatePlaylists => {
                 self.playlists = db::get_all_playlists();
 
-                Command::none()
+                Task::none()
             }
-            Event::CreatePlaylist => Command::none(),
-            Event::OpenTrackList => Command::none(),
-            Event::OpenSettings => Command::none(),
-            Event::OpenPlaylists => Command::none(),
-            Event::OpenDownload => Command::none(),
+            Event::CreatePlaylist => Task::none(),
+            Event::OpenTrackList => Task::none(),
+            Event::OpenSettings => Task::none(),
+            Event::OpenPlaylists => Task::none(),
+            Event::OpenDownload => Task::none(),
         }
     }
 

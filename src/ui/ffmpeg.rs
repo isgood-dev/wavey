@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use iced::widget::{button, column, container, progress_bar, row, text};
-use iced::{Alignment, Command, Length, Subscription};
+use iced::{Alignment, Task, Length, Subscription};
 
 use crate::core::file;
 use crate::core::json;
@@ -82,15 +82,15 @@ impl State {
         }
     }
 
-    pub fn update(&mut self, message: Event) -> Command<Event> {
+    pub fn update(&mut self, message: Event) -> Task<Event> {
         match message {
-            Event::Continue => Command::none(),
+            Event::Continue => Task::none(),
             Event::DownloadProgressed((_id, progress)) => {
                 self.progress(progress);
 
                 self.in_progress = true;
 
-                Command::none()
+                Task::none()
             }
 
             Event::InstallFFmpeg => {
@@ -99,15 +99,15 @@ impl State {
 
                 let _ = json::set_ffmpeg_path("./data/ffmpeg.exe");
 
-                Command::none()
+                Task::none()
             }
-            Event::ManuallySpecify => Command::perform(file::pick_file(), Event::PathSpecified),
+            Event::ManuallySpecify => Task::perform(file::pick_file(), Event::PathSpecified),
             Event::PathSpecified(Ok(path)) => {
                 let path_str = path.to_str().expect("Path is not valid Unicode");
 
                 let _ = json::set_ffmpeg_path(path_str);
 
-                Command::none()
+                Task::none()
             }
             Event::PathSpecified(Err(e)) => {
                 match e {
@@ -116,7 +116,7 @@ impl State {
                     }
                 };
 
-                Command::none()
+                Task::none()
             }
         }
     }

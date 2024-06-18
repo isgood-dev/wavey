@@ -5,7 +5,7 @@ use crate::core::request;
 use crate::core::youtube;
 
 use iced::widget::{column, container, image, row, scrollable, text};
-use iced::{Alignment, Task, Length};
+use iced::{Alignment, Length, Task};
 
 pub struct State {
     loading: bool,

@@ -6,7 +6,7 @@ use super::helpers;
 use super::style;
 
 use iced::widget::{button, column, container, scrollable, text, Space};
-use iced::{Alignment, Task, Length};
+use iced::{Alignment, Length, Task};
 
 pub struct State {
     playlists: Vec<HashMap<String, String>>,

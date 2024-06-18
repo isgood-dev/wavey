@@ -3,7 +3,7 @@ use super::style;
 use crate::core::format;
 
 use iced::widget::{column, container, image, row, slider, text};
-use iced::{time, Alignment, Task, Element, Length};
+use iced::{time, Alignment, Element, Length, Task};
 
 use tokio::time::Duration;
 

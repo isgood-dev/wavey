@@ -4,7 +4,7 @@ use super::components::style;
 use crate::core::format;
 
 use iced::widget::{button, column, container, row, scrollable, text, text_input};
-use iced::{Alignment, Task, Length};
+use iced::{Alignment, Length, Task};
 
 use crate::core::db;
 

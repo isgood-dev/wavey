@@ -1,7 +1,7 @@
 use core::db;
 use core::json;
 
-use iced::{window, Task, Element, Font, Settings, Subscription};
+use iced::{window, Element, Font, Settings, Subscription, Task};
 
 use image::GenericImageView;
 use log::info;

@@ -2,7 +2,7 @@ use super::components::theme;
 use crate::core::json;
 
 use iced::widget::{column, container, pick_list, row, scrollable, text};
-use iced::{Alignment, Task, Length};
+use iced::{Alignment, Length, Task};
 
 pub struct State {
     themes: theme::Themes,

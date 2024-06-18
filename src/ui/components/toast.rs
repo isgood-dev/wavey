@@ -8,10 +8,10 @@ use iced::advanced::renderer;
 use iced::advanced::widget::{self, Operation, Tree};
 use iced::advanced::{Clipboard, Shell, Widget};
 use iced::event::{self, Event};
-use iced::mouse;
 use iced::theme;
 use iced::widget::{button, column, container, horizontal_rule, horizontal_space, row, text};
 use iced::window;
+use iced::{mouse, Background, Color};
 use iced::{Alignment, Element, Length, Point, Rectangle, Renderer, Size, Theme, Vector};
 
 pub const DEFAULT_TIMEOUT: u64 = 5;
@@ -73,7 +73,14 @@ where
                         row![
                             text(toast.title.as_str()),
                             horizontal_space(),
-                            button("X").on_press((on_close)(index)).padding(3),
+                            button("X")
+                                .on_press((on_close)(index))
+                                .style(|_theme, _status| button::Style {
+                                    background: Some(Background::Color(Color::TRANSPARENT)),
+                                    text_color: Color::WHITE,
+                                    ..button::Style::default()
+                                })
+                                .padding(3),
                         ]
                         .align_items(Alignment::Center)
                     )

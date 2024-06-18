@@ -14,7 +14,7 @@ use iced::widget::{
     self, button, column, container, horizontal_space, row, scrollable, text, text_input, Space,
 };
 use iced::Subscription;
-use iced::{Alignment, Task, Element, Length};
+use iced::{Alignment, Element, Length, Task};
 
 use log::info;
 

@@ -11,7 +11,7 @@ use components::theme;
 use components::toast;
 
 use iced::widget::{column, row};
-use iced::{Task, Subscription, Theme};
+use iced::{Subscription, Task, Theme};
 
 use rodio::{OutputStream, Sink};
 

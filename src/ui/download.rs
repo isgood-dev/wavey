@@ -4,7 +4,7 @@ use crate::core::youtube::{self, StatusError};
 
 use iced::{
     widget::{button, column, container, scrollable, text, text_input},
-    Alignment, Task, Length,
+    Alignment, Length, Task,
 };
 
 pub struct State {

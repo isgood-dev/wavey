@@ -6,7 +6,7 @@ use crate::core::db;
 use crate::core::format;
 use crate::core::request;
 
-use iced::advanced::graphics::futures::event;
+use iced::event;
 use iced::event::Event as IcedEvent;
 use iced::keyboard;
 use iced::keyboard::key;

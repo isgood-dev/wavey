@@ -84,6 +84,45 @@ pub async fn request_thumbnails(
     handles
 }
 
+pub async fn request_thumbnail_from_playlist(
+    results: Vec<HashMap<String, String>>,
+) -> Vec<HashMap<String, iced::advanced::image::Handle>> {
+    let mut handles = Vec::new();
+
+    for result in results {
+        let video_id = result.get("video_id").unwrap().clone();
+
+        let mut dir = tokio::fs::read_dir("./data/thumbnails")
+            .await
+            .expect("Failed to read");
+
+        while let Ok(Some(entry)) = dir.next_entry().await {
+            let path = entry.path();
+            let file_name = path.file_name().unwrap().to_str().unwrap().to_string();
+
+            if file_name.contains(&video_id) {
+                let bytes = tokio::fs::read(path).await.expect("Failed to read file");
+                let handle = iced::advanced::image::Handle::from_bytes(bytes);
+
+                let mut map = HashMap::new();
+                map.insert(video_id.clone(), handle);
+
+                handles.push(map);
+            } else {
+                let bytes = tokio::fs::read(PathBuf::from("./data/thumbnails/default.jpg"))
+                    .await
+                    .expect("Failed to read file");
+                let handle = iced::advanced::image::Handle::from_bytes(bytes);
+
+                let mut map = HashMap::new();
+                map.insert(video_id.clone(), handle);
+            }
+        }
+    }
+
+    handles
+}
+
 pub fn download_file<I: 'static + Hash + Copy + Send + Sync, T: ToString>(
     id: I,
     url: T,

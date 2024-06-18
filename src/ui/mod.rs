@@ -167,18 +167,30 @@ impl Pages {
                     .map(UiEvent::PlaylistAction);
 
                 match event {
-                    playlist::Event::CreatePlaylist => {
-                        return Task::batch(vec![
+                    playlist::Event::CreatePlaylist => Task::batch(vec![
+                        playlist_command,
+                        self.sidebar
+                            .update(sidebar::Event::UpdatePlaylists)
+                            .map(UiEvent::SidebarAction),
+                    ]),
+                    playlist::Event::PlayTrack(video_id, display_name, duration, handle) => {
+                        self.audio_playback_sender
+                            .send(AudioEvent::Queue(video_id.clone().to_string(), true))
+                            .expect("Failed to send play command");
+
+                        Task::batch(vec![
+                            self.controls
+                                .update(components::control_bar::Event::InitiatePlay(
+                                    display_name.to_string(),
+                                    duration,
+                                    handle.clone(),
+                                ))
+                                .map(UiEvent::ControlsAction),
                             playlist_command,
-                            self.sidebar
-                                .update(sidebar::Event::UpdatePlaylists)
-                                .map(UiEvent::SidebarAction),
                         ])
                     }
-                    _ => (),
+                    _ => playlist_command,
                 }
-
-                playlist_command
             }
             UiEvent::CloseToast(index) => {
                 self.toasts.remove(index);

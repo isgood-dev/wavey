@@ -1,12 +1,15 @@
 use std::collections::HashMap;
 
-use super::components::style;
+use super::components::{helpers, style};
 use crate::core::format;
 
-use iced::widget::{button, column, container, row, scrollable, text, text_input};
+use iced::widget::{
+    button, column, container, horizontal_space, row, scrollable, text, text_input,
+};
 use iced::{Alignment, Length, Task};
 
 use crate::core::db;
+use crate::core::request;
 
 pub struct State {
     create_playlist_mode: bool,
@@ -14,6 +17,8 @@ pub struct State {
     playlist_name_input: String,
     playlists: Vec<HashMap<String, String>>,
     tracks: Vec<HashMap<String, String>>,
+    thumbnails_recieved: bool,
+    thumbnails: Vec<HashMap<String, iced::advanced::image::Handle>>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -21,6 +26,8 @@ pub enum Event {
     OpenInListMode,
     OpenInCreateMode,
     CreatePlaylist,
+    PlayTrack(String, String, u64, Option<iced::advanced::image::Handle>),
+    ThumbnailHandlesReceived(Vec<HashMap<String, iced::advanced::image::Handle>>),
     OpenPlaylist(i32),
     PlaylistNameInput(String),
 }
@@ -28,10 +35,14 @@ pub enum Event {
 impl State {
     pub fn update(&mut self, message: Event) -> Task<Event> {
         match message {
+            Event::PlayTrack(_video_id, _display_name, _duration, _handle) => Task::none(),
             Event::OpenPlaylist(index) => {
                 self.playlist_view = true;
+                self.thumbnails = Vec::new();
+                self.thumbnails_recieved = false;
+                self.tracks = Vec::new();
 
-                self.tracks = db::get_playlist_tracks(
+                let playlist_tracks = db::get_playlist_tracks(
                     self.playlists[index as usize]
                         .get("id")
                         .unwrap()
@@ -39,8 +50,28 @@ impl State {
                         .unwrap(),
                 );
 
+                for track in playlist_tracks {
+                    match db::get_music_from_id(
+                        track.get("music_id").unwrap().parse::<i32>().unwrap(),
+                    ) {
+                        Ok(music) => self.tracks.push(music),
+                        Err(_) => (),
+                    }
+                }
+
+                Task::perform(
+                    request::request_thumbnail_from_playlist(self.tracks.clone()),
+                    Event::ThumbnailHandlesReceived,
+                )
+            }
+
+            Event::ThumbnailHandlesReceived(thumbnails) => {
+                self.thumbnails = thumbnails;
+                self.thumbnails_recieved = true;
+
                 Task::none()
             }
+
             Event::OpenInListMode => {
                 self.playlist_view = false;
                 self.create_playlist_mode = false;
@@ -75,31 +106,55 @@ impl State {
     pub fn view(&self) -> iced::Element<Event> {
         if self.playlist_view {
             let mut col = column![];
+            if self.thumbnails_recieved {
+                for track in self.tracks.iter() {
+                    let handle = self
+                        .thumbnails
+                        .iter()
+                        .find(|x| x.contains_key(track.get("video_id").unwrap()))
+                        .unwrap()
+                        .get(track.get("video_id").unwrap())
+                        .unwrap();
 
-            for (index, track) in self.tracks.iter().enumerate() {
-                match db::get_music_from_id(track.get("music_id").unwrap().parse::<i32>().unwrap())
-                {
-                    Ok(music) => {
-                        col = col.push(
-                            button(text(format::trunc_name(
-                                music.get("display_name").unwrap().clone().as_str(),
-                            )))
-                            .on_press(Event::OpenPlaylist(index as i32))
-                            .style(style::sidebar_button),
-                        );
-                    }
-                    Err(_) => {
-                        col = col.push(
-                            button(text("[error getting this track]"))
-                                .on_press(Event::OpenPlaylist(index as i32))
-                                .style(style::sidebar_button),
-                        );
-                    }
+                    col = col.push(
+                        row![
+                            helpers::action(
+                                helpers::play_icon(),
+                                "Play",
+                                Some(Event::PlayTrack(
+                                    track.get("video_id").unwrap().to_string(),
+                                    track.get("display_name").unwrap().to_string(),
+                                    track
+                                        .get("duration")
+                                        .unwrap()
+                                        .parse::<i32>()
+                                        .unwrap()
+                                        .try_into()
+                                        .unwrap(),
+                                    Some(handle.clone())
+                                ))
+                            ),
+                            helpers::thumbnail(handle.clone()),
+                            text(track.get("display_name").unwrap()),
+                            horizontal_space(),
+                            text(format::format_duration(
+                                track
+                                    .get("duration")
+                                    .unwrap()
+                                    .parse::<i32>()
+                                    .unwrap()
+                                    .try_into()
+                                    .unwrap()
+                            )),
+                        ]
+                        .spacing(10)
+                        .align_items(Alignment::Center),
+                    );
                 }
             }
 
             let content = container(scrollable(
-                col.spacing(40)
+                col.spacing(10)
                     .align_items(Alignment::Start)
                     .width(Length::Fill),
             ))
@@ -164,6 +219,8 @@ impl Default for State {
             playlist_name_input: String::new(),
             playlists: db::get_all_playlists(),
             tracks: Vec::new(),
+            thumbnails_recieved: false,
+            thumbnails: Vec::new(),
         }
     }
 }

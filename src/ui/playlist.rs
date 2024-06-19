@@ -151,6 +151,42 @@ impl State {
                         .align_items(Alignment::Center),
                     );
                 }
+            } else {
+                for track in self.tracks.iter() {
+                    col = col.push(
+                        row![
+                            helpers::action(
+                                helpers::play_icon(),
+                                "Play",
+                                Some(Event::PlayTrack(
+                                    track.get("video_id").unwrap().to_string(),
+                                    track.get("display_name").unwrap().to_string(),
+                                    track
+                                        .get("duration")
+                                        .unwrap()
+                                        .parse::<i32>()
+                                        .unwrap()
+                                        .try_into()
+                                        .unwrap(),
+                                    None
+                                ))
+                            ),
+                            text(track.get("display_name").unwrap()),
+                            horizontal_space(),
+                            text(format::format_duration(
+                                track
+                                    .get("duration")
+                                    .unwrap()
+                                    .parse::<i32>()
+                                    .unwrap()
+                                    .try_into()
+                                    .unwrap()
+                            )),
+                        ]
+                        .spacing(10)
+                        .align_items(Alignment::Center),
+                    );
+                }
             }
 
             let content = container(scrollable(

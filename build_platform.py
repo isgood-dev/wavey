@@ -28,8 +28,13 @@ shutil.copy("logging_config.yaml", "temp/logging_config.yaml")
 shutil.copy("VERSION", "temp/VERSION")
 shutil.copy("update_log.md", "temp/update_log.md")
 shutil.copy(".gitignore", "temp/.gitignore")
-shutil.copy("target/release/wavey", "temp/wavey")
-shutil.copy("target/release/updater", "temp/updater")
+
+if platform == "win":
+    shutil.copy("target/release/wavey.exe", "temp/wavey.exe")
+    shutil.copy("target/release/updater.exe", "temp/updater.exe")
+else:
+    shutil.copy("target/release/wavey", "temp/wavey")
+    shutil.copy("target/release/updater", "temp/updater")
 
 print("Compressing files")
 

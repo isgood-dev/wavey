@@ -10,6 +10,11 @@ use components::sidebar;
 use components::theme;
 use components::toast;
 
+use iced::advanced::graphics::futures::event;
+use iced::keyboard;
+use iced::keyboard::key;
+use iced::event::Event as IcedEvent;
+use iced::widget;
 use iced::widget::{column, row};
 use iced::{Subscription, Task, Theme};
 
@@ -71,6 +76,7 @@ pub enum UiEvent {
     PlaylistAction(playlist::Event),
 
     CloseToast(usize),
+    KeyboardEvent(IcedEvent)
 }
 
 #[derive(Debug, Clone)]
@@ -78,10 +84,9 @@ enum AudioEvent {
     Queue(String, bool),
     SeekTo(u64),
     SetVolume(f32),
-    Pause,
+    PauseToggle,
     Mute,
     Unmute,
-    Resume,
 }
 
 impl Pages {
@@ -144,6 +149,33 @@ impl Pages {
     }
     pub fn update(&mut self, message: UiEvent) -> Task<UiEvent> {
         match message {
+            UiEvent::KeyboardEvent(event) => match event {
+                IcedEvent::Keyboard(keyboard::Event::KeyPressed {
+                    key: keyboard::Key::Named(key::Named::Tab),
+                    modifiers,
+                    ..
+                }) => {
+                    if modifiers.shift() {
+                        widget::focus_previous()
+                    } else {
+                        widget::focus_next()
+                    }
+                }
+                IcedEvent::Keyboard(keyboard::Event::KeyPressed {
+                    key: keyboard::Key::Named(key::Named::Space),
+                    ..
+                }) => {
+                    self.audio_playback_sender
+                        .send(AudioEvent::PauseToggle)
+                        .expect("Failed to send pause command");
+
+                    self.controls
+                        .update(components::control_bar::Event::PauseToggleAction)
+                        .map(UiEvent::ControlsAction)
+                
+                }
+                _ => Task::none()
+            }
             UiEvent::NavAction(event) => {
                 match event {
                     components::nav::Event::CollapseSidebar => {
@@ -403,15 +435,10 @@ impl Pages {
                             .send(AudioEvent::SeekTo(value as u64))
                             .expect("Failed to send seek command");
                     }
-                    components::control_bar::Event::PauseAction => {
+                    components::control_bar::Event::PauseToggleAction => {
                         self.audio_playback_sender
-                            .send(AudioEvent::Pause)
+                            .send(AudioEvent::PauseToggle)
                             .expect("Failed to send pause command");
-                    }
-                    components::control_bar::Event::PlayAction => {
-                        self.audio_playback_sender
-                            .send(AudioEvent::Resume)
-                            .expect("Failed to send play command");
                     }
                     components::control_bar::Event::VolumeChanged(value) => {
                         self.audio_playback_sender
@@ -540,6 +567,7 @@ impl Pages {
 
     pub fn subscription(&self) -> iced::Subscription<UiEvent> {
         Subscription::batch(vec![
+            event::listen().map(UiEvent::KeyboardEvent),
             self.track_list.subscription().map(UiEvent::TrackListAction),
             self.controls.subscription().map(UiEvent::ControlsAction),
             self.ffmpeg.subscription().map(UiEvent::FFmpegAction),
@@ -575,12 +603,12 @@ fn process_audio_command(command: AudioEvent, sink: &Sink) {
                 }
             }
         }
-        AudioEvent::Pause => {
-            sink.pause();
-        }
-
-        AudioEvent::Resume => {
-            sink.play();
+        AudioEvent::PauseToggle => {
+            if sink.is_paused() {
+                sink.play();
+            } else {
+                sink.pause();
+            }
         }
 
         AudioEvent::Queue(video_id, force) => {

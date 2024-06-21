@@ -24,8 +24,7 @@ pub struct State {
 pub enum Event {
     BackwardPressed,
     ForwardPressed,
-    PlayAction,
-    PauseAction,
+    PauseToggleAction,
     Tick,
     Mute,
     Unmute,
@@ -109,13 +108,13 @@ impl State {
                 Task::none()
             }
 
-            Event::PlayAction => {
-                self.is_paused = false;
-                Task::none()
-            }
-
-            Event::PauseAction => {
-                self.is_paused = true;
+            Event::PauseToggleAction => {
+                if self.is_paused {
+                    self.is_paused = false;
+                } else {
+                    self.is_paused = true;
+                }
+                
                 Task::none()
             }
         }
@@ -127,10 +126,10 @@ impl State {
         let thumbnail: Element<Event>;
 
         if self.is_paused {
-            pause_or_play = helpers::action(helpers::play_icon(), "Play", Some(Event::PlayAction));
+            pause_or_play = helpers::action(helpers::play_icon(), "Play", Some(Event::PauseToggleAction));
         } else {
             pause_or_play =
-                helpers::action(helpers::pause_icon(), "Pause", Some(Event::PauseAction));
+                helpers::action(helpers::pause_icon(), "Pause", Some(Event::PauseToggleAction));
         }
 
         if self.volume == 0.0 {

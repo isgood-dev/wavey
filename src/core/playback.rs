@@ -1,7 +1,7 @@
 use std::fs::File;
+use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
-use std::sync::mpsc;
 
 use rodio::{OutputStream, Sink};
 

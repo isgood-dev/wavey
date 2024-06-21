@@ -15,8 +15,8 @@ use iced::widget;
 use iced::widget::{column, row};
 use iced::{Subscription, Task, Theme};
 
-use crate::core::playback::{start_receiver, AudioEvent};
 use self::components::theme::get_theme_from_settings;
+use crate::core::playback::{start_receiver, AudioEvent};
 
 mod components;
 mod download;
@@ -75,7 +75,6 @@ pub enum UiEvent {
     KeyboardEvent(IcedEvent),
 }
 
-
 impl Pages {
     pub fn new() -> Self {
         let (sender, reciever) = mpsc::channel();
@@ -123,6 +122,7 @@ impl Pages {
             track_list_loaded: false,
         }
     }
+    
     pub fn update(&mut self, message: UiEvent) -> Task<UiEvent> {
         match message {
             UiEvent::KeyboardEvent(event) => match event {

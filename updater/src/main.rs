@@ -6,7 +6,7 @@ use iced::{
 use tokio::fs;
 
 fn main() -> iced::Result {
-    iced::program("wavey updater", Updater::update, Updater::view)
+    iced::application("wavey updater", Updater::update, Updater::view)
         .window_size((500.0, 250.0))
         .run()
 }

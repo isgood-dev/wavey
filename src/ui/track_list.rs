@@ -76,6 +76,8 @@ impl State {
             Event::AddToPlaylist(video_id, playlist_id) => {
                 let _ = db::add_music_playlist(video_id, playlist_id);
 
+                self.show_add_modal = false;
+
                 Task::none()
             }
 
@@ -116,7 +118,7 @@ impl State {
             }
             Event::HideEditModal => {
                 info!("Hiding modal.");
-                self.hide_edit_modal();
+                self.hide_modals();
 
                 Task::none()
             }
@@ -129,7 +131,7 @@ impl State {
                 let active = self.active_video_id.clone().unwrap();
                 let new_display_name = self.new_display_name.clone();
 
-                self.hide_edit_modal();
+                self.hide_modals();
 
                 let _ = db::edit_display_name(active, new_display_name);
 
@@ -139,7 +141,7 @@ impl State {
                 let active = self.active_video_id.clone().unwrap();
                 db::delete_music(active).unwrap();
 
-                self.hide_edit_modal();
+                self.hide_modals();
 
                 self.active_video_id = None;
                 Task::none()
@@ -162,7 +164,8 @@ impl State {
                 }) => {
                     info!("Hiding modal via escape key.");
 
-                    self.hide_edit_modal();
+                    self.hide_modals();
+
                     Task::none()
                 }
                 _ => Task::none(),
@@ -334,8 +337,10 @@ impl State {
         event::listen().map(Event::KeyboardEvent)
     }
 
-    fn hide_edit_modal(&mut self) {
+    fn hide_modals(&mut self) {
         self.show_edit_modal = false;
+        self.show_add_modal = false;
+
         self.new_display_name.clear();
     }
 }

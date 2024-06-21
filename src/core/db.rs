@@ -6,12 +6,12 @@ use rusqlite::{Connection, Error as RusqliteError};
 
 #[derive(Debug)]
 pub enum DatabaseError {
-    SqliteError(RusqliteError),
+    SqliteError,
 }
 
 impl From<RusqliteError> for DatabaseError {
-    fn from(error: RusqliteError) -> Self {
-        DatabaseError::SqliteError(error)
+    fn from(_: RusqliteError) -> Self {
+        DatabaseError::SqliteError
     }
 }
 

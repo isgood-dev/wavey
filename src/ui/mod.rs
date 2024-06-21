@@ -1,8 +1,5 @@
-use std::fs::File;
 use std::path::Path;
 use std::sync::mpsc;
-use std::thread;
-use std::time::Duration;
 
 use crate::core::json;
 use crate::core::youtube;
@@ -11,15 +8,14 @@ use components::theme;
 use components::toast;
 
 use iced::advanced::graphics::futures::event;
+use iced::event::Event as IcedEvent;
 use iced::keyboard;
 use iced::keyboard::key;
-use iced::event::Event as IcedEvent;
 use iced::widget;
 use iced::widget::{column, row};
 use iced::{Subscription, Task, Theme};
 
-use rodio::{OutputStream, Sink};
-
+use crate::core::playback::{start_receiver, AudioEvent};
 use self::components::theme::get_theme_from_settings;
 
 mod components;
@@ -44,7 +40,7 @@ pub struct Pages {
     ffmpeg: ffmpeg::State,
     playlist: playlist::State,
 
-    audio_playback_sender: mpsc::Sender<AudioEvent>,
+    playback_sender: mpsc::Sender<AudioEvent>,
 
     toasts: Vec<toast::Toast>,
     theme: Theme,
@@ -76,35 +72,15 @@ pub enum UiEvent {
     PlaylistAction(playlist::Event),
 
     CloseToast(usize),
-    KeyboardEvent(IcedEvent)
+    KeyboardEvent(IcedEvent),
 }
 
-#[derive(Debug, Clone)]
-enum AudioEvent {
-    Queue(String, bool),
-    SeekTo(u64),
-    SetVolume(f32),
-    PauseToggle,
-    Mute,
-    Unmute,
-}
 
 impl Pages {
     pub fn new() -> Self {
         let (sender, reciever) = mpsc::channel();
 
-        thread::spawn(move || {
-            let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-            let sink = Sink::try_new(&stream_handle).unwrap();
-
-            loop {
-                if let Ok(command) = reciever.try_recv() {
-                    process_audio_command(command, &sink);
-                }
-
-                thread::sleep(std::time::Duration::from_millis(100));
-            }
-        });
+        start_receiver(reciever);
 
         let theme_value = json::get_theme().expect("Dark");
         let matched = get_theme_from_settings(theme_value);
@@ -141,7 +117,7 @@ impl Pages {
             ffmpeg: Default::default(),
             playlist: Default::default(),
 
-            audio_playback_sender: sender,
+            playback_sender: sender,
             toasts: vec![],
             theme: matched,
             track_list_loaded: false,
@@ -165,17 +141,16 @@ impl Pages {
                     key: keyboard::Key::Named(key::Named::Space),
                     ..
                 }) => {
-                    self.audio_playback_sender
+                    self.playback_sender
                         .send(AudioEvent::PauseToggle)
                         .expect("Failed to send pause command");
 
                     self.controls
                         .update(components::control_bar::Event::PauseToggleAction)
                         .map(UiEvent::ControlsAction)
-                
                 }
-                _ => Task::none()
-            }
+                _ => Task::none(),
+            },
             UiEvent::NavAction(event) => {
                 match event {
                     components::nav::Event::CollapseSidebar => {
@@ -206,7 +181,7 @@ impl Pages {
                             .map(UiEvent::SidebarAction),
                     ]),
                     playlist::Event::PlayTrack(video_id, display_name, duration, handle) => {
-                        self.audio_playback_sender
+                        self.playback_sender
                             .send(AudioEvent::Queue(video_id.clone().to_string(), true))
                             .expect("Failed to send play command");
 
@@ -367,7 +342,7 @@ impl Pages {
                 }
                 match event {
                     track_list::Event::PlayTrack(video_id, display_name, duration, handle) => {
-                        self.audio_playback_sender
+                        self.playback_sender
                             .send(AudioEvent::Queue(video_id.clone().to_string(), true))
                             .expect("Failed to send play command");
 
@@ -431,27 +406,27 @@ impl Pages {
             UiEvent::ControlsAction(event) => {
                 match event {
                     components::control_bar::Event::ProgressChanged(value) => {
-                        self.audio_playback_sender
+                        self.playback_sender
                             .send(AudioEvent::SeekTo(value as u64))
                             .expect("Failed to send seek command");
                     }
                     components::control_bar::Event::PauseToggleAction => {
-                        self.audio_playback_sender
+                        self.playback_sender
                             .send(AudioEvent::PauseToggle)
                             .expect("Failed to send pause command");
                     }
                     components::control_bar::Event::VolumeChanged(value) => {
-                        self.audio_playback_sender
+                        self.playback_sender
                             .send(AudioEvent::SetVolume(value))
                             .expect("Failed to send volume command");
                     }
                     components::control_bar::Event::Mute => {
-                        self.audio_playback_sender
+                        self.playback_sender
                             .send(AudioEvent::Mute)
                             .expect("Failed to send mute command");
                     }
                     components::control_bar::Event::Unmute => {
-                        self.audio_playback_sender
+                        self.playback_sender
                             .send(AudioEvent::Unmute)
                             .expect("Failed to send unmute command");
                     }
@@ -576,54 +551,6 @@ impl Pages {
 
     pub fn theme(&self) -> iced::Theme {
         self.theme.clone()
-    }
-}
-
-fn process_audio_command(command: AudioEvent, sink: &Sink) {
-    match command {
-        AudioEvent::SetVolume(volume) => {
-            sink.set_volume(volume);
-        }
-
-        AudioEvent::Mute => {
-            sink.set_volume(0.0);
-        }
-
-        AudioEvent::Unmute => {
-            sink.set_volume(0.5);
-        }
-
-        AudioEvent::SeekTo(position) => {
-            let try_seek = sink.try_seek(Duration::from_secs(position));
-
-            match try_seek {
-                Ok(_) => (),
-                Err(_) => {
-                    println!("Failed to seek")
-                }
-            }
-        }
-        AudioEvent::PauseToggle => {
-            if sink.is_paused() {
-                sink.play();
-            } else {
-                sink.pause();
-            }
-        }
-
-        AudioEvent::Queue(video_id, force) => {
-            if force {
-                sink.stop();
-            }
-
-            let file = File::open(format!("./data/audio/{}.mp3", video_id)).unwrap();
-
-            sink.append(rodio::Decoder::new(file).unwrap());
-
-            if force {
-                sink.play();
-            }
-        }
     }
 }
 

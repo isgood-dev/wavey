@@ -114,7 +114,7 @@ impl State {
                 } else {
                     self.is_paused = true;
                 }
-                
+
                 Task::none()
             }
         }
@@ -126,10 +126,14 @@ impl State {
         let thumbnail: Element<Event>;
 
         if self.is_paused {
-            pause_or_play = helpers::action(helpers::play_icon(), "Play", Some(Event::PauseToggleAction));
-        } else {
             pause_or_play =
-                helpers::action(helpers::pause_icon(), "Pause", Some(Event::PauseToggleAction));
+                helpers::action(helpers::play_icon(), "Play", Some(Event::PauseToggleAction));
+        } else {
+            pause_or_play = helpers::action(
+                helpers::pause_icon(),
+                "Pause",
+                Some(Event::PauseToggleAction),
+            );
         }
 
         if self.volume == 0.0 {

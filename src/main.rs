@@ -19,18 +19,20 @@ pub fn main() -> iced::Result {
     let rgba = image.into_rgba8();
     let icon = window::icon::from_rgba(rgba.into_raw(), width, height).unwrap();
 
-    let settings = Settings {
+    let app_settings = Settings {
         default_font: Font::with_name("Nunito"),
-        window: iced::window::Settings {
-            icon: Some(icon),
-            ..Default::default()
-        },
         ..Default::default()
     };
 
-    iced::program("wavey", Wavey::update, Wavey::view)
-        .settings(settings)
+    let win_settings = window::Settings {
+        icon: Some(icon),
+        ..Default::default()
+    };
+
+    iced::application("wavey", Wavey::update, Wavey::view)
+        .settings(app_settings)
         .subscription(Wavey::subscription)
+        .window(win_settings)
         .window_size((860.0, 680.0))
         .font(include_bytes!("../assets/icons.ttf").as_slice())
         .font(include_bytes!("../assets/font.ttf").as_slice())

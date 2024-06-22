@@ -3,6 +3,7 @@ use std::path::Path;
 use std::sync::mpsc;
 
 use crate::core::json;
+use crate::core::playback;
 use crate::core::youtube;
 use components::control_bar;
 use components::sidebar;
@@ -16,9 +17,6 @@ use iced::keyboard::key;
 use iced::widget;
 use iced::widget::{column, row};
 use iced::{Subscription, Task, Theme};
-
-use self::components::theme::get_theme_from_settings;
-use crate::core::playback::{start_receiver, AudioEvent};
 
 mod components;
 mod download;
@@ -42,7 +40,7 @@ pub struct Pages {
     ffmpeg: ffmpeg::State,
     playlist: playlist::State,
 
-    playback_sender: mpsc::Sender<AudioEvent>,
+    playback_sender: mpsc::Sender<playback::AudioEvent>,
 
     toasts: Vec<toast::Toast>,
     theme: Theme,
@@ -85,10 +83,10 @@ impl Pages {
     pub fn new() -> Self {
         let (sender, reciever) = mpsc::channel();
 
-        start_receiver(reciever);
+        playback::start_receiver(reciever);
 
         let theme_value = json::get_theme().expect("Dark");
-        let matched = get_theme_from_settings(theme_value);
+        let matched = theme::get_theme_from_settings(theme_value);
 
         let current_page: Page;
 
@@ -152,7 +150,7 @@ impl Pages {
                     ..
                 }) => {
                     self.playback_sender
-                        .send(AudioEvent::PauseToggle)
+                        .send(playback::AudioEvent::PauseToggle)
                         .expect("Failed to send pause command");
 
                     self.controls
@@ -198,7 +196,7 @@ impl Pages {
                         tracks,
                     ) => {
                         self.playback_sender
-                            .send(AudioEvent::Queue(
+                            .send(playback::AudioEvent::Queue(
                                 video_id.clone().to_string(),
                                 tracks.clone(),
                             ))
@@ -374,7 +372,7 @@ impl Pages {
                         tracks,
                     ) => {
                         self.playback_sender
-                            .send(AudioEvent::Queue(
+                            .send(playback::AudioEvent::Queue(
                                 video_id.clone().to_string(),
                                 tracks.clone(),
                             ))
@@ -452,42 +450,42 @@ impl Pages {
                 match event {
                     components::control_bar::Event::ProgressChanged(value) => {
                         self.playback_sender
-                            .send(AudioEvent::SeekTo(value as u64))
+                            .send(playback::AudioEvent::SeekTo(value as u64))
                             .expect("Failed to send seek command");
 
                         controls_command
                     }
                     components::control_bar::Event::PauseToggleAction => {
                         self.playback_sender
-                            .send(AudioEvent::PauseToggle)
+                            .send(playback::AudioEvent::PauseToggle)
                             .expect("Failed to send pause command");
 
                         controls_command
                     }
                     components::control_bar::Event::VolumeChanged(value) => {
                         self.playback_sender
-                            .send(AudioEvent::SetVolume(value))
+                            .send(playback::AudioEvent::SetVolume(value))
                             .expect("Failed to send volume command");
 
                         controls_command
                     }
                     components::control_bar::Event::Mute => {
                         self.playback_sender
-                            .send(AudioEvent::Mute)
+                            .send(playback::AudioEvent::Mute)
                             .expect("Failed to send mute command");
 
                         controls_command
                     }
                     components::control_bar::Event::Unmute => {
                         self.playback_sender
-                            .send(AudioEvent::Unmute)
+                            .send(playback::AudioEvent::Unmute)
                             .expect("Failed to send unmute command");
 
                         controls_command
                     }
                     components::control_bar::Event::BackwardPressed => {
                         self.playback_sender
-                            .send(AudioEvent::Backward)
+                            .send(playback::AudioEvent::Backward)
                             .expect("Failed to send backward command");
 
                         if self.active_track_list.is_empty() {
@@ -500,7 +498,7 @@ impl Pages {
                     }
                     components::control_bar::Event::ForwardPressed => {
                         self.playback_sender
-                            .send(AudioEvent::Forward)
+                            .send(playback::AudioEvent::Forward)
                             .expect("Failed to send forward command");
 
                         if self.active_track_list.is_empty() {

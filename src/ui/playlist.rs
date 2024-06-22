@@ -1,15 +1,15 @@
 use std::collections::HashMap;
 
-use super::components::{helpers, style};
+use super::components::helpers;
+use super::components::style;
+use crate::core::db;
 use crate::core::format;
+use crate::core::request;
 
 use iced::widget::{
     button, column, container, horizontal_space, row, scrollable, text, text_input,
 };
 use iced::{Alignment, Length, Task};
-
-use crate::core::db;
-use crate::core::request;
 
 pub struct State {
     create_playlist_mode: bool,

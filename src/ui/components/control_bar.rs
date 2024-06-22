@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use super::helpers;
 use super::style;
 use crate::core::format;
-use crate::core::request::request_thumbnail_by_video_id;
+use crate::core::request;
 
 use iced::widget::{column, container, image, row, slider, text};
 use iced::{time, Alignment, Element, Length, Task};
@@ -106,7 +106,7 @@ impl State {
                             self.active_video_id = video_id.clone();
 
                             return Task::perform(
-                                request_thumbnail_by_video_id(video_id),
+                                request::request_thumbnail_by_video_id(video_id),
                                 Event::ThumbnailRetrieved,
                             );
                         }
@@ -146,7 +146,7 @@ impl State {
 
                 if handle.is_none() {
                     return Task::perform(
-                        request_thumbnail_by_video_id(video_id),
+                        request::request_thumbnail_by_video_id(video_id),
                         Event::ThumbnailRetrieved,
                     );
                 } else {

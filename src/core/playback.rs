@@ -1,18 +1,20 @@
-use std::fs::File;
 use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
+use std::{collections::HashMap, fs::File};
 
 use rodio::{OutputStream, Sink};
 
 #[derive(Debug, Clone)]
 pub enum AudioEvent {
-    Queue(String, bool),
+    Queue(String, Option<Vec<HashMap<String, String>>>),
     SeekTo(u64),
     SetVolume(f32),
     PauseToggle,
     Mute,
     Unmute,
+    Backward,
+    Forward,
 }
 
 pub fn start_receiver(reciever: mpsc::Receiver<AudioEvent>) {
@@ -32,6 +34,21 @@ pub fn start_receiver(reciever: mpsc::Receiver<AudioEvent>) {
 
 fn process_audio_command(command: AudioEvent, sink: &Sink) {
     match command {
+        AudioEvent::Backward => {
+            let try_seek = sink.try_seek(Duration::from_secs(0));
+
+            match try_seek {
+                Ok(_) => (),
+                Err(_) => {
+                    println!("Failed to seek")
+                }
+            }
+        }
+
+        AudioEvent::Forward => {
+            sink.skip_one();
+        }
+
         AudioEvent::SetVolume(volume) => {
             sink.set_volume(volume);
         }
@@ -54,6 +71,7 @@ fn process_audio_command(command: AudioEvent, sink: &Sink) {
                 }
             }
         }
+
         AudioEvent::PauseToggle => {
             if sink.is_paused() {
                 sink.play();
@@ -62,18 +80,33 @@ fn process_audio_command(command: AudioEvent, sink: &Sink) {
             }
         }
 
-        AudioEvent::Queue(video_id, force) => {
-            if force {
-                sink.stop();
+        AudioEvent::Queue(video_id, tracks) => {
+            if tracks.is_some() {
+                sink.clear();
+
+                // find video_id in tracks and get all of the elements after that
+                let tracks = tracks.unwrap();
+                let index = tracks
+                    .iter()
+                    .position(|x| x.get("video_id").unwrap() == &video_id)
+                    .unwrap();
+                let tracks = &tracks[index..];
+
+                for track in tracks {
+                    let file = File::open(format!(
+                        "./data/audio/{}.mp3",
+                        track.get("video_id").unwrap()
+                    ))
+                    .unwrap();
+                    sink.append(rodio::Decoder::new(file).unwrap());
+                }
             }
 
             let file = File::open(format!("./data/audio/{}.mp3", video_id)).unwrap();
 
             sink.append(rodio::Decoder::new(file).unwrap());
 
-            if force {
-                sink.play();
-            }
+            sink.play();
         }
     }
 }

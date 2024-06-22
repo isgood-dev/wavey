@@ -26,7 +26,13 @@ pub enum Event {
     OpenInListMode,
     OpenInCreateMode,
     CreatePlaylist,
-    PlayTrack(String, String, u64, Option<iced::advanced::image::Handle>),
+    PlayTrack(
+        String,
+        String,
+        u64,
+        Option<iced::advanced::image::Handle>,
+        Option<Vec<HashMap<String, String>>>,
+    ),
     ThumbnailHandlesReceived(Vec<HashMap<String, iced::advanced::image::Handle>>),
     OpenPlaylist(i32),
     PlaylistNameInput(String),
@@ -35,7 +41,7 @@ pub enum Event {
 impl State {
     pub fn update(&mut self, message: Event) -> Task<Event> {
         match message {
-            Event::PlayTrack(_video_id, _display_name, _duration, _handle) => Task::none(),
+            Event::PlayTrack(_video_id, _display_name, _duration, _handle, _tracks) => Task::none(),
             Event::OpenPlaylist(index) => {
                 self.playlist_view = true;
                 self.thumbnails = Vec::new();
@@ -131,7 +137,8 @@ impl State {
                                         .unwrap()
                                         .try_into()
                                         .unwrap(),
-                                    Some(handle.clone())
+                                    Some(handle.clone()),
+                                    Some(self.tracks.clone()),
                                 ))
                             ),
                             helpers::thumbnail(handle.clone()),
@@ -168,7 +175,8 @@ impl State {
                                         .unwrap()
                                         .try_into()
                                         .unwrap(),
-                                    None
+                                    None,
+                                    Some(self.tracks.clone())
                                 ))
                             ),
                             text(track.get("display_name").unwrap()),

@@ -1,9 +1,8 @@
 use std::collections::HashMap;
 
-use crate::core::db;
-
 use super::helpers;
 use super::style;
+use crate::core::db;
 
 use iced::widget::{button, column, container, scrollable, text, Space};
 use iced::{Alignment, Length, Task};

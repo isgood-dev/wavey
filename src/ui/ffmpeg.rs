@@ -1,11 +1,11 @@
 use std::path::PathBuf;
 
-use iced::widget::{button, column, container, progress_bar, row, text};
-use iced::{Alignment, Length, Subscription, Task};
-
 use crate::core::file;
 use crate::core::json;
 use crate::core::request;
+
+use iced::widget::{button, column, container, progress_bar, row, text};
+use iced::{Alignment, Length, Subscription, Task};
 
 pub struct State {
     id: usize,

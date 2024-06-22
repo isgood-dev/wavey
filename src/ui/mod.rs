@@ -1,8 +1,11 @@
+use std::collections::HashMap;
 use std::path::Path;
 use std::sync::mpsc;
 
 use crate::core::json;
+use crate::core::playback;
 use crate::core::youtube;
+use components::control_bar;
 use components::sidebar;
 use components::theme;
 use components::toast;
@@ -14,9 +17,6 @@ use iced::keyboard::key;
 use iced::widget;
 use iced::widget::{column, row};
 use iced::{Subscription, Task, Theme};
-
-use self::components::theme::get_theme_from_settings;
-use crate::core::playback::{start_receiver, AudioEvent};
 
 mod components;
 mod download;
@@ -40,11 +40,15 @@ pub struct Pages {
     ffmpeg: ffmpeg::State,
     playlist: playlist::State,
 
-    playback_sender: mpsc::Sender<AudioEvent>,
+    playback_sender: mpsc::Sender<playback::AudioEvent>,
 
     toasts: Vec<toast::Toast>,
     theme: Theme,
     track_list_loaded: bool,
+
+    active_video_id: String,
+    active_track_list: Vec<HashMap<String, String>>,
+    active_thumbnail_handle: Option<iced::advanced::image::Handle>,
 }
 
 #[derive(Default)]
@@ -79,10 +83,10 @@ impl Pages {
     pub fn new() -> Self {
         let (sender, reciever) = mpsc::channel();
 
-        start_receiver(reciever);
+        playback::start_receiver(reciever);
 
         let theme_value = json::get_theme().expect("Dark");
-        let matched = get_theme_from_settings(theme_value);
+        let matched = theme::get_theme_from_settings(theme_value);
 
         let current_page: Page;
 
@@ -120,9 +124,13 @@ impl Pages {
             toasts: vec![],
             theme: matched,
             track_list_loaded: false,
+
+            active_video_id: String::new(),
+            active_track_list: Vec::new(),
+            active_thumbnail_handle: None,
         }
     }
-    
+
     pub fn update(&mut self, message: UiEvent) -> Task<UiEvent> {
         match message {
             UiEvent::KeyboardEvent(event) => match event {
@@ -142,7 +150,7 @@ impl Pages {
                     ..
                 }) => {
                     self.playback_sender
-                        .send(AudioEvent::PauseToggle)
+                        .send(playback::AudioEvent::PauseToggle)
                         .expect("Failed to send pause command");
 
                     self.controls
@@ -180,17 +188,32 @@ impl Pages {
                             .update(sidebar::Event::UpdatePlaylists)
                             .map(UiEvent::SidebarAction),
                     ]),
-                    playlist::Event::PlayTrack(video_id, display_name, duration, handle) => {
+                    playlist::Event::PlayTrack(
+                        video_id,
+                        display_name,
+                        duration,
+                        handle,
+                        tracks,
+                    ) => {
                         self.playback_sender
-                            .send(AudioEvent::Queue(video_id.clone().to_string(), true))
+                            .send(playback::AudioEvent::Queue(
+                                video_id.clone().to_string(),
+                                tracks.clone(),
+                            ))
                             .expect("Failed to send play command");
+
+                        self.active_video_id = video_id.clone();
+                        self.active_track_list = tracks.expect("No active track list");
+                        self.active_thumbnail_handle = handle.clone();
 
                         Task::batch(vec![
                             self.controls
                                 .update(components::control_bar::Event::InitiatePlay(
+                                    self.active_video_id.clone(),
                                     display_name.to_string(),
                                     duration,
                                     handle.clone(),
+                                    self.active_track_list.clone(),
                                 ))
                                 .map(UiEvent::ControlsAction),
                             playlist_command,
@@ -341,17 +364,32 @@ impl Pages {
                         .map(UiEvent::TrackListAction);
                 }
                 match event {
-                    track_list::Event::PlayTrack(video_id, display_name, duration, handle) => {
+                    track_list::Event::PlayTrack(
+                        video_id,
+                        display_name,
+                        duration,
+                        handle,
+                        tracks,
+                    ) => {
                         self.playback_sender
-                            .send(AudioEvent::Queue(video_id.clone().to_string(), true))
+                            .send(playback::AudioEvent::Queue(
+                                video_id.clone().to_string(),
+                                tracks.clone(),
+                            ))
                             .expect("Failed to send play command");
+
+                        self.active_video_id = video_id.clone();
+                        self.active_track_list = tracks.clone().expect("No active track list");
+                        self.active_thumbnail_handle = handle.clone();
 
                         Task::batch(vec![
                             self.controls
                                 .update(components::control_bar::Event::InitiatePlay(
+                                    self.active_video_id.clone(),
                                     display_name.to_string(),
                                     *duration,
                                     handle.clone(),
+                                    self.active_track_list.clone(),
                                 ))
                                 .map(UiEvent::ControlsAction),
                             track_list_command,
@@ -404,35 +442,95 @@ impl Pages {
             }
 
             UiEvent::ControlsAction(event) => {
+                let controls_command = self
+                    .controls
+                    .update(event.clone())
+                    .map(UiEvent::ControlsAction);
+
                 match event {
                     components::control_bar::Event::ProgressChanged(value) => {
                         self.playback_sender
-                            .send(AudioEvent::SeekTo(value as u64))
+                            .send(playback::AudioEvent::SeekTo(value as u64))
                             .expect("Failed to send seek command");
+
+                        controls_command
                     }
                     components::control_bar::Event::PauseToggleAction => {
                         self.playback_sender
-                            .send(AudioEvent::PauseToggle)
+                            .send(playback::AudioEvent::PauseToggle)
                             .expect("Failed to send pause command");
+
+                        controls_command
                     }
                     components::control_bar::Event::VolumeChanged(value) => {
                         self.playback_sender
-                            .send(AudioEvent::SetVolume(value))
+                            .send(playback::AudioEvent::SetVolume(value))
                             .expect("Failed to send volume command");
+
+                        controls_command
                     }
                     components::control_bar::Event::Mute => {
                         self.playback_sender
-                            .send(AudioEvent::Mute)
+                            .send(playback::AudioEvent::Mute)
                             .expect("Failed to send mute command");
+
+                        controls_command
                     }
                     components::control_bar::Event::Unmute => {
                         self.playback_sender
-                            .send(AudioEvent::Unmute)
+                            .send(playback::AudioEvent::Unmute)
                             .expect("Failed to send unmute command");
+
+                        controls_command
                     }
-                    _ => (),
+                    components::control_bar::Event::BackwardPressed => {
+                        self.playback_sender
+                            .send(playback::AudioEvent::Backward)
+                            .expect("Failed to send backward command");
+
+                        if self.active_track_list.is_empty() {
+                            return controls_command;
+                        }
+
+                        self.controls
+                            .update(control_bar::Event::SeekTo(0.0))
+                            .map(UiEvent::ControlsAction)
+                    }
+                    components::control_bar::Event::ForwardPressed => {
+                        self.playback_sender
+                            .send(playback::AudioEvent::Forward)
+                            .expect("Failed to send forward command");
+
+                        if self.active_track_list.is_empty() {
+                            return controls_command;
+                        }
+
+                        let index = self
+                            .active_track_list
+                            .iter()
+                            .position(|x| x.get("video_id").unwrap() == &self.active_video_id)
+                            .unwrap();
+                        let next_index = index + 1;
+                        let next_track = &self.active_track_list[next_index];
+
+                        let video_id = next_track.get("video_id").unwrap();
+                        let display_name = next_track.get("display_name").unwrap();
+                        let duration = next_track.get("duration").unwrap().parse::<u64>().unwrap();
+
+                        self.active_video_id = video_id.clone();
+
+                        self.controls
+                            .update(control_bar::Event::InitiatePlay(
+                                video_id.clone(),
+                                display_name.to_string(),
+                                duration,
+                                None,
+                                self.active_track_list.clone(),
+                            ))
+                            .map(UiEvent::ControlsAction)
+                    }
+                    _ => controls_command,
                 }
-                self.controls.update(event).map(UiEvent::ControlsAction)
             }
             UiEvent::ResultsAction(event) => {
                 match event.clone() {

@@ -1,6 +1,9 @@
+use std::collections::HashMap;
+
 use super::helpers;
 use super::style;
 use crate::core::format;
+use crate::core::request;
 
 use iced::widget::{column, container, image, row, slider, text};
 use iced::{time, Alignment, Element, Length, Task};
@@ -18,6 +21,8 @@ pub struct State {
     is_paused: bool,
     volume: f32,
     active_thumbnail_handle: Option<iced::advanced::image::Handle>,
+    tracks: Vec<HashMap<String, String>>,
+    active_video_id: String,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -28,9 +33,17 @@ pub enum Event {
     Tick,
     Mute,
     Unmute,
+    SeekTo(f32),
     ProgressChanged(f32),
     VolumeChanged(f32),
-    InitiatePlay(String, u64, Option<iced::advanced::image::Handle>),
+    InitiatePlay(
+        String,
+        String,
+        u64,
+        Option<iced::advanced::image::Handle>,
+        Vec<HashMap<String, String>>,
+    ),
+    ThumbnailRetrieved(iced::advanced::image::Handle),
 }
 
 impl State {
@@ -66,9 +79,40 @@ impl State {
                     self.slider_is_active = false;
                     self.slider_value = 0.0;
                     self.total_duration = 0;
+                    self.seconds_passed = 0;
 
                     self.formatted_current_duration = "0:00".to_string();
                     self.formatted_total_duration = "0:00".to_string();
+                    self.now_playing = "Nothing is playing.".to_string();
+
+                    let index = self
+                        .tracks
+                        .iter()
+                        .position(|x| x.get("video_id").unwrap() == &self.active_video_id);
+
+                    if index.is_some() {
+                        let next_index = index.unwrap() + 1;
+
+                        if next_index < self.tracks.len() {
+                            let next_track = self.tracks.get(next_index).unwrap();
+                            let video_id = next_track.get("video_id").unwrap().to_string();
+                            let display_name = next_track.get("display_name").unwrap().to_string();
+                            let total_duration =
+                                next_track.get("duration").unwrap().parse::<u64>().unwrap();
+
+                            self.now_playing = display_name.clone();
+                            self.slider_is_active = true;
+                            self.total_duration = total_duration;
+                            self.active_video_id = video_id.clone();
+
+                            return Task::perform(
+                                request::request_thumbnail_by_video_id(video_id),
+                                Event::ThumbnailRetrieved,
+                            );
+                        }
+                    }
+
+                    return Task::none();
                 }
 
                 self.formatted_current_duration = format::format_duration(self.seconds_passed);
@@ -76,14 +120,8 @@ impl State {
 
                 Task::none()
             }
-            Event::BackwardPressed => {
-                println!("Backward pressed");
-                Task::none()
-            }
-            Event::ForwardPressed => {
-                println!("Forward pressed");
-                Task::none()
-            }
+            Event::BackwardPressed => Task::none(),
+            Event::ForwardPressed => Task::none(),
 
             Event::ProgressChanged(value) => {
                 self.slider_value = value;
@@ -94,16 +132,32 @@ impl State {
 
                 Task::none()
             }
-            Event::InitiatePlay(text, total_duration, handle) => {
+            Event::InitiatePlay(video_id, display_name, total_duration, handle, tracks) => {
                 self.is_paused = false;
-                self.slider_is_active = false; // ensure slider state is reset
+                self.slider_is_active = false;
                 self.slider_value = 0.0;
                 self.seconds_passed = 0;
 
-                self.now_playing = text;
-                self.active_thumbnail_handle = handle;
+                self.now_playing = display_name.clone();
                 self.slider_is_active = true;
                 self.total_duration = total_duration;
+                self.tracks = tracks;
+                self.active_video_id = video_id.clone();
+
+                if handle.is_none() {
+                    return Task::perform(
+                        request::request_thumbnail_by_video_id(video_id),
+                        Event::ThumbnailRetrieved,
+                    );
+                } else {
+                    self.active_thumbnail_handle = handle;
+                }
+
+                Task::none()
+            }
+
+            Event::ThumbnailRetrieved(handle) => {
+                self.active_thumbnail_handle = Some(handle);
 
                 Task::none()
             }
@@ -114,6 +168,13 @@ impl State {
                 } else {
                     self.is_paused = true;
                 }
+
+                Task::none()
+            }
+
+            Event::SeekTo(value) => {
+                self.seconds_passed = value as u64;
+                self.slider_value = value;
 
                 Task::none()
             }
@@ -229,6 +290,8 @@ impl Default for State {
             now_playing: String::from("Nothing is playing."),
             is_paused: false,
             volume: 0.5,
+            tracks: Vec::new(),
+            active_video_id: String::new(),
         }
     }
 }

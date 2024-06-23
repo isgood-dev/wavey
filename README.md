@@ -5,22 +5,14 @@
   <a href="https://github.com/iced-rs/iced" >
     <img src="https://gist.githubusercontent.com/hecrj/ad7ecd38f6e47ff3688a38c79fd108f0/raw/74384875ecbad02ae2a926425e9bcafd0695bade/color.svg" width="130px">
   </a>
+
+  <br/>
+
+  <img src="https://gist.github.com/assets/69216256/09182c3f-be52-4c53-b641-43a7daa191d6" width="700" height="600px">
 </div>
 
 ## About
-Wavey is a music player that lets you play music (or any audio) onto your device. It has many features to make your experience better! Some noteable features are:
-
-* Easy-to-use user interface
-* Music playback
-* Playlists
-* Downloading from various sources
-* Volume adjustment
-* Seeking
-* Pause/play
-* Thumbnails
-* Track name editing
-* Many themes (there's a lot!)
-* User-friendly window adjustment
+Wavey is a music player that lets you play music (or any audio) onto your device. It has many features to make your experience better!
 
 ## Install
 This section is being worked on to make sure that wavey is as easy to install as possible. That said, the only way to install it currently is to build it from source.
@@ -39,6 +31,21 @@ cargo run --release
 ```
 Don't forget the `--release`! This tells the compiler to optimize the build and massively improves performance.
 
+## Features
+Some noteable features of wavey are:
+
+- [x] Easy-to-use user interface
+- [x] Music playback
+- [x] Playlists
+- [x] Downloading from various sources
+- [x] Volume adjustment
+- [x] Seeking
+- [x] Pause/play
+- [x] Thumbnails
+- [x] Track name editing
+- [x] Many themes (there's a lot!)
+- [x] User-friendly window adjustment
+- [x] Queuing system with Forward/Backward controls
 
 ## Roadmap
 Wavey is far from complete. It is constantly evolving and actively maintained. As such, we have a progress board for you to see what we would like add to wavey.

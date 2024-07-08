@@ -54,7 +54,12 @@ impl State {
                     .spacing(10),
                     row![
                         text("Discord Rich Presence:"),
-                        button(if self.rpc_enabled { "Enabled" } else { "Disabled" }).on_press(Event::ToggleRpcEnabled)
+                        button(if self.rpc_enabled {
+                            "Enabled"
+                        } else {
+                            "Disabled"
+                        })
+                        .on_press(Event::ToggleRpcEnabled)
                     ]
                     .align_items(Alignment::Center)
                     .spacing(10),

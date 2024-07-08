@@ -3,8 +3,8 @@ use std::hash::Hash;
 use std::path::PathBuf;
 
 use iced::advanced::image::Bytes;
-use iced::Subscription;
 use iced::futures;
+use iced::Subscription;
 
 use log::info;
 use reqwest::Client;

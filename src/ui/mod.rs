@@ -4,8 +4,8 @@ use std::sync::mpsc;
 
 use crate::core::json;
 use crate::core::playback;
-use crate::core::youtube;
 use crate::core::rpc;
+use crate::core::youtube;
 use components::control_bar;
 use components::sidebar;
 use components::theme;
@@ -227,13 +227,16 @@ impl Pages {
                                 tracks.clone(),
                             ))
                             .expect("Failed to send play command");
-                        
+
                         if self.rpc_enabled {
                             self.rpc_sender
-                                .send(rpc::RpcEvent::Set(display_name.clone(), duration.to_string()))
+                                .send(rpc::RpcEvent::Set(
+                                    display_name.clone(),
+                                    duration.to_string(),
+                                ))
                                 .expect("Failed to send rpc command");
                         }
-                    
+
                         self.active_display_name = display_name.clone();
                         self.active_video_id = video_id.clone();
                         self.active_track_list = tracks.expect("No active track list");
@@ -415,7 +418,10 @@ impl Pages {
 
                         if self.rpc_enabled {
                             self.rpc_sender
-                                .send(rpc::RpcEvent::Set(display_name.clone(), duration.to_string()))
+                                .send(rpc::RpcEvent::Set(
+                                    display_name.clone(),
+                                    duration.to_string(),
+                                ))
                                 .expect("Failed to send rpc command");
                         }
 
@@ -576,8 +582,12 @@ impl Pages {
                     components::control_bar::Event::Tick => {
                         if !self.controls.is_paused {
                             self.rpc_sender
-                            .send(rpc::RpcEvent::SetProgress(self.active_display_name.clone(), self.controls.seconds_passed.to_string(), self.active_duration.clone()))
-                            .expect("Failed to send tick command");
+                                .send(rpc::RpcEvent::SetProgress(
+                                    self.active_display_name.clone(),
+                                    self.controls.seconds_passed.to_string(),
+                                    self.active_duration.clone(),
+                                ))
+                                .expect("Failed to send tick command");
                         }
 
                         controls_command

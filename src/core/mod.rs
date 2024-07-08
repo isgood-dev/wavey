@@ -4,4 +4,5 @@ pub mod format;
 pub mod json;
 pub mod playback;
 pub mod request;
+pub mod rpc;
 pub mod youtube;

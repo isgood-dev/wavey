@@ -64,6 +64,19 @@ pub fn get_rpc_enabled() -> Result<bool, std::io::Error> {
     Ok(rpc_enabled)
 }
 
+pub fn set_rpc_enabled(enabled: bool) -> Result<(), std::io::Error> {
+    let data = read_file()?;
+    let mut new_data = data.clone();
+    new_data.insert("rpc_enabled".to_string(), enabled.to_string());
+
+    let new_data = serde_json::to_string_pretty(&new_data).unwrap();
+
+    let mut file = File::create("./data/settings.json")?;
+    file.write_all(new_data.as_bytes())?;
+
+    Ok(())
+}
+
 pub fn get_ffmpeg_path() -> Result<String, std::io::Error> {
     let data = read_file()?;
     let ffmpeg_path = data.get("ffmpeg_path").unwrap().to_string();

@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::path::Path;
 use std::sync::mpsc;
 
@@ -48,12 +47,6 @@ pub struct Pages {
     theme: Theme,
     track_list_loaded: bool,
     rpc_enabled: bool,
-
-    active_display_name: String,
-    active_video_id: String,
-    active_track_list: Vec<HashMap<String, String>>,
-    active_duration: String,
-    active_thumbnail_handle: Option<iced::advanced::image::Handle>,
 }
 
 #[derive(Default)]
@@ -148,12 +141,6 @@ impl Pages {
             theme: matched,
             track_list_loaded: false,
             rpc_enabled,
-
-            active_display_name: String::new(),
-            active_video_id: String::new(),
-            active_track_list: Vec::new(),
-            active_duration: String::new(),
-            active_thumbnail_handle: None,
         }
     }
 
@@ -237,20 +224,14 @@ impl Pages {
                                 .expect("Failed to send rpc command");
                         }
 
-                        self.active_display_name = display_name.clone();
-                        self.active_video_id = video_id.clone();
-                        self.active_track_list = tracks.expect("No active track list");
-                        self.active_thumbnail_handle = handle.clone();
-                        self.active_duration = duration.to_string().clone();
-
                         Task::batch(vec![
                             self.controls
                                 .update(components::control_bar::Event::InitiatePlay(
-                                    self.active_video_id.clone(),
+                                    self.controls.active_video_id.clone(),
                                     display_name.to_string(),
                                     duration,
                                     handle.clone(),
-                                    self.active_track_list.clone(),
+                                    self.controls.tracks.clone(),
                                 ))
                                 .map(UiEvent::ControlsAction),
                             playlist_command,
@@ -425,20 +406,14 @@ impl Pages {
                                 .expect("Failed to send rpc command");
                         }
 
-                        self.active_display_name = display_name.clone();
-                        self.active_video_id = video_id.clone();
-                        self.active_track_list = tracks.clone().expect("No active track list");
-                        self.active_thumbnail_handle = handle.clone();
-                        self.active_duration = duration.to_string().clone();
-
                         Task::batch(vec![
                             self.controls
                                 .update(components::control_bar::Event::InitiatePlay(
-                                    self.active_video_id.clone(),
+                                    self.controls.active_video_id.clone(),
                                     display_name.to_string(),
                                     *duration,
                                     handle.clone(),
-                                    self.active_track_list.clone(),
+                                    self.controls.tracks.clone(),
                                 ))
                                 .map(UiEvent::ControlsAction),
                             track_list_command,
@@ -537,7 +512,7 @@ impl Pages {
                             .send(playback::AudioEvent::Backward)
                             .expect("Failed to send backward command");
 
-                        if self.active_track_list.is_empty() {
+                        if self.controls.tracks.is_empty() {
                             return controls_command;
                         }
 
@@ -550,32 +525,28 @@ impl Pages {
                             .send(playback::AudioEvent::Forward)
                             .expect("Failed to send forward command");
 
-                        if self.active_track_list.is_empty() {
+                        if self.controls.tracks.is_empty() {
                             return controls_command;
                         }
 
-                        let index = self
-                            .active_track_list
+                        let index = self.controls.tracks
                             .iter()
-                            .position(|x| x.get("video_id").unwrap() == &self.active_video_id)
+                            .position(|x| x.get("video_id").unwrap() == &self.controls.active_video_id)
                             .unwrap();
                         let next_index = index + 1;
-                        let next_track = &self.active_track_list[next_index];
+                        let next_track = &self.controls.tracks[next_index];
 
                         let video_id = next_track.get("video_id").unwrap();
                         let display_name = next_track.get("display_name").unwrap();
                         let duration = next_track.get("duration").unwrap().parse::<u64>().unwrap();
 
-                        self.active_display_name = display_name.clone();
-                        self.active_video_id = video_id.clone();
-
                         self.controls
                             .update(control_bar::Event::InitiatePlay(
-                                video_id.clone(),
+                                video_id.to_string(),
                                 display_name.to_string(),
                                 duration,
                                 None,
-                                self.active_track_list.clone(),
+                                self.controls.tracks.clone(),
                             ))
                             .map(UiEvent::ControlsAction)
                     }
@@ -583,9 +554,9 @@ impl Pages {
                         if !self.controls.is_paused {
                             self.rpc_sender
                                 .send(rpc::RpcEvent::SetProgress(
-                                    self.active_display_name.clone(),
+                                    self.controls.display_name.clone(),
                                     self.controls.seconds_passed.to_string(),
-                                    self.active_duration.clone(),
+                                    self.controls.total_duration.to_string().clone(),
                                 ))
                                 .expect("Failed to send tick command");
                         }

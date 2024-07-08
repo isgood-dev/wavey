@@ -11,18 +11,20 @@ use iced::{time, Alignment, Element, Length, Task};
 use tokio::time::Duration;
 
 pub struct State {
+    pub is_paused: bool,
+    pub seconds_passed: u64,
+    pub active_thumbnail_handle: Option<iced::advanced::image::Handle>,
+    pub tracks: Vec<HashMap<String, String>>,
+    pub active_video_id: String,
+    pub total_duration: u64,
+    pub display_name: String,
+
     formatted_current_duration: String,
     formatted_total_duration: String,
-    total_duration: u64,
     slider_value: f32,
-    pub seconds_passed: u64,
     slider_is_active: bool,
-    now_playing: String,
-    pub is_paused: bool,
     volume: f32,
-    active_thumbnail_handle: Option<iced::advanced::image::Handle>,
-    tracks: Vec<HashMap<String, String>>,
-    active_video_id: String,
+
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -83,7 +85,7 @@ impl State {
 
                     self.formatted_current_duration = "0:00".to_string();
                     self.formatted_total_duration = "0:00".to_string();
-                    self.now_playing = "Nothing is playing.".to_string();
+                    self.display_name = "Nothing is playing.".to_string();
 
                     let index = self
                         .tracks
@@ -100,7 +102,7 @@ impl State {
                             let total_duration =
                                 next_track.get("duration").unwrap().parse::<u64>().unwrap();
 
-                            self.now_playing = display_name.clone();
+                            self.display_name = display_name.clone();
                             self.slider_is_active = true;
                             self.total_duration = total_duration;
                             self.active_video_id = video_id.clone();
@@ -138,7 +140,7 @@ impl State {
                 self.slider_value = 0.0;
                 self.seconds_passed = 0;
 
-                self.now_playing = display_name.clone();
+                self.display_name = display_name.clone();
                 self.slider_is_active = true;
                 self.total_duration = total_duration;
                 self.tracks = tracks;
@@ -213,7 +215,7 @@ impl State {
             row![
                 container(thumbnail).width(Length::FillPortion(3)),
                 column![
-                    text(&self.now_playing).size(14),
+                    text(&self.display_name).size(14),
                     row![
                         helpers::action(
                             helpers::backward_icon(),
@@ -287,7 +289,7 @@ impl Default for State {
             total_duration: 0,
             seconds_passed: 1,
             slider_is_active: false,
-            now_playing: String::from("Nothing is playing."),
+            display_name: String::from("Nothing is playing."),
             is_paused: false,
             volume: 0.5,
             tracks: Vec::new(),

@@ -3,7 +3,8 @@ use std::hash::Hash;
 use std::path::PathBuf;
 
 use iced::advanced::image::Bytes;
-use iced::subscription;
+use iced::Subscription;
+use iced::futures;
 
 use log::info;
 use reqwest::Client;
@@ -152,9 +153,14 @@ pub fn download_file<I: 'static + Hash + Copy + Send + Sync, T: ToString>(
     id: I,
     url: T,
 ) -> iced::Subscription<(I, Progress)> {
-    subscription::unfold(id, State::Ready(url.to_string()), move |state| {
-        download_progress(id, state)
-    })
+    Subscription::run_with_id(
+        id,
+        futures::stream::unfold(State::Ready(url.to_string()), move |state| {
+            use iced::futures::FutureExt;
+
+            download_progress(id, state).map(Some)
+        }),
+    )
 }
 
 async fn download_progress<I: Copy>(id: I, state: State) -> ((I, Progress), State) {

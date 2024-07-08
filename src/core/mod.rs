@@ -5,3 +5,4 @@ pub mod json;
 pub mod playback;
 pub mod request;
 pub mod youtube;
+pub mod rpc;

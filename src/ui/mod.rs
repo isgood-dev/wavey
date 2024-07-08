@@ -361,7 +361,7 @@ impl Pages {
                         }
 
                         self.rpc_enabled = !self.rpc_enabled
-                    },
+                    }
                 }
                 self.settings.update(event).map(UiEvent::SettingsAction)
             }

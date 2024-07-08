@@ -24,7 +24,6 @@ pub struct State {
     slider_value: f32,
     slider_is_active: bool,
     volume: f32,
-
 }
 
 #[derive(Debug, Clone, PartialEq)]

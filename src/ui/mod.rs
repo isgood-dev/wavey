@@ -86,18 +86,12 @@ impl Pages {
 
         let rpc = json::get_rpc_enabled();
 
-        let rpc_enabled: bool;
+        let rpc_enabled: bool = match rpc {
+            Ok(value) => value,
+            Err(_) => false,
+        };
 
-        if let Ok(rpc) = rpc {
-            if rpc {
-                rpc_enabled = true;
-                rpc::start_receiver(rpc_reciever);
-            } else {
-                rpc_enabled = false;
-            }
-        } else {
-            rpc_enabled = false;
-        }
+        rpc::start_receiver(rpc_reciever);
 
         let theme_value = json::get_theme().expect("Dark");
         let matched = theme::get_theme_from_settings(theme_value);
@@ -359,7 +353,15 @@ impl Pages {
                     settings::Event::ThemeSelected(theme) => {
                         self.theme = theme::match_theme(Some(theme));
                     }
-                    _ => (),
+                    settings::Event::ToggleRpcEnabled => {
+                        if self.rpc_enabled {
+                            self.rpc_sender
+                                .send(rpc::RpcEvent::Hide)
+                                .expect("Failed to send rpc command");
+                        }
+
+                        self.rpc_enabled = !self.rpc_enabled
+                    },
                 }
                 self.settings.update(event).map(UiEvent::SettingsAction)
             }
@@ -529,9 +531,13 @@ impl Pages {
                             return controls_command;
                         }
 
-                        let index = self.controls.tracks
+                        let index = self
+                            .controls
+                            .tracks
                             .iter()
-                            .position(|x| x.get("video_id").unwrap() == &self.controls.active_video_id)
+                            .position(|x| {
+                                x.get("video_id").unwrap() == &self.controls.active_video_id
+                            })
                             .unwrap();
                         let next_index = index + 1;
                         let next_track = &self.controls.tracks[next_index];
@@ -551,16 +557,17 @@ impl Pages {
                             .map(UiEvent::ControlsAction)
                     }
                     components::control_bar::Event::Tick => {
-                        if !self.controls.is_paused {
-                            self.rpc_sender
-                                .send(rpc::RpcEvent::SetProgress(
-                                    self.controls.display_name.clone(),
-                                    self.controls.seconds_passed.to_string(),
-                                    self.controls.total_duration.to_string().clone(),
-                                ))
-                                .expect("Failed to send tick command");
+                        if self.rpc_enabled {
+                            if !self.controls.is_paused {
+                                self.rpc_sender
+                                    .send(rpc::RpcEvent::SetProgress(
+                                        self.controls.display_name.clone(),
+                                        self.controls.seconds_passed.to_string(),
+                                        self.controls.total_duration.to_string().clone(),
+                                    ))
+                                    .expect("Failed to send tick command");
+                            }
                         }
-
                         controls_command
                     }
                     _ => controls_command,

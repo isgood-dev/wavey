@@ -68,7 +68,7 @@ impl Updater {
                     text("No updates available").size(24),
                     text("Your version of wavey is the latest."),
                 ]
-                .align_items(Alignment::Center)
+                .align_x(Alignment::Center)
                 .spacing(20),
             )
             .center_x(Length::Fill)
@@ -89,7 +89,7 @@ impl Updater {
                         None => "Unknown error",
                     }),
                 ]
-                .align_items(Alignment::Center)
+                .align_x(Alignment::Center)
                 .spacing(20),
             )
             .center_x(Length::Fill)
@@ -103,7 +103,7 @@ impl Updater {
                     text("Update complete").size(24),
                     text("The wavey app has been updated to the latest version."),
                 ]
-                .align_items(Alignment::Center)
+                .align_x(Alignment::Center)
                 .spacing(20),
             )
             .center_x(Length::Fill)
@@ -116,7 +116,7 @@ impl Updater {
                     text("This will update the wavey app to the latest version."),
                     button("Begin").on_press(Message::BeginPressed),
                 ]
-                .align_items(Alignment::Center)
+                .align_x(Alignment::Center)
                 .spacing(20),
             )
             .center_x(Length::Fill)

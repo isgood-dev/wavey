@@ -6,7 +6,7 @@ use iced::advanced::image::Bytes;
 use iced::futures;
 use iced::Subscription;
 
-use log::info;
+use log;
 use reqwest::Client;
 use tokio::fs::OpenOptions;
 use tokio::io::AsyncWriteExt;
@@ -17,7 +17,7 @@ pub enum RequestError {
 }
 
 pub async fn request_thumbnail(url: String) -> Result<Bytes, reqwest::Error> {
-    info!("Requesting thumbnail from {}", url);
+    log::info!("Requesting thumbnail from {}", url);
 
     let client = Client::new();
 
@@ -43,7 +43,7 @@ pub async fn request_all_thumbnails(
         thumbnails.push(bytes.to_vec());
     }
 
-    info!("Thumbnails received.");
+    log::info!("Thumbnails received.");
 
     Ok(thumbnails)
 }

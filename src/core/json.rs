@@ -3,14 +3,14 @@ use std::fs::File;
 use std::io::{BufReader, Write};
 use std::path::Path;
 
-use log::info;
+use log;
 
 fn read_file() -> Result<HashMap<String, String>, std::io::Error> {
     let file = File::open("./data/settings.json")?;
     let reader = BufReader::new(file);
     let data: HashMap<String, String> = serde_json::from_reader(reader)?;
 
-    info!("Read settings file.");
+    log::info!("Read settings file.");
 
     Ok(data)
 }

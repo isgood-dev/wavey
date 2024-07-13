@@ -243,7 +243,7 @@ impl State {
                     .spacing(10),
                 ]
                 .spacing(5)
-                .align_items(Alignment::Center)
+                .align_x(Alignment::Center)
                 .max_width(400)
                 .width(Length::FillPortion(7)),
                 container(
@@ -253,12 +253,12 @@ impl State {
                             .step(0.1)
                             .width(120)
                     ]
-                    .align_items(Alignment::Center)
+                    .align_y(Alignment::Center)
                     .spacing(10),
                 )
                 .width(Length::FillPortion(3))
             ]
-            .align_items(Alignment::Center)
+            .align_y(Alignment::Center)
             .spacing(10),
         )
         .width(Length::Fill)

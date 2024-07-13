@@ -89,7 +89,7 @@ impl State {
                 .spacing(10)
                 .padding(10)
                 .width(50)
-                .align_items(Alignment::Center),
+                .align_x(Alignment::Center),
             )
             .style(style::dynamic_colour)
             .height(Length::Fill)
@@ -130,7 +130,7 @@ impl State {
                 .spacing(10)
                 .padding(10)
                 .width(180)
-                .align_items(Alignment::Center),
+                .align_x(Alignment::Center),
             )
             .style(style::dynamic_colour)
             .height(Length::Fill)

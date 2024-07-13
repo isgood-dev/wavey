@@ -82,7 +82,7 @@ where
                                 })
                                 .padding(3),
                         ]
-                        .align_items(Alignment::Center)
+                        .align_y(Alignment::Center)
                     )
                     .width(Length::Fill)
                     .padding(5)

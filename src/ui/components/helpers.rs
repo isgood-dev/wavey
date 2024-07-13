@@ -55,7 +55,7 @@ pub fn action_with_text<'a, Message: Clone + 'a>(
     let action = button(
         row![content, text(label)]
             .width(130)
-            .align_items(Alignment::Center)
+            .align_y(Alignment::Center)
             .spacing(20),
     )
     .style(style::sidebar_button);

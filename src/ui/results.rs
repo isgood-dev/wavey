@@ -89,7 +89,7 @@ impl State {
                     image(self.thumbnails[index].clone()).width(130).height(100),
                     text(heading).size(16),
                 ]
-                .align_items(Alignment::Center)
+                .align_y(Alignment::Center)
                 .spacing(10);
 
                 column = column.push(row);
@@ -100,7 +100,7 @@ impl State {
                 scrollable(
                     column
                         .spacing(20)
-                        .align_items(Alignment::Start)
+                        .align_x(Alignment::Start)
                         .width(Length::Fill),
                 )
                 .height(Length::Fill),

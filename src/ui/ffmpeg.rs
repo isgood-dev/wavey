@@ -137,7 +137,7 @@ impl State {
                         text("You're ready to go."),
                         button("Proceed to wavey").on_press(Event::Continue)
                     ]
-                    .align_items(Alignment::Center)
+                    .align_x(Alignment::Center)
                     .spacing(10),
                 )
                 .center_x(Length::Fill)
@@ -155,7 +155,7 @@ impl State {
                     text(format!("Progress: {:.0}%", progress)),
                 ]
                 .spacing(10)
-                .align_items(Alignment::Center),
+                .align_x(Alignment::Center),
             )
             .center_x(Length::Fill)
             .center_y(Length::Fill)
@@ -174,7 +174,7 @@ impl State {
                     ].spacing(10),
                 ]
                 .spacing(10)
-                .align_items(Alignment::Center)
+                .align_x(Alignment::Center)
             )
             .center_x(Length::Fill)
             .center_y(Length::Fill)

@@ -155,7 +155,7 @@ impl State {
                             )),
                         ]
                         .spacing(10)
-                        .align_items(Alignment::Center),
+                        .align_y(Alignment::Center),
                     );
                 }
             } else {
@@ -192,14 +192,14 @@ impl State {
                             )),
                         ]
                         .spacing(10)
-                        .align_items(Alignment::Center),
+                        .align_y(Alignment::Center),
                     );
                 }
             }
 
             let content = container(scrollable(
                 col.spacing(10)
-                    .align_items(Alignment::Start)
+                    .align_x(Alignment::Start)
                     .width(Length::Fill),
             ))
             .padding(10);
@@ -218,11 +218,11 @@ impl State {
                     ]
                     .spacing(10)
                     .width(400)
-                    .align_items(Alignment::Center),
+                    .align_y(Alignment::Center),
                     button("Create new playlist").on_press(Event::CreatePlaylist),
                 ]
                 .spacing(15)
-                .align_items(Alignment::Center),
+                .align_x(Alignment::Center),
             )
             .center_x(Length::Fill)
             .center_y(Length::Fill)
@@ -243,9 +243,9 @@ impl State {
         let content = container(
             column![
                 text("Your Playlists").size(22),
-                scrollable(col.spacing(25).align_items(Alignment::Center))
+                scrollable(col.spacing(25).align_x(Alignment::Center))
             ]
-            .align_items(Alignment::Center)
+            .align_x(Alignment::Center)
             .spacing(10),
         )
         .padding(10)

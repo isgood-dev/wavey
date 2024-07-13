@@ -4,7 +4,7 @@ use core::json;
 use iced::{window, Element, Font, Settings, Subscription, Task};
 
 use image::GenericImageView;
-use log::info;
+use log;
 use log4rs;
 
 mod core;
@@ -53,10 +53,10 @@ impl Wavey {
     fn new() -> Self {
         log4rs::init_file("logging_config.yaml", Default::default()).unwrap();
 
-        info!("Starting Wavey.");
+        log::info!("Starting Wavey.");
         // Creates the database if it doesn't exist.
         if !db::check_database_exists() {
-            info!("Creating database because it does not exist.");
+            log::info!("Creating database because it does not exist.");
             let _ = db::create_database_tables();
         }
 
@@ -64,7 +64,7 @@ impl Wavey {
         let _ = db::verify_data_integrity();
 
         if !json::check_exists() {
-            info!("Creating settings file because it does not exist.");
+            log::info!("Creating settings file because it does not exist.");
             let _ = json::create_file();
         }
 

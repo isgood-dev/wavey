@@ -68,7 +68,7 @@ impl State {
                     button("Search").on_press(Event::Search),
                 ]
                 .spacing(40)
-                .align_items(Alignment::Start)
+                .align_x(Alignment::Start)
                 .width(Length::Fill),
             )
             .height(Length::Fill),

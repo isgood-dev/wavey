@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::path::Path;
 
-use log::info;
+use log;
 use rusqlite::{Connection, Error as RusqliteError};
 
 #[derive(Debug)]
@@ -44,7 +44,7 @@ pub fn check_database_exists() -> bool {
 
 // Creates the database tables. Called on startup if the database doesn't already exist.
 pub fn create_database_tables() -> Result<(), DatabaseError> {
-    info!("Creating database tables.");
+    log::info!("Creating database tables.");
     let conn = Connection::open("./data/data.db")?;
 
     conn.execute(
@@ -81,7 +81,7 @@ pub fn create_database_tables() -> Result<(), DatabaseError> {
 // Adds a track to the `music` table in the databsae. This is called when
 // downloading/importing new audio tracks.
 pub fn add_music(video_data: HashMap<String, String>) -> Result<(), DatabaseError> {
-    info!("Adding music to database.");
+    log::info!("Adding music to database.");
     let conn = Connection::open("./data/data.db")?;
 
     let video_id = video_data.get("video_id").unwrap();
@@ -99,7 +99,7 @@ pub fn add_music(video_data: HashMap<String, String>) -> Result<(), DatabaseErro
 }
 
 pub fn get_music_from_id(id: i32) -> Result<HashMap<String, String>, DatabaseError> {
-    info!("Requesting music data from ID.");
+    log::info!("Requesting music data from ID.");
 
     let conn = Connection::open("./data/data.db")?;
 
@@ -125,13 +125,13 @@ pub fn get_music_from_id(id: i32) -> Result<HashMap<String, String>, DatabaseErr
     music_map.insert("duration".to_string(), music.duration.to_string());
     music_map.insert("display_name".to_string(), music.display_name);
 
-    info!("Music data received.");
+    log::info!("Music data received.");
 
     Ok(music_map)
 }
 
 pub fn add_playlist(name: String) -> Result<(), DatabaseError> {
-    info!("Adding playlist to database.");
+    log::info!("Adding playlist to database.");
     let conn = Connection::open("./data/data.db")?;
 
     conn.execute("INSERT INTO playlists (name) VALUES (?1)", [name])?;
@@ -140,7 +140,7 @@ pub fn add_playlist(name: String) -> Result<(), DatabaseError> {
 }
 
 pub fn get_all_playlists() -> Vec<HashMap<String, String>> {
-    info!("Requesting all playlists.");
+    log::info!("Requesting all playlists.");
 
     let conn = Connection::open("./data/data.db").unwrap();
 
@@ -165,7 +165,7 @@ pub fn get_all_playlists() -> Vec<HashMap<String, String>> {
         playlist_data.push(playlist_map);
     }
 
-    info!("Playlists received.");
+    log::info!("Playlists received.");
 
     playlist_data
 }
@@ -176,7 +176,7 @@ pub fn get_all_playlists() -> Vec<HashMap<String, String>> {
 // exist, it will be deleted from the database.
 // This is called on app startup and is not checked again.
 pub fn verify_data_integrity() -> Result<(), DatabaseError> {
-    info!("Verifying database integrity.");
+    log::info!("Verifying database integrity.");
     let conn = Connection::open("./data/data.db")?;
 
     let mut statement = conn.prepare("SELECT * FROM music").unwrap();
@@ -198,13 +198,13 @@ pub fn verify_data_integrity() -> Result<(), DatabaseError> {
         let path = Path::new(&path_str);
 
         if !path.exists() {
-            info!("Found entry which doesn't exist. Deleting from database.");
+            log::info!("Found entry which doesn't exist. Deleting from database.");
 
             conn.execute("DELETE FROM music WHERE music_id = ?1", [music.music_id])?;
         }
     }
 
-    info!("Database integrity verified.");
+    log::info!("Database integrity verified.");
 
     Ok(())
 }
@@ -212,7 +212,7 @@ pub fn verify_data_integrity() -> Result<(), DatabaseError> {
 // Gets all audio tracks from the database. This is called to be displayed on
 // the `track_list` for displaying all songs.
 pub fn get_all_music() -> Vec<HashMap<String, String>> {
-    info!("Requesting all music data.");
+    log::info!("Requesting all music data.");
 
     let conn = Connection::open("./data/data.db").unwrap();
 
@@ -242,13 +242,13 @@ pub fn get_all_music() -> Vec<HashMap<String, String>> {
         music_data.push(music_map);
     }
 
-    info!("Music data received.");
+    log::info!("Music data received.");
 
     music_data
 }
 
 pub fn delete_music(video_id: String) -> Result<(), DatabaseError> {
-    info!("Deleting track from database.");
+    log::info!("Deleting track from database.");
 
     let conn = Connection::open("./data/data.db")?;
 
@@ -262,9 +262,10 @@ pub fn delete_music(video_id: String) -> Result<(), DatabaseError> {
 }
 
 pub fn edit_display_name(video_id: String, new_display_name: String) -> Result<(), DatabaseError> {
-    info!(
+    log::info!(
         "Editing display name for {} to: {}",
-        video_id, new_display_name
+        video_id,
+        new_display_name
     );
     let conn = Connection::open("./data/data.db")?;
 
@@ -277,7 +278,7 @@ pub fn edit_display_name(video_id: String, new_display_name: String) -> Result<(
 }
 
 pub fn get_playlist_tracks(playlist_id: i32) -> Vec<HashMap<String, String>> {
-    info!("Requesting playlist tracks.");
+    log::info!("Requesting playlist tracks.");
 
     let conn = Connection::open("./data/data.db").unwrap();
 
@@ -314,13 +315,13 @@ pub fn get_playlist_tracks(playlist_id: i32) -> Vec<HashMap<String, String>> {
         music_data.push(music_map);
     }
 
-    info!("Playlist tracks received.");
+    log::info!("Playlist tracks received.");
 
     music_data
 }
 
 pub fn add_music_playlist(video_id: String, playlist_id: i32) -> Result<(), DatabaseError> {
-    info!("Adding track to playlist.");
+    log::info!("Adding track to playlist.");
 
     let conn = Connection::open("./data/data.db")?;
 

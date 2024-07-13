@@ -50,7 +50,7 @@ impl State {
                         pick_list(theme::Themes::ALL, Some(self.themes), Event::ThemeSelected),
                         text("Themes beside Light and Dark are experimental.").size(14),
                     ]
-                    .align_items(Alignment::Center)
+                    .align_y(Alignment::Center)
                     .spacing(10),
                     row![
                         text("Discord Rich Presence:"),
@@ -61,11 +61,11 @@ impl State {
                         })
                         .on_press(Event::ToggleRpcEnabled)
                     ]
-                    .align_items(Alignment::Center)
+                    .align_y(Alignment::Center)
                     .spacing(10),
                 ]
                 .spacing(40)
-                .align_items(Alignment::Start)
+                .align_x(Alignment::Start)
                 .width(Length::Fill),
             )
             .height(Length::Fill),

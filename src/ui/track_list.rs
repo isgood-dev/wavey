@@ -16,7 +16,7 @@ use iced::widget::{
 use iced::Subscription;
 use iced::{Alignment, Element, Length, Task};
 
-use log::info;
+use log;
 
 pub struct State {
     track_list: Vec<HashMap<String, String>>,
@@ -114,7 +114,7 @@ impl State {
             Event::PlayTrack(_video_id, _display_name, _duration, _handle, _tracks) => Task::none(),
 
             Event::ShowEditModal(video_id, display_name) => {
-                info!("Showing modal for track with video_id: {}", video_id);
+                log::info!("Showing modal for track with video_id: {}", video_id);
 
                 self.show_edit_modal = true;
                 self.active_video_id = Some(video_id);
@@ -123,7 +123,7 @@ impl State {
                 widget::focus_next()
             }
             Event::HideEditModal => {
-                info!("Hiding modal.");
+                log::info!("Hiding modal.");
                 self.hide_modals();
 
                 Task::none()
@@ -168,7 +168,7 @@ impl State {
                     key: keyboard::Key::Named(key::Named::Escape),
                     ..
                 }) => {
-                    info!("Hiding modal via escape key.");
+                    log::info!("Hiding modal via escape key.");
 
                     self.hide_modals();
 
@@ -184,7 +184,7 @@ impl State {
             text("Your Music").size(18),
             button("Refresh").on_press(Event::GetThumbnailHandles)
         ]
-        .align_items(Alignment::Center)
+        .align_y(Alignment::Center)
         .spacing(10)];
 
         for audio_file in &self.track_list {
@@ -234,7 +234,7 @@ impl State {
                     ),
                     Space::with_width(30),
                 ]
-                .align_items(Alignment::Center)
+                .align_y(Alignment::Center)
                 .spacing(10)
                 .into();
             } else {
@@ -263,7 +263,7 @@ impl State {
                     ),
                     Space::with_width(30),
                 ]
-                .align_items(Alignment::Center)
+                .align_y(Alignment::Center)
                 .spacing(10)
                 .into();
             }
@@ -287,7 +287,7 @@ impl State {
                         text_input("Enter here...", &self.new_display_name)
                             .on_input(Event::NewDisplayName),
                     ]
-                    .align_items(Alignment::Center)
+                    .align_x(Alignment::Center)
                     .spacing(10),
                     row![
                         button("Delete Track")
@@ -298,9 +298,9 @@ impl State {
                             .on_press(Event::Submit),
                     ]
                     .spacing(10)
-                    .align_items(Alignment::Center),
+                    .align_y(Alignment::Center),
                 ]
-                .align_items(Alignment::Center)
+                .align_x(Alignment::Center)
                 .spacing(20),
             )
             .style(container::rounded_box)
@@ -310,7 +310,7 @@ impl State {
         } else if self.show_add_modal {
             let playlists = db::get_all_playlists();
 
-            let mut col = column![].spacing(10).align_items(Alignment::Center);
+            let mut col = column![].spacing(10).align_x(Alignment::Center);
 
             for playlist in playlists {
                 let id = playlist.get("id").unwrap().parse::<i32>().unwrap().clone();
@@ -325,10 +325,10 @@ impl State {
                 column![
                     text("Add to Playlist").size(24),
                     column![text("Select a playlist:"), scrollable(col)]
-                        .align_items(Alignment::Center)
+                        .align_x(Alignment::Center)
                         .spacing(10),
                 ]
-                .align_items(Alignment::Center)
+                .align_x(Alignment::Center)
                 .spacing(20),
             )
             .style(container::rounded_box)

@@ -210,7 +210,7 @@ async fn download_progress<I: Copy>(id: I, state: State) -> ((I, Progress), Stat
                             .expect("Failed to write to file");
                     }
                     Err(e) => {
-                        eprintln!("Failed to open file: {}", e);
+                        log::error!("Failed to open file: {}", e);
                     }
                 }
 

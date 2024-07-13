@@ -53,7 +53,9 @@ impl State {
                             self.thumbnails.push(handle);
                         }
                     }
-                    Err(_) => {}
+                    Err(e) => {
+                        log::error!("Failed to get thumbnails: {:?}", e);
+                    }
                 };
 
                 self.loading = false;

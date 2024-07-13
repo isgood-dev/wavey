@@ -40,8 +40,8 @@ fn process_audio_command(command: AudioEvent, sink: &Sink) {
 
             match try_seek {
                 Ok(_) => (),
-                Err(_) => {
-                    println!("Failed to seek")
+                Err(e) => {
+                    log::error!("Failed to seek: {}", e);
                 }
             }
         }
@@ -67,8 +67,8 @@ fn process_audio_command(command: AudioEvent, sink: &Sink) {
 
             match try_seek {
                 Ok(_) => (),
-                Err(_) => {
-                    println!("Failed to seek")
+                Err(e) => {
+                    log::error!("Failed to seek-to: {}", e);
                 }
             }
         }

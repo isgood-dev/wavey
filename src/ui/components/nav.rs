@@ -65,7 +65,7 @@ async fn start_updater() {
     } else if std::path::Path::new(root_path).exists() {
         root_path
     } else {
-        println!("No updater executable found");
+        log::error!("Updater not found");
         return;
     };
 
@@ -74,13 +74,13 @@ async fn start_updater() {
     match output {
         Ok(output) => {
             if output.status.success() {
-                println!("Update successful");
+                log::info!("Update successful");
             } else {
-                println!("Update failed");
+                log::error!("Update failed");
             }
         }
         Err(_) => {
-            println!("Update failed");
+            log::error!("Update failed");
         }
     }
 }

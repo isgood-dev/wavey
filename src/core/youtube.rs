@@ -91,6 +91,8 @@ pub async fn get_search_results(
         }
     }
 
+    log::info!("Results: {:?}", results);
+
     Ok(results)
 }
 

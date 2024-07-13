@@ -32,6 +32,7 @@ pub fn create_file() -> Result<(), std::io::Error> {
             file.write_all(data.as_bytes())?;
         }
         Err(e) => {
+            log::error!("Error creating settings file: {}", e);
             return Err(e);
         }
     }

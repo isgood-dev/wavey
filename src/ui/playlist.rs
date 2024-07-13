@@ -61,7 +61,9 @@ impl State {
                         track.get("music_id").unwrap().parse::<i32>().unwrap(),
                     ) {
                         Ok(music) => self.tracks.push(music),
-                        Err(_) => (),
+                        Err(e) => {
+                            log::error!("Failed to get music from id: {:?}", e);
+                        }
                     }
                 }
 

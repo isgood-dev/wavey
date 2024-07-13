@@ -22,8 +22,3 @@ log = "0.4"
 log4rs = "1"
 rfd = "0.12"
 discord-presence = "1.2"
-
-[workspace]
-members = [
-    "updater"
-]

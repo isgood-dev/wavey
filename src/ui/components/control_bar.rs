@@ -1,10 +1,12 @@
 use std::collections::HashMap;
 
-use super::helpers;
-use super::style;
 use crate::core::format;
 use crate::core::request;
+use crate::ui::helpers::helper;
+use crate::ui::helpers::icons;
+use crate::ui::helpers::style;
 
+use iced::widget::Space;
 use iced::widget::{column, container, image, row, slider, text};
 use iced::{time, Alignment, Element, Length, Task};
 
@@ -189,41 +191,44 @@ impl State {
 
         if self.is_paused {
             pause_or_play =
-                helpers::action(helpers::play_icon(), "Play", Some(Event::PauseToggleAction));
+                helper::action(icons::play_icon(), "Play", Some(Event::PauseToggleAction));
         } else {
-            pause_or_play = helpers::action(
-                helpers::pause_icon(),
-                "Pause",
-                Some(Event::PauseToggleAction),
-            );
+            pause_or_play =
+                helper::action(icons::pause_icon(), "Pause", Some(Event::PauseToggleAction));
         }
 
         if self.volume == 0.0 {
-            volume_icon = helpers::action(helpers::volume_off(), "Unmute", Some(Event::Mute));
+            volume_icon = helper::action(icons::volume_off(), "Unmute", Some(Event::Mute));
         } else {
-            volume_icon = helpers::action(helpers::volume_on(), "Mute", Some(Event::Unmute));
+            volume_icon = helper::action(icons::volume_on(), "Mute", Some(Event::Unmute));
         }
 
         if self.active_thumbnail_handle.is_none() {
             thumbnail = container(text("")).into();
         } else {
-            thumbnail = container(image(self.active_thumbnail_handle.clone().unwrap())).into();
+            thumbnail = container(
+                image(self.active_thumbnail_handle.clone().unwrap())
+                    .width(90)
+                    .height(60),
+            )
+            .into();
         }
 
         container(
             row![
+                Space::with_width(10),
                 container(thumbnail).width(Length::FillPortion(3)),
                 column![
                     text(&self.display_name).size(14),
                     row![
-                        helpers::action(
-                            helpers::backward_icon(),
+                        helper::action(
+                            icons::backward_icon(),
                             "Back",
                             Some(Event::BackwardPressed)
                         ),
                         pause_or_play,
-                        helpers::action(
-                            helpers::forward_icon(),
+                        helper::action(
+                            icons::forward_icon(),
                             "Forward",
                             Some(Event::ForwardPressed)
                         ),

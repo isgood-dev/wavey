@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
-use super::components::helpers;
-use super::components::style;
+use super::helpers::helper;
+use super::helpers::icons;
+use super::helpers::style;
 use crate::core::db;
 use crate::core::format;
 use crate::core::request;
@@ -205,8 +206,8 @@ impl State {
                     .unwrap();
 
                 row = row![
-                    helpers::action(
-                        helpers::play_icon(),
+                    helper::action(
+                        icons::play_icon(),
                         display_name,
                         Some(Event::PlayTrack(
                             video_id.clone(),
@@ -216,19 +217,19 @@ impl State {
                             Some(self.track_list.clone())
                         )),
                     ),
-                    helpers::thumbnail(thumbnail_handle.clone()),
+                    helper::thumbnail(thumbnail_handle.clone()),
                     Space::with_width(10),
                     text(format::trunc_name(display_name.clone().as_str())),
                     horizontal_space(),
                     text(formatted_duration.clone()),
                     Space::with_width(10),
-                    helpers::action(
-                        helpers::edit_icon(),
+                    helper::action(
+                        icons::edit_icon(),
                         "Edit",
                         Some(Event::ShowEditModal(video_id.clone(), display_name.clone()))
                     ),
-                    helpers::action(
-                        helpers::add_icon(),
+                    helper::action(
+                        icons::add_icon(),
                         "Add to playlist",
                         Some(Event::ShowAddModal(video_id.clone()))
                     ),
@@ -239,8 +240,8 @@ impl State {
                 .into();
             } else {
                 row = row![
-                    helpers::action(
-                        helpers::play_icon(),
+                    helper::action(
+                        icons::play_icon(),
                         display_name,
                         Some(Event::PlayTrack(
                             video_id.clone(),
@@ -256,8 +257,8 @@ impl State {
                     horizontal_space(),
                     text(formatted_duration.clone()),
                     Space::with_width(10),
-                    helpers::action(
-                        helpers::edit_icon(),
+                    helper::action(
+                        icons::edit_icon(),
                         "Edit",
                         Some(Event::ShowEditModal(video_id.clone(), display_name.clone()))
                     ),
@@ -306,7 +307,7 @@ impl State {
             .style(container::rounded_box)
             .width(300);
 
-            helpers::modal(content, edit, Event::HideEditModal)
+            helper::modal(content, edit, Event::HideEditModal)
         } else if self.show_add_modal {
             let playlists = db::get_all_playlists();
 
@@ -335,7 +336,7 @@ impl State {
             .center_x(Length::Fill)
             .width(300);
 
-            helpers::modal(content, add, Event::HidePlaylistModal)
+            helper::modal(content, add, Event::HidePlaylistModal)
         } else {
             content.into()
         }

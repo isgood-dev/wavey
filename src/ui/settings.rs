@@ -1,4 +1,4 @@
-use super::components::theme;
+use super::helpers::theme;
 use crate::core::json;
 
 use iced::widget::{button, column, container, pick_list, row, scrollable, text};

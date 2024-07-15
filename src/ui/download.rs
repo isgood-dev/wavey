@@ -28,9 +28,9 @@ impl State {
             Event::DownloadQueryReceived(Ok(_data)) => Task::none(),
             Event::DownloadQueryReceived(Err(e)) => {
                 log::error!("Failed to get search results: {:?}", e);
-                
+
                 Task::none()
-            },
+            }
             Event::Search => {
                 let query = self.title.clone();
 

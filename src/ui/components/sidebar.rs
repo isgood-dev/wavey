@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 
-use super::helpers;
-use super::style;
 use crate::core::db;
+use crate::ui::helpers::helper;
+use crate::ui::helpers::icons;
+use crate::ui::helpers::style;
 
 use iced::widget::{button, column, container, scrollable, text, Space};
 use iced::{Alignment, Length, Task};
@@ -65,23 +66,15 @@ impl State {
         if self.collapsed {
             container(
                 column![
-                    helpers::action(
-                        helpers::home_icon(),
-                        "Home Page",
-                        Some(Event::OpenTrackList)
-                    ),
-                    helpers::action(
-                        helpers::list_icon(),
-                        "Playlists",
-                        Some(Event::OpenPlaylists)
-                    ),
-                    helpers::action(
-                        helpers::download_icon(),
+                    helper::action(icons::home_icon(), "Home Page", Some(Event::OpenTrackList)),
+                    helper::action(icons::list_icon(), "Playlists", Some(Event::OpenPlaylists)),
+                    helper::action(
+                        icons::download_icon(),
                         "Add Music",
                         Some(Event::OpenDownload)
                     ),
-                    helpers::action(
-                        helpers::settings_icon(),
+                    helper::action(
+                        icons::settings_icon(),
                         "Settings",
                         Some(Event::OpenSettings)
                     ),
@@ -98,30 +91,30 @@ impl State {
             container(
                 column![
                     text("MY MUSIC").size(12).style(style::sidebar_text),
-                    helpers::action_with_text(
-                        helpers::home_icon(),
+                    helper::action_with_text(
+                        icons::home_icon(),
                         "Home Page",
                         Some(Event::OpenTrackList)
                     ),
-                    helpers::action_with_text(
-                        helpers::list_icon(),
+                    helper::action_with_text(
+                        icons::list_icon(),
                         "Playlists",
                         Some(Event::OpenPlaylists)
                     ),
-                    helpers::action_with_text(
-                        helpers::download_icon(),
+                    helper::action_with_text(
+                        icons::download_icon(),
                         "Add Music",
                         Some(Event::OpenDownload)
                     ),
-                    helpers::action_with_text(
-                        helpers::settings_icon(),
+                    helper::action_with_text(
+                        icons::settings_icon(),
                         "Settings",
                         Some(Event::OpenSettings)
                     ),
                     Space::with_height(10),
                     text("MY PLAYLISTS").size(12).style(style::sidebar_text),
-                    helpers::action_with_text(
-                        helpers::add_icon(),
+                    helper::action_with_text(
+                        icons::add_icon(),
                         "New Playlist",
                         Some(Event::CreatePlaylist)
                     ),

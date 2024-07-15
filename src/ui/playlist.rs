@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
-use super::components::helpers;
-use super::components::style;
+use super::helpers::helper;
+use super::helpers::icons;
+use super::helpers::style;
 use crate::core::db;
 use crate::core::format;
 use crate::core::request;
@@ -126,8 +127,8 @@ impl State {
 
                     col = col.push(
                         row![
-                            helpers::action(
-                                helpers::play_icon(),
+                            helper::action(
+                                icons::play_icon(),
                                 "Play",
                                 Some(Event::PlayTrack(
                                     track.get("video_id").unwrap().to_string(),
@@ -143,7 +144,7 @@ impl State {
                                     Some(self.tracks.clone()),
                                 ))
                             ),
-                            helpers::thumbnail(handle.clone()),
+                            helper::thumbnail(handle.clone()),
                             text(track.get("display_name").unwrap()),
                             horizontal_space(),
                             text(format::format_duration(
@@ -164,8 +165,8 @@ impl State {
                 for track in self.tracks.iter() {
                     col = col.push(
                         row![
-                            helpers::action(
-                                helpers::play_icon(),
+                            helper::action(
+                                icons::play_icon(),
                                 "Play",
                                 Some(Event::PlayTrack(
                                     track.get("video_id").unwrap().to_string(),

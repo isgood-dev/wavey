@@ -7,7 +7,6 @@ use crate::core::rpc;
 use crate::core::youtube;
 use components::control_bar;
 use components::sidebar;
-use components::theme;
 use components::toast;
 
 use iced::advanced::graphics::futures::event;
@@ -21,6 +20,7 @@ use iced::{Subscription, Task, Theme};
 mod components;
 mod download;
 mod ffmpeg;
+mod helpers;
 mod playlist;
 mod results;
 mod settings;
@@ -94,7 +94,7 @@ impl Pages {
         rpc::start_receiver(rpc_reciever);
 
         let theme_value = json::get_theme().expect("Dark");
-        let matched = theme::get_theme_from_settings(theme_value);
+        let matched = helpers::theme::get_theme_from_settings(theme_value);
 
         let current_page: Page;
 
@@ -351,7 +351,7 @@ impl Pages {
             UiEvent::SettingsAction(event) => {
                 match event {
                     settings::Event::ThemeSelected(theme) => {
-                        self.theme = theme::match_theme(Some(theme));
+                        self.theme = helpers::theme::match_theme(Some(theme));
                     }
                     settings::Event::ToggleRpcEnabled => {
                         if self.rpc_enabled {

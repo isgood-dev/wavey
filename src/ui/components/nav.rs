@@ -1,5 +1,6 @@
-use super::helpers;
-use super::style;
+use crate::ui::helpers::helper;
+use crate::ui::helpers::icons;
+use crate::ui::helpers::style;
 
 use iced::{
     widget::{container, horizontal_space, row, Space},
@@ -30,14 +31,10 @@ impl State {
 
     pub fn view(&self) -> iced::Element<Event> {
         let content = container(row![
-            helpers::action(
-                helpers::menu_icon(),
-                "Collapse",
-                Some(Event::CollapseSidebar)
-            ),
+            helper::action(icons::menu_icon(), "Collapse", Some(Event::CollapseSidebar)),
             horizontal_space(),
-            helpers::action(
-                helpers::update_icon(),
+            helper::action(
+                icons::update_icon(),
                 "Check for updates",
                 Some(Event::CheckUpdates)
             ),

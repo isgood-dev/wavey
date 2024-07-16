@@ -4,7 +4,6 @@ use std::sync::mpsc;
 use crate::core::json;
 use crate::core::playback;
 use crate::core::rpc;
-use crate::core::youtube;
 use components::control_bar;
 use components::sidebar;
 use components::toast;
@@ -17,12 +16,11 @@ use iced::widget;
 use iced::widget::{column, row};
 use iced::{Subscription, Task, Theme};
 
+mod add_music;
 mod components;
-mod download;
 mod ffmpeg;
 mod helpers;
 mod playlist;
-mod results;
 mod settings;
 mod track_list;
 
@@ -35,8 +33,7 @@ pub struct Pages {
 
     track_list: track_list::State,
     settings: settings::State,
-    download: download::State,
-    results: results::State,
+    add_music: add_music::State,
     ffmpeg: ffmpeg::State,
     playlist: playlist::State,
 
@@ -54,8 +51,7 @@ pub enum Page {
     #[default]
     TrackList,
     Settings,
-    Download,
-    Results,
+    AddMusic,
     FFmpeg,
     Playlist,
 }
@@ -68,8 +64,7 @@ pub enum UiEvent {
 
     TrackListAction(track_list::Event),
     SettingsAction(settings::Event),
-    DownloadAction(download::Event),
-    ResultsAction(results::Event),
+    AddMusicAction(add_music::Event),
     FFmpegAction(ffmpeg::Event),
     PlaylistAction(playlist::Event),
 
@@ -122,9 +117,8 @@ impl Pages {
             controls: Default::default(),
 
             track_list: Default::default(),
-            download: Default::default(),
+            add_music: Default::default(),
             settings: Default::default(),
-            results: Default::default(),
             ffmpeg: Default::default(),
             playlist: Default::default(),
 
@@ -249,101 +243,82 @@ impl Pages {
                 self.ffmpeg.update(event).map(UiEvent::FFmpegAction)
             }
 
-            UiEvent::DownloadAction(event) => {
+            UiEvent::AddMusicAction(event) => {
                 let download_command = self
-                    .download
+                    .add_music
                     .update(event.clone())
-                    .map(UiEvent::DownloadAction);
+                    .map(UiEvent::AddMusicAction);
                 match event {
-                    download::Event::DownloadQueryReceived(data) => {
-                        self.current_page = Page::Results;
-
-                        let data = match data {
+                    add_music::Event::SearchQueryReceived(data) => {
+                        match data {
                             Ok(data) => data,
                             Err(error) => {
-                                match error {
-                                    youtube::StatusError::NetworkError => {
-                                        self.toasts.push(toast::Toast {
-                                            title: "Network Error".into(),
-                                            body: "Failed to fetch search results".into(),
-                                            status: toast::Status::Danger,
-                                        })
-                                    }
-                                    youtube::StatusError::UnknownError => {
-                                        self.toasts.push(toast::Toast {
-                                            title: "Unknown Error".into(),
-                                            body: "An unknown error occurred".into(),
-                                            status: toast::Status::Danger,
-                                        })
-                                    }
-                                    youtube::StatusError::VideoNotFound => {
-                                        self.toasts.push(toast::Toast {
-                                            title: "Video Not Found".into(),
-                                            body: "The video you are looking for was not found"
-                                                .into(),
-                                            status: toast::Status::Danger,
-                                        })
-                                    }
-                                    youtube::StatusError::FFmpegConversionError => {
-                                        self.toasts.push(toast::Toast {
-                                            title: "FFmpeg Error".into(),
-                                            body: "Failed to convert video".into(),
-                                            status: toast::Status::Danger,
-                                        })
-                                    }
-                                    youtube::StatusError::CodecError => {
-                                        self.toasts.push(toast::Toast {
-                                            title: "Codec Error".into(),
-                                            body: "Failed to decode video".into(),
-                                            status: toast::Status::Danger,
-                                        })
-                                    }
-                                    youtube::StatusError::VideoOptionError => {
-                                        self.toasts.push(toast::Toast {
-                                            title: "Video Option Error".into(),
-                                            body: "Failed to set video options".into(),
-                                            status: toast::Status::Danger,
-                                        })
-                                    }
-                                    youtube::StatusError::DownloadError => {
-                                        self.toasts.push(toast::Toast {
-                                            title: "Download Error".into(),
-                                            body: "Failed to download video".into(),
-                                            status: toast::Status::Danger,
-                                        })
-                                    }
-                                    youtube::StatusError::ThumbnailError => {
-                                        self.toasts.push(toast::Toast {
-                                            title: "Thumbnail Error".into(),
-                                            body: "Failed to fetch thumbnail".into(),
-                                            status: toast::Status::Danger,
-                                        })
-                                    }
-                                    youtube::StatusError::VideoInfoError => {
-                                        self.toasts.push(toast::Toast {
-                                            title: "Video Info Error".into(),
-                                            body: "Failed to fetch video info".into(),
-                                            status: toast::Status::Danger,
-                                        })
-                                    }
-                                    youtube::StatusError::WriteError => {
-                                        self.toasts.push(toast::Toast {
-                                            title: "Write Error".into(),
-                                            body: "Failed to write video".into(),
-                                            status: toast::Status::Danger,
-                                        })
-                                    }
-                                }
+                                log::error!("Failed to get search results: {:?}", error);
+
+                                self.toasts.push(toast::Toast {
+                                    title: "Search failed".into(),
+                                    body: format!("Failed to get search results: {:?}", error),
+                                    status: toast::Status::Danger,
+                                });
+
                                 return download_command;
                             }
                         };
 
-                        Task::batch(vec![
-                            self.results
-                                .update(results::Event::PopulateResults(data))
-                                .map(UiEvent::ResultsAction),
-                            download_command,
-                        ])
+                        download_command
+                    }
+                    add_music::Event::DownloadPressed(video_id) => {
+                        self.toasts.push(toast::Toast {
+                            title: "Download Started".into(),
+                            body: format!("Downloading video: {}", video_id),
+                            status: toast::Status::Primary,
+                        });
+
+                        download_command
+                    }
+                    add_music::Event::DownloadComplete(status) => {
+                        match status {
+                            Ok(_) => {
+                                self.toasts.push(toast::Toast {
+                                    title: "Download Complete".into(),
+                                    body: "Downloaded video successfully".into(),
+                                    status: toast::Status::Success,
+                                });
+                            }
+                            Err(error) => {
+                                log::error!("Failed to download video: {:?}", error);
+
+                                self.toasts.push(toast::Toast {
+                                    title: "Download Failed".into(),
+                                    body: format!("Failed to download video: {:?}", error),
+                                    status: toast::Status::Danger,
+                                });
+                            }
+                        };
+
+                        download_command
+                    }
+                    add_music::Event::UrlResult(status) => {
+                        match status {
+                            Ok(_) => {
+                                self.toasts.push(toast::Toast {
+                                    title: "Download Complete".into(),
+                                    body: "Downloaded video successfully".into(),
+                                    status: toast::Status::Success,
+                                });
+                            }
+                            Err(error) => {
+                                log::error!("Failed to download video: {:?}", error);
+
+                                self.toasts.push(toast::Toast {
+                                    title: "Download Failed".into(),
+                                    body: format!("Failed to download video: {:?}", error),
+                                    status: toast::Status::Danger,
+                                });
+                            }
+                        };
+
+                        download_command
                     }
                     _ => download_command,
                 }
@@ -432,7 +407,7 @@ impl Pages {
                     .map(UiEvent::SidebarAction);
 
                 match event {
-                    components::sidebar::Event::OpenDownload => self.current_page = Page::Download,
+                    components::sidebar::Event::OpenDownload => self.current_page = Page::AddMusic,
                     components::sidebar::Event::OpenPlaylists => {
                         return {
                             self.current_page = Page::Playlist;
@@ -573,35 +548,6 @@ impl Pages {
                     _ => controls_command,
                 }
             }
-            UiEvent::ResultsAction(event) => {
-                match event.clone() {
-                    results::Event::DownloadPressed(_url) => {
-                        self.toasts.push(toast::Toast {
-                            title: "Download".into(),
-                            body: "Your download has started.".into(),
-                            status: toast::Status::Secondary,
-                        });
-                    }
-                    results::Event::DownloadComplete(status) => match status {
-                        Ok(_) => {
-                            self.toasts.push(toast::Toast {
-                                title: "Download".into(),
-                                body: "Your download has completed.".into(),
-                                status: toast::Status::Success,
-                            });
-                        }
-                        Err(_) => {
-                            self.toasts.push(toast::Toast {
-                                title: "Download".into(),
-                                body: "Your download has failed.".into(),
-                                status: toast::Status::Danger,
-                            });
-                        }
-                    },
-                    _ => (),
-                }
-                self.results.update(event).map(UiEvent::ResultsAction)
-            }
         }
     }
 
@@ -625,18 +571,6 @@ impl Pages {
 
                 toast::Manager::new(content, &self.toasts, UiEvent::CloseToast).into()
             }
-            Page::Results => {
-                let content = column![
-                    self.nav.view().map(UiEvent::NavAction),
-                    row![
-                        self.sidebar.view().map(UiEvent::SidebarAction),
-                        self.results.view().map(UiEvent::ResultsAction),
-                    ],
-                    self.controls.view().map(UiEvent::ControlsAction),
-                ];
-
-                toast::Manager::new(content, &self.toasts, UiEvent::CloseToast).into()
-            }
 
             Page::TrackList => {
                 let content = column![
@@ -651,12 +585,12 @@ impl Pages {
                 toast::Manager::new(content, &self.toasts, UiEvent::CloseToast).into()
             }
 
-            Page::Download => {
+            Page::AddMusic => {
                 let content = column![
                     self.nav.view().map(UiEvent::NavAction),
                     row![
                         self.sidebar.view().map(UiEvent::SidebarAction),
-                        self.download.view().map(UiEvent::DownloadAction),
+                        self.add_music.view().map(UiEvent::AddMusicAction),
                     ],
                     self.controls.view().map(UiEvent::ControlsAction),
                 ];

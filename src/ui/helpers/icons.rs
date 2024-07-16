@@ -11,10 +11,6 @@ pub fn download_icon<'a, Message>() -> Element<'a, Message> {
     icon('\u{0e800}')
 }
 
-// pub fn repeat_icon<'a, Message>() -> Element<'a, Message> {
-//     icon('\u{0e801}')
-// }
-
 pub fn edit_icon<'a, Message>() -> Element<'a, Message> {
     icon('\u{0e802}')
 }
@@ -66,3 +62,15 @@ pub fn update_icon<'a, Message>() -> Element<'a, Message> {
 pub fn menu_icon<'a, Message>() -> Element<'a, Message> {
     icon('\u{0f0c9}')
 }
+
+pub fn search_icon<'a, Message>() -> Element<'a, Message> {
+    icon('\u{0e80e}')
+}
+
+// pub fn repeat_icon<'a, Message>() -> Element<'a, Message> {
+//     icon('\u{0e801}')
+// }
+
+// pub fn upload_icon<'a, Message>() -> Element<'a, Message> {
+//     icon('\u{0e80f}')
+// }

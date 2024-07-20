@@ -147,7 +147,7 @@ impl State {
                             helper::thumbnail(handle.clone()),
                             text(track.get("display_name").unwrap()),
                             horizontal_space(),
-                            text(format::format_duration(
+                            text(format::duration(
                                 track
                                     .get("duration")
                                     .unwrap()
@@ -184,7 +184,7 @@ impl State {
                             ),
                             text(track.get("display_name").unwrap()),
                             horizontal_space(),
-                            text(format::format_duration(
+                            text(format::duration(
                                 track
                                     .get("duration")
                                     .unwrap()

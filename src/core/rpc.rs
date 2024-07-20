@@ -33,7 +33,7 @@ fn process_rpc_command(command: RpcEvent, client: &mut Client) {
         RpcEvent::Set(display_name, duration) => {
             let duration_u64: u64 = duration.parse().expect("Failed to parse duration");
             let _ = client.set_activity(|a| {
-                a.state(format!("0:00 / {}", format::format_duration(duration_u64)).as_str())
+                a.state(format!("0:00 / {}", format::duration(duration_u64)).as_str())
                     .assets(|ass| {
                         ass.large_image("icon")
                             .large_text("wavey by ISgood Development")
@@ -50,8 +50,8 @@ fn process_rpc_command(command: RpcEvent, client: &mut Client) {
             let _ = client.set_activity(|a: discord_presence::models::Activity| {
                 a.state(format!(
                     "{} / {}",
-                    format::format_duration(progress_u64),
-                    format::format_duration(duration_u64)
+                    format::duration(progress_u64),
+                    format::duration(duration_u64)
                 ))
                 .assets(|ass| {
                     ass.large_image("icon")

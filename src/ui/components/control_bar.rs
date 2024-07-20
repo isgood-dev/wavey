@@ -118,8 +118,8 @@ impl State {
                     return Task::none();
                 }
 
-                self.formatted_current_duration = format::format_duration(self.seconds_passed);
-                self.formatted_total_duration = format::format_duration(self.total_duration);
+                self.formatted_current_duration = format::duration(self.seconds_passed);
+                self.formatted_total_duration = format::duration(self.total_duration);
 
                 Task::none()
             }
@@ -130,8 +130,8 @@ impl State {
                 self.slider_value = value;
                 self.seconds_passed = value as u64;
 
-                self.formatted_current_duration = format::format_duration(self.seconds_passed);
-                self.formatted_total_duration = format::format_duration(self.total_duration);
+                self.formatted_current_duration = format::duration(self.seconds_passed);
+                self.formatted_total_duration = format::duration(self.total_duration);
 
                 Task::none()
             }

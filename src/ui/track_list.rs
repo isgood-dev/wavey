@@ -12,7 +12,8 @@ use iced::event::Event as IcedEvent;
 use iced::keyboard;
 use iced::keyboard::key;
 use iced::widget::{
-    self, button, column, container, horizontal_space, row, scrollable, text, text_input, Space,
+    self, button, column, container, horizontal_space, hover, row, scrollable, text, text_input,
+    Space,
 };
 use iced::Subscription;
 use iced::{Alignment, Element, Length, Task};
@@ -192,7 +193,7 @@ impl State {
             let video_id = audio_file.get("video_id").unwrap();
             let display_name = audio_file.get("display_name").unwrap();
             let duration = audio_file.get("duration").unwrap();
-            let formatted_duration = format::format_duration(duration.parse::<u64>().unwrap());
+            let formatted_duration = format::duration(duration.parse::<u64>().unwrap());
 
             let row: Element<Event>;
 
@@ -205,39 +206,48 @@ impl State {
                     .get(video_id)
                     .unwrap();
 
-                row = row![
-                    helper::action(
-                        icons::play_icon(),
-                        display_name,
-                        Some(Event::PlayTrack(
-                            video_id.clone(),
-                            display_name.clone(),
-                            duration.parse::<u64>().unwrap(),
-                            Some(thumbnail_handle.clone()),
-                            Some(self.track_list.clone())
-                        )),
-                    ),
-                    helper::thumbnail(thumbnail_handle.clone()),
-                    Space::with_width(10),
-                    text(format::trunc_name(display_name.clone().as_str())),
-                    horizontal_space(),
-                    text(formatted_duration.clone()),
-                    Space::with_width(10),
-                    helper::action(
-                        icons::edit_icon(),
-                        "Edit",
-                        Some(Event::ShowEditModal(video_id.clone(), display_name.clone()))
-                    ),
-                    helper::action(
-                        icons::add_icon(),
-                        "Add to playlist",
-                        Some(Event::ShowAddModal(video_id.clone()))
-                    ),
-                    Space::with_width(30),
-                ]
-                .align_y(Alignment::Center)
-                .spacing(10)
-                .into();
+                row = hover(
+                    row![
+                        helper::track_list_item(
+                            thumbnail_handle.clone(),
+                            &display_name,
+                            &duration,
+                            Event::PlayTrack(
+                                video_id.clone(),
+                                display_name.clone(),
+                                duration.parse::<u64>().unwrap(),
+                                Some(thumbnail_handle.clone()),
+                                Some(self.track_list.clone())
+                            ),
+                            Event::ShowEditModal(video_id.clone(), display_name.clone()),
+                            Event::ShowAddModal(video_id.clone()),
+                            false,
+                        ),
+                        Space::with_width(30),
+                    ]
+                    .align_y(Alignment::Center)
+                    .spacing(10),
+                    row![
+                        helper::track_list_item(
+                            thumbnail_handle.clone(),
+                            &display_name,
+                            &duration,
+                            Event::PlayTrack(
+                                video_id.clone(),
+                                display_name.clone(),
+                                duration.parse::<u64>().unwrap(),
+                                Some(thumbnail_handle.clone()),
+                                Some(self.track_list.clone())
+                            ),
+                            Event::ShowEditModal(video_id.clone(), display_name.clone()),
+                            Event::ShowAddModal(video_id.clone()),
+                            true,
+                        ),
+                        Space::with_width(30),
+                    ]
+                    .align_y(Alignment::Center)
+                    .spacing(10),
+                );
             } else {
                 row = row![
                     helper::action(

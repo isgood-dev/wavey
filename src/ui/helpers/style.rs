@@ -1,6 +1,7 @@
+use iced::border::Radius;
 use iced::widget::button::{self, Status};
 use iced::widget::{container, text};
-use iced::{Background, Color, Theme};
+use iced::{Background, Border, Color, Theme};
 
 pub fn transparent_image(_theme: &Theme) -> container::Style {
     container::Style {
@@ -72,6 +73,42 @@ pub fn sidebar_text(theme: &Theme) -> text::Style {
         text::Style {
             color: Some(Color::from_rgb8(64, 64, 64)),
             ..text::Style::default()
+        }
+    }
+}
+
+pub fn track_list_item(theme: &Theme) -> container::Style {
+    let palette = theme.extended_palette();
+
+    let offset = offset_colour(palette.background.base.color.into(), false, palette.is_dark);
+
+    container::Style {
+        background: Some(iced::Background::Color(offset)),
+        border: Border {
+            radius: Radius::new(8.0),
+            ..Default::default()
+        },
+        ..Default::default()
+    }
+}
+
+fn offset_colour(colour: Color, hovered: bool, is_dark: bool) -> Color {
+    let r = colour.r;
+    let g = colour.g;
+    let b = colour.b;
+    let a = colour.a;
+
+    if hovered {
+        if is_dark {
+            Color::from_rgba(r - 0.05, g - 0.05, b - 0.05, a)
+        } else {
+            Color::from_rgba(r + 0.05, g + 0.05, b + 0.05, a)
+        }
+    } else {
+        if is_dark {
+            Color::from_rgba(r + 0.03, g + 0.03, b + 0.03, a)
+        } else {
+            Color::from_rgba(r - 0.03, g - 0.03, b - 0.03, a)
         }
     }
 }

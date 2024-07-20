@@ -1,9 +1,11 @@
-use super::style;
+use crate::core::format;
+
+use super::{icons, style};
 
 use iced::advanced::image;
 use iced::widget::{
-    button, center, container, image as image_widget, mouse_area, opaque, row, stack, text,
-    tooltip, Container,
+    button, center, container, horizontal_space, image as image_widget, mouse_area, opaque, row,
+    stack, text, tooltip, Container, Space,
 };
 use iced::{Alignment, Color, Element};
 
@@ -85,4 +87,45 @@ pub fn action<'a, Message: Clone + 'a>(
     } else {
         action.into()
     }
+}
+
+pub fn track_list_item<'a, Message: Clone + 'a>(
+    thumbnail_handle: iced::advanced::image::Handle,
+    label: &'a str,
+    duration: &'a str,
+    play_event: Message,
+    edit_event: Message,
+    add_playlist_event: Message,
+    hovered: bool,
+) -> Element<'a, Message> {
+    let mut content = row![]
+        .align_y(Alignment::Center)
+        .push(
+            button(icons::play_icon())
+                .on_press(play_event)
+                .style(style::button_theme),
+        )
+        .push(Space::with_width(5))
+        .push(thumbnail(thumbnail_handle))
+        .push(Space::with_width(10))
+        .push(text(label))
+        .push(horizontal_space())
+        .push(text(format::duration(duration.parse().unwrap())))
+        .push(Space::with_width(15));
+
+    if hovered {
+        content = content.push(
+            button(icons::edit_icon())
+                .on_press(edit_event)
+                .style(style::button_theme),
+        );
+
+        content = content.push(
+            button(icons::add_icon())
+                .on_press(add_playlist_event)
+                .style(style::button_theme),
+        );
+    }
+
+    container(content).style(style::track_list_item).into()
 }

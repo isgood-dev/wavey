@@ -33,7 +33,7 @@ pub fn main() -> iced::Result {
         .settings(app_settings)
         .subscription(Wavey::subscription)
         .window(win_settings)
-        .window_size((860.0, 680.0))
+        .window_size((1000.0, 730.0))
         .font(include_bytes!("../assets/icons.ttf").as_slice())
         .font(include_bytes!("../assets/font.ttf").as_slice())
         .theme(Wavey::theme)

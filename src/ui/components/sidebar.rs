@@ -122,7 +122,7 @@ impl State {
                 ]
                 .spacing(10)
                 .padding(10)
-                .width(180)
+                .width(170)
                 .align_x(Alignment::Center),
             )
             .style(style::dynamic_colour)
